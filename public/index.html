@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="ms">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>E-HADIR</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+
+    <style>
+      /* ============================================
+       LIQUID GLASS iOS 18 BACKGROUND - GOLF FIELD
+       ============================================ */
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto,
+          sans-serif;
+        position: relative;
+        overflow-x: hidden;
+        transition: all 0.3s ease;
+      }
+
+      /* Custom Background Image Support */
+      body.custom-bg::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -3;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+      }
+
+      /* Animated Golf Field Background - Realistic Green Grass */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        background: linear-gradient(
+          135deg,
+          #7cb342 0%,
+          #8bc34a 10%,
+          #9ccc65 20%,
+          #689f38 30%,
+          #7cb342 40%,
+          #558b2f 50%,
+          #8bc34a 60%,
+          #7cb342 70%,
+          #689f38 80%,
+          #9ccc65 90%,
+          #7cb342 100%
+        );
+        background-size: 400% 400%;
+        animation: golfFieldFlow 25s ease infinite;
+      }
+
+      @keyframes golfFieldFlow {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      /* Golf Grass Texture Pattern Overlay */
+      body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-image: 
+        /* Grass blade patterns */ repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 2px,
+            rgba(85, 139, 47, 0.03) 2px,
+            rgba(85, 139, 47, 0.03) 4px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(104, 159, 56, 0.03) 2px,
+            rgba(104, 159, 56, 0.03) 4px
+          ),
+          /* Fairway contours */
+            radial-gradient(ellipse at 20% 30%, rgba(139, 195, 74, 0.15) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 70%, rgba(124, 179, 66, 0.12) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 50%, rgba(104, 159, 56, 0.08) 0%, transparent 60%),
+          /* Green texture variation */
+            radial-gradient(circle at 30% 80%, rgba(85, 139, 47, 0.1) 0%, transparent 40%),
+          radial-gradient(circle at 70% 20%, rgba(156, 204, 101, 0.08) 0%, transparent 45%);
+        animation: grassSway 20s ease-in-out infinite;
+      }
+
+      @keyframes grassSway {
+        0%,
+        100% {
+          opacity: 0.7;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      /* Dark mode golf background - Night Golf Course */
+      body.dark-mode::before {
+        background: linear-gradient(
+          135deg,
+          #1b3a1b 0%,
+          #2d4a2d 10%,
+          #1f3d1f 20%,
+          #243f24 30%,
+          #1e3b1e 40%,
+          #1a361a 50%,
+          #264426 60%,
+          #1f3e1f 70%,
+          #1c391c 80%,
+          #2a472a 90%,
+          #1e3c1e 100%
+        );
+      }
+
+      body.dark-mode::after {
+        background-image: repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 2px,
+            rgba(124, 179, 66, 0.05) 2px,
+            rgba(124, 179, 66, 0.05) 4px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(139, 195, 74, 0.05) 2px,
+            rgba(139, 195, 74, 0.05) 4px
+          ),
+          radial-gradient(ellipse at 20% 30%, rgba(124, 179, 66, 0.08) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 70%, rgba(104, 159, 56, 0.06) 0%, transparent 50%);
+      }
+
+      /* Overlay for custom background */
+      body.custom-bg::after {
+        background: rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(2px);
+      }
+
+      body.dark-mode.custom-bg::after {
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+      }
+
+      /* ============================================
+       GLASSMORPHISM / FROSTED GLASS EFFECTS
+       ============================================ */
+      .glass-card {
+        background: rgba(255, 255, 255, 0.35);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 32px 0 rgba(124, 179, 66, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+          0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        border-radius: 24px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .glass-card:hover {
+        background: rgba(255, 255, 255, 0.45);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px 0 rgba(124, 179, 66, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
+          0 2px 4px 0 rgba(0, 0, 0, 0.08);
+      }
+
+      body.dark-mode .glass-card {
+        background: rgba(30, 30, 30, 0.4);
+        border: 1px solid rgba(139, 195, 74, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(139, 195, 74, 0.1),
+          0 1px 2px 0 rgba(139, 195, 74, 0.05);
+      }
+
+      body.dark-mode .glass-card:hover {
+        background: rgba(30, 30, 30, 0.5);
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(139, 195, 74, 0.15),
+          0 2px 4px 0 rgba(139, 195, 74, 0.08);
+      }
+
+      /* Glass Button */
+      .glass-button {
+        background: rgba(59, 130, 246, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .glass-button:hover:not(:disabled) {
+        background: rgba(59, 130, 246, 0.95);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      .glass-button:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+
+      .glass-button-green {
+        background: rgba(16, 185, 129, 0.85);
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      }
+
+      .glass-button-green:hover:not(:disabled) {
+        background: rgba(16, 185, 129, 0.95);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      .glass-button-red {
+        background: rgba(239, 68, 68, 0.85);
+        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      }
+
+      .glass-button-red:hover:not(:disabled) {
+        background: rgba(239, 68, 68, 0.95);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      /* Glass Input */
+      .glass-input {
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(139, 195, 74, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .glass-input:focus {
+        background: rgba(255, 255, 255, 0.5);
+        border-color: rgba(124, 179, 66, 0.6);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 0 0 3px rgba(124, 179, 66, 0.15);
+        outline: none;
+      }
+
+      body.dark-mode .glass-input {
+        background: rgba(30, 30, 30, 0.5);
+        border: 1px solid rgba(139, 195, 74, 0.2);
+        color: #f3f4f6;
+      }
+
+      body.dark-mode .glass-input:focus {
+        background: rgba(30, 30, 30, 0.6);
+        border-color: rgba(124, 179, 66, 0.5);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 0 0 3px rgba(124, 179, 66, 0.15);
+      }
+
+      body.dark-mode .glass-input::placeholder {
+        color: rgba(209, 213, 219, 0.6);
+      }
+
+      /* ============================================
+       ANIMATIONS & EFFECTS
+       ============================================ */
+      .fade-enter {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      .fade-enter-active {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 300ms, transform 300ms;
+      }
+
+      .slide-in-up {
+        animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes slideInUp {
+        from {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .scale-in {
+        animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease forwards;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .fade-out {
+        opacity: 0;
+        transition: opacity 0.5s ease-out;
+      }
+
+      .bounce {
+        animation: bounce 0.5s ease;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .shake {
+        animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      }
+
+      @keyframes shake {
+        10%,
+        90% {
+          transform: translate3d(-1px, 0, 0);
+        }
+        20%,
+        80% {
+          transform: translate3d(2px, 0, 0);
+        }
+        30%,
+        50%,
+        70% {
+          transform: translate3d(-4px, 0, 0);
+        }
+        40%,
+        60% {
+          transform: translate3d(4px, 0, 0);
+        }
+      }
+
+      /* Loading Bar */
+      .loading-bar {
+        width: 0%;
+        animation: loadingAnimation 2s infinite ease-in-out;
+      }
+
+      @keyframes loadingAnimation {
+        0% {
+          width: 0%;
+        }
+        50% {
+          width: 100%;
+        }
+        100% {
+          width: 0%;
+        }
+      }
+
+      /* Pulse Animation */
+      .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      /* Heartbeat Animation */
+      .heartbeat {
+        animation: heartbeat 1.5s ease-in-out infinite;
+      }
+
+      @keyframes heartbeat {
+        0% {
+          transform: scale(1);
+        }
+        14% {
+          transform: scale(1.1);
+        }
+        28% {
+          transform: scale(1);
+        }
+        42% {
+          transform: scale(1.1);
+        }
+        70% {
+          transform: scale(1);
+        }
+      }
+
+      /* Vibration Animation */
+      .vibrate {
+        animation: vibrate 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
+      }
+
+      @keyframes vibrate {
+        0%,
+        100% {
+          transform: translate3d(0, 0, 0);
+        }
+        10%,
+        30%,
+        50%,
+        70%,
+        90% {
+          transform: translate3d(-1px, 0, 0);
+        }
+        20%,
+        40%,
+        60%,
+        80% {
+          transform: translate3d(1px, 0, 0);
+        }
+      }
+
+      /* ============================================
+       LOGO & THEME TOGGLE
+       ============================================ */
+      .logo-container {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+      }
+
+      .logo-hover {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        filter: drop-shadow(0 4px 12px rgba(124, 179, 66, 0.3));
+      }
+
+      .logo-hover:hover {
+        transform: scale(1.15);
+        filter: drop-shadow(0 6px 16px rgba(139, 195, 74, 0.5));
+      }
+
+      .theme-indicator {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .theme-light {
+        background: rgba(251, 191, 36, 0.9);
+        color: #1f2937;
+      }
+
+      .theme-dark {
+        background: rgba(75, 85, 99, 0.9);
+        color: #f3f4f6;
+      }
+
+      /* Tooltip */
+      .tooltip {
+        position: absolute;
+        right: -140px;
+        top: 50%;
+        transform: translateY(-50%) translateX(10px);
+        background: rgba(30, 41, 59, 0.95);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        width: 130px;
+        opacity: 0;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .tooltip::before {
+        content: "";
+        position: absolute;
+        left: -6px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-width: 6px 6px 6px 0;
+        border-style: solid;
+        border-color: transparent rgba(30, 41, 59, 0.95) transparent transparent;
+      }
+
+      .tooltip.show {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+      }
+
+      body.dark-mode .tooltip {
+        background: rgba(226, 232, 240, 0.95);
+        color: #1e293b;
+      }
+
+      body.dark-mode .tooltip::before {
+        border-color: transparent rgba(226, 232, 240, 0.95) transparent transparent;
+      }
+
+      /* ============================================
+       POPUP & TOAST NOTIFICATIONS
+       ============================================ */
+      .hazard-button {
+        position: absolute;
+        top: 19px;
+        right: 21px;
+        width: 28px;
+        height: 28px;
+        background: rgba(255, 193, 7, 0.9);
+        backdrop-filter: blur(10px);
+        color: #7c2d12;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        z-index: 10;
+        transition: all 0.3s ease;
+      }
+
+      .hazard-button:hover {
+        background: rgba(255, 179, 0, 0.9);
+        transform: scale(1.1);
+      }
+
+      .popup {
+        position: absolute;
+        top: 50px;
+        right: 10px;
+        width: 260px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 16px;
+        padding-right: 32px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        z-index: 20;
+        font-size: 13px;
+        transform-origin: top right;
+        animation: popup-appear 0.3s ease forwards;
+        border: 1px solid rgba(139, 195, 74, 0.3);
+        border-left: 4px solid rgba(124, 179, 66, 0.9);
+      }
+
+      body.dark-mode .popup {
+        background: rgba(31, 41, 59, 0.95);
+        color: #f3f4f6;
+      }
+
+      .popup::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        right: 15px;
+        width: 14px;
+        height: 14px;
+        background: inherit;
+        transform: rotate(45deg);
+        border-top: 1px solid rgba(139, 195, 74, 0.3);
+        border-left: 1px solid rgba(139, 195, 74, 0.3);
+      }
+
+      @keyframes popup-appear {
+        from {
+          opacity: 0;
+          transform: scale(0.9) translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .popup-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        font-size: 18px;
+        color: #9ca3af;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .popup-close:hover {
+        color: #6b7280;
+        transform: rotate(90deg);
+      }
+
+      /* Toast Notification */
+      #toast {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+
+      #toast .bg-yellow-100 {
+        background: rgba(254, 243, 199, 0.95) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(251, 191, 36, 0.3);
+      }
+
+      body.dark-mode #toast .bg-yellow-100 {
+        background: rgba(45, 43, 23, 0.95) !important;
+        border-color: rgba(217, 119, 6, 0.5) !important;
+      }
+
+      /* ============================================
+       STATUS MESSAGES
+       ============================================ */
+      .message-card {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 2px solid;
+        animation: messageAppear 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes messageAppear {
+        from {
+          opacity: 0;
+          transform: scale(0.9) translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      #alreadyRecordedMessage {
+        background: rgba(254, 226, 226, 0.3);
+        border-color: rgba(239, 68, 68, 0.5);
+      }
+
+      body.dark-mode #alreadyRecordedMessage {
+        background: rgba(45, 16, 16, 0.4);
+        border-color: rgba(239, 68, 68, 0.6);
+      }
+
+      #successMessage {
+        background: rgba(220, 252, 231, 0.3);
+        border-color: rgba(16, 185, 129, 0.5);
+      }
+
+      body.dark-mode #successMessage {
+        background: rgba(6, 40, 26, 0.4);
+        border-color: rgba(16, 185, 129, 0.6);
+      }
+
+      #errorMessage {
+        background: rgba(254, 226, 226, 0.3);
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+
+      body.dark-mode #errorMessage {
+        background: rgba(45, 16, 16, 0.4);
+        border-color: rgba(239, 68, 68, 0.4);
+      }
+
+      /* ============================================
+       MODAL STYLES
+       ============================================ */
+      .modal-overlay {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        background: rgba(0, 0, 0, 0.4);
+      }
+
+      body.dark-mode .modal-overlay {
+        background: rgba(0, 0, 0, 0.6);
+      }
+
+      /* ============================================
+       TEXT & TYPOGRAPHY
+       ============================================ */
+      /* Light mode - darker text for better readability */
+      .text-gray-900 {
+        color: #111827 !important;
+      }
+
+      .text-gray-700 {
+        color: #374151 !important;
+      }
+
+      .text-gray-600 {
+        color: #4b5563 !important;
+      }
+
+      .text-gray-500 {
+        color: #6b7280 !important;
+      }
+
+      /* Dark mode */
+      body.dark-mode {
+        color: #f3f4f6;
+      }
+
+      body.dark-mode .text-gray-900 {
+        color: #f3f4f6 !important;
+      }
+
+      body.dark-mode .text-gray-700,
+      body.dark-mode .text-gray-600,
+      body.dark-mode .text-gray-500 {
+        color: #d1d5db !important;
+      }
+
+      body.dark-mode .text-green-600 {
+        color: #10b981 !important;
+      }
+
+      body.dark-mode .text-red-600 {
+        color: #ef4444 !important;
+      }
+
+      body.dark-mode .text-red-800 {
+        color: #f87171 !important;
+      }
+
+      body.dark-mode .text-green-900 {
+        color: #34d399 !important;
+      }
+
+      /* ============================================
+       LOADING OVERLAY
+       ============================================ */
+      #pageLoadingOverlay {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        transition: opacity 0.5s ease;
+      }
+
+      body.dark-mode #pageLoadingOverlay {
+        background: rgba(17, 24, 39, 0.95);
+        backdrop-filter: blur(10px);
+      }
+
+      /* ============================================
+       MISCELLANEOUS
+       ============================================ */
+      .form-closed-text {
+        color: #ef4444;
+        font-weight: bold;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        text-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+      }
+
+      .title-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+      }
+
+      /* Info Section Glass Card */
+      .info-section {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(124, 179, 66, 0.1);
+      }
+
+      .info-section:hover {
+        background: rgba(255, 255, 255, 0.35);
+        box-shadow: 0 4px 12px rgba(124, 179, 66, 0.15);
+      }
+
+      body.dark-mode .info-section {
+        background: rgba(30, 30, 30, 0.4);
+        border: 1px solid rgba(139, 195, 74, 0.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      body.dark-mode .info-section:hover {
+        background: rgba(30, 30, 30, 0.5);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Smooth transitions for all interactive elements */
+      button,
+      input,
+      .glass-card,
+      .glass-button {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Label styling */
+      label {
+        font-weight: 500;
+        letter-spacing: 0.01em;
+      }
+
+      body.dark-mode label {
+        color: #e5e7eb;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Page Loading Overlay -->
+    <div
+      id="pageLoadingOverlay"
+      class="fixed inset-0 z-50 flex flex-col items-center justify-center"
+    >
+      <img
+        id="loadingLogo"
+        src=""
+        alt="Logo"
+        class="w-24 h-24 mb-8 animate-pulse"
+        style="filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3))"
+      />
+      <div
+        class="w-64 h-2 rounded-full overflow-hidden"
+        style="background: rgba(203, 213, 225, 0.3)"
+      >
+        <div
+          class="h-full rounded-full loading-bar"
+          style="background: rgba(59, 130, 246, 0.8)"
+        ></div>
+      </div>
+      <p class="mt-6 text-sm text-gray-600 font-medium">Memuatkan sistem...</p>
+    </div>
+
+    <div class="min-h-screen flex flex-col items-center px-4 pt-8 pb-20">
+      <!-- Header -->
+      <div class="text-center mb-6 slide-in-up">
+        <div class="logo-container">
+          <img
+            id="headerLogo"
+            src=""
+            alt="Logo"
+            class="w-20 h-20 mx-auto mb-6 logo-hover"
+            onclick="toggleTheme()"
+          />
+          <div id="themeTooltip" class="tooltip">Klik logo untuk tukar tema</div>
+        </div>
+
+        <h1
+          class="text-xl font-bold text-gray-900 mb-3 title-container"
+          style="letter-spacing: 0.02em"
+        >
+          <i class="fas mr-2"></i>
+          <span id="meetingTitleText"></span>
+          <span id="formClosedText" class="form-closed-text" style="display: none"
+            >BORANG DITUTUP</span
+          >
+        </h1>
+
+        <p class="text-sm text-gray-600 mb-1" id="meetingDateContainer">
+          <i class="far fa-calendar-alt mr-2"></i>
+          <span id="meetingDate"></span>
+        </p>
+        <p class="text-sm text-gray-600" id="meetingLocationContainer">
+          <i class="fas fa-map-marker-alt mr-2"></i>
+          <span id="meetingLocation"></span>
+        </p>
+      </div>
+
+      <!-- Main Form -->
+      <div class="w-full max-w-md">
+        <div id="searchFormContainer" class="glass-card p-8 scale-in">
+          <form id="searchForm" onsubmit="return handleSubmit(event)" class="space-y-5">
+            <div>
+              <label for="staffId" class="block text-sm font-medium text-gray-700 mb-2">
+                ID Staf
+              </label>
+              <input
+                type="text"
+                id="staffId"
+                class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="4"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4); checkInputLength();"
+                placeholder="Masukkan ID Staf"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              id="submitBtn"
+              class="glass-button w-full rounded-xl px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              Semak
+            </button>
+          </form>
+        </div>
+
+        <!-- Loading Bar Indicator -->
+        <div id="loadingIndicator" class="hidden mt-5 fade-in">
+          <div
+            class="relative w-full h-2 rounded-full overflow-hidden"
+            style="background: rgba(255, 255, 255, 0.2)"
+          >
+            <div
+              class="absolute top-0 left-0 h-2 rounded-full loading-bar"
+              style="background: rgba(59, 130, 246, 0.8)"
+            ></div>
+          </div>
+          <p class="text-center mt-3 text-sm text-gray-600">Memproses...</p>
+        </div>
+
+        <!-- Already Recorded Message -->
+        <div
+          id="alreadyRecordedMessage"
+          class="hidden mt-5 message-card glass-card p-8 text-center"
+        >
+          <svg
+            class="w-14 h-14 text-red-600 mx-auto mb-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            style="filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.2))"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            ></path>
+          </svg>
+          <h2 class="text-xl font-bold text-red-800 mb-3">Kehadiran Sudah Direkod</h2>
+          <p id="alreadyRecordedText" class="text-gray-700 mb-6 text-sm leading-relaxed"></p>
+          <button
+            onclick="resetForm()"
+            class="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+          >
+            ← Kembali ke halaman utama
+          </button>
+        </div>
+
+        <!-- Staff Info -->
+        <div id="staffInfo" class="hidden mt-5 glass-card p-8 scale-in">
+          <div class="space-y-4">
+            <div class="info-section flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="text-sm text-gray-600">ID Staf:</span>
+                <span id="displayStaffId" class="font-semibold text-gray-900"></span>
+              </div>
+              <button
+                onclick="showSearchForm()"
+                class="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+              >
+                Ubah
+              </button>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">Nama</p>
+                <p id="staffName" class="font-medium text-gray-900"></p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">Jawatan</p>
+                <p id="staffPosition" class="font-medium text-gray-900"></p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">Lokasi</p>
+                <p id="staffLocation" class="font-medium text-gray-900"></p>
+              </div>
+            </div>
+
+            <button
+              onclick="handleAttend()"
+              class="glass-button glass-button-green w-full rounded-xl px-4 py-3 text-sm font-semibold text-white mt-5"
+            >
+              <i class="fas fa-check-circle mr-2"></i>
+              Hadir
+            </button>
+          </div>
+        </div>
+
+        <!-- Registration Form -->
+        <div
+          id="registrationForm"
+          class="hidden mt-5 glass-card p-8 scale-in"
+          style="position: relative"
+        >
+          <h2 class="text-lg font-bold mb-5 text-gray-900">Daftar Staf Baru</h2>
+          <button id="infoButton" class="hazard-button vibrate">!</button>
+          <div id="infoPopup" class="popup hidden">
+            <span class="popup-close" onclick="closeInfoPopup()">&times;</span>
+            <p class="leading-relaxed">
+              Maklumat anda mungkin tiada dalam sistem kami, mohon isi maklumat diperlukan di bawah.
+            </p>
+          </div>
+
+          <div class="info-section flex items-center justify-between mb-5">
+            <div class="flex items-center space-x-3">
+              <span class="text-sm text-gray-600">ID Staf:</span>
+              <span id="displayRegStaffId" class="font-semibold text-gray-900"></span>
+            </div>
+            <button
+              onclick="showSearchForm()"
+              class="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            >
+              Ubah
+            </button>
+          </div>
+
+          <form onsubmit="return handleRegistration(event)" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Nama</label>
+              <input
+                type="text"
+                id="newStaffName"
+                class="glass-input block w-full rounded-xl px-4 py-3 text-sm uppercase"
+                oninput="this.value = this.value.toUpperCase(); checkRegistrationForm();"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Jawatan</label>
+              <input
+                type="text"
+                id="newStaffPosition"
+                list="jawatanList"
+                class="glass-input block w-full rounded-xl px-4 py-3 text-sm uppercase"
+                oninput="this.value = this.value.toUpperCase(); checkRegistrationForm();"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Lokasi</label>
+              <input
+                type="text"
+                id="newStaffLocation"
+                list="lokasiList"
+                class="glass-input block w-full rounded-xl px-4 py-3 text-sm uppercase"
+                oninput="this.value = this.value.toUpperCase(); checkRegistrationForm();"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              id="registerBtn"
+              class="glass-button w-full rounded-xl px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 mt-5"
+            >
+              Hantar
+            </button>
+          </form>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="hidden mt-5 message-card glass-card p-8 text-center">
+          <svg
+            class="w-14 h-14 text-red-600 mx-auto mb-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            style="filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.2))"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          <h2 class="text-xl font-bold text-gray-900 mb-3">Perhatian</h2>
+          <p id="errorText" class="text-gray-700 mb-6 text-sm leading-relaxed"></p>
+          <button
+            onclick="resetForm()"
+            class="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+          >
+            ← Kembali ke halaman utama
+          </button>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="hidden mt-5 message-card glass-card p-10 text-center">
+          <svg
+            class="w-16 h-16 text-green-600 mx-auto mb-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            style="filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.2))"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          <h2 class="text-2xl font-bold text-green-900 mb-4">Kehadiran Berjaya Direkod</h2>
+          <p id="successText" class="text-gray-700 mb-8 text-sm leading-relaxed">
+            Terima kasih kerana hadir dan memberikan komitmen yang tinggi.
+          </p>
+          <button
+            onclick="resetForm()"
+            class="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+          >
+            ← Kembali ke halaman utama
+          </button>
+        </div>
+      </div>
+
+      <!-- Google Sheet Integration Link -->
+      <div id="jemputanLink" class="mt-6 text-center fade-in hidden">
+        <a
+          href="https://v0-google-sheet-integration-psi.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center text-sm font-medium transition-all hover:scale-105"
+          style="color: rgba(59, 130, 246, 0.9)"
+        >
+          <span>Lihat Senarai Jemputan</span>
+          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+            ></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div
+      id="toast"
+      class="fixed top-4 right-4 z-50 max-w-md transform translate-x-full transition-transform duration-300 ease-in-out"
+      style="right: -100%"
+    >
+      <div
+        class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-xl shadow-lg"
+      >
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-5 w-5 text-yellow-600"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm leading-relaxed" id="toastMessage">
+              Id Staf Anda Tiada Dalam Sistem Kami, Sila Lengkapkan Borang Dibawah untuk rekod
+              kehadiran.
+            </p>
+          </div>
+          <div class="ml-auto pl-3">
+            <button
+              onclick="hideToast()"
+              class="inline-flex rounded-md p-1.5 text-yellow-600 hover:bg-yellow-200 focus:outline-none transition-colors"
+            >
+              <svg
+                class="h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div
+      id="passwordModal"
+      class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden"
+    >
+      <div class="glass-card p-8 w-80 scale-in">
+        <h3 class="text-lg font-bold text-gray-900 mb-5">Admin Access</h3>
+        <div class="mb-5">
+          <label for="adminPassword" class="block text-sm font-medium text-gray-700 mb-2"
+            >Password</label
+          >
+          <input
+            type="password"
+            id="adminPassword"
+            class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+            placeholder="Enter admin password"
+          />
+        </div>
+        <div class="flex justify-between space-x-3">
+          <button
+            onclick="closePasswordModal()"
+            class="glass-input rounded-xl px-4 py-2 text-sm font-medium text-gray-700 hover:bg-opacity-50 flex-1"
+          >
+            Cancel
+          </button>
+          <button
+            onclick="validatePassword()"
+            class="glass-button rounded-xl px-4 py-2 text-sm font-semibold text-white flex-1"
+          >
+            Login
+          </button>
+        </div>
+        <div id="passwordLoadingIndicator" class="hidden mt-4">
+          <div class="flex items-center justify-center">
+            <div
+              class="w-5 h-5 border-2 border-t-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"
+            ></div>
+            <span class="ml-2 text-sm text-gray-600">Memeriksa...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Settings Modal -->
+    <div
+      id="adminSettingsModal"
+      class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden"
+    >
+      <div class="glass-card p-8 w-full max-w-md scale-in">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-bold text-gray-900">Admin Settings</h3>
+          <button
+            onclick="closeAdminSettingsModal()"
+            class="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label for="adminTitle" class="block text-sm font-medium text-gray-700 mb-2"
+              >TAJUK</label
+            >
+            <input
+              type="text"
+              id="adminTitle"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+            />
+          </div>
+
+          <div>
+            <label for="adminDate" class="block text-sm font-medium text-gray-700 mb-2"
+              >TARIKH (DD/MM/YYYY)</label
+            >
+            <input
+              type="text"
+              id="adminDate"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+              placeholder="DD/MM/YYYY"
+            />
+          </div>
+
+          <div>
+            <label for="adminLocation" class="block text-sm font-medium text-gray-700 mb-2"
+              >TEMPAT</label
+            >
+            <input
+              type="text"
+              id="adminLocation"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+            />
+          </div>
+
+          <div>
+            <label for="adminLogo" class="block text-sm font-medium text-gray-700 mb-2"
+              >LOGO URL</label
+            >
+            <input
+              type="text"
+              id="adminLogo"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+            />
+          </div>
+
+          <div>
+            <label for="adminBackground" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-image mr-1"></i>BACKGROUND URL
+            </label>
+            <input
+              type="text"
+              id="adminBackground"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+              placeholder="https://example.com/image.jpg"
+            />
+            <p class="text-xs text-gray-500 mt-1 ml-1">
+              💡 Kosongkan untuk guna background custom default (FELCRA)
+            </p>
+          </div>
+
+          <div class="flex items-center pt-2">
+            <input
+              type="checkbox"
+              id="adminStatus"
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label for="adminStatus" class="ml-3 block text-sm font-medium text-gray-700">
+              Aktifkan Borang (Tick untuk "on", Untick untuk "off")
+            </label>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <button
+            onclick="saveAdminSettings()"
+            class="glass-button w-full rounded-xl px-4 py-3 text-sm font-semibold text-white"
+          >
+            Simpan Tetapan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+      // ============================================
+      // UPDATED SCRIPT WITH FETCH API CALLS
+      // ============================================
+
+      // ============================================
+      // BACKGROUND CONFIG - Easy to Edit
+      // ============================================
+      const BACKGROUND_CONFIG = {
+        light:
+          "https://serveproxy.com/?url=https%3A%2F%2Ffirebasestorage.googleapis.com%2Fv0%2Fb%2Fmycdn-b2313.appspot.com%2Fo%2F1763628916sm154%3Falt%3Dmedia%26token%3Da410e76c-3a5f-4c05-b7f1-d78332b8aa24",
+        dark: "https://serveproxy.com/?url=https%3A%2F%2Ffirebasestorage.googleapis.com%2Fv0%2Fb%2Fmycdn-b2313.appspot.com%2Fo%2F17636288930klr%3Falt%3Dmedia%26token%3D9e98b210-518b-4348-8aa8-76c937cba161",
+      };
+
+      let formStatus = "";
+      let backgroundUrlLight = "";
+      let backgroundUrlDark = "";
+      let currentStaffId = "";
+      let currentStaffName = "";
+      let meetingInfo = null;
+
+      // Load meeting info on page load
+      async function loadMeetingInfo() {
+        try {
+          const response = await fetch("/api/meeting-info");
+          const data = await response.json();
+
+          if (data.success) {
+            meetingInfo = data.data;
+            formStatus = meetingInfo.formStatus;
+            // Use BACKGROUND_CONFIG as default if not provided
+            backgroundUrlLight = meetingInfo.backgroundUrlLight || BACKGROUND_CONFIG.light;
+            backgroundUrlDark = meetingInfo.backgroundUrlDark || BACKGROUND_CONFIG.dark;
+
+            // Update UI
+            document.getElementById("loadingLogo").src = meetingInfo.logo;
+            document.getElementById("headerLogo").src = meetingInfo.logo;
+            document.getElementById("meetingTitleText").textContent = meetingInfo.title;
+            document.getElementById("meetingDate").textContent = meetingInfo.date;
+            document.getElementById("meetingLocation").textContent = meetingInfo.location;
+
+            // Apply background and check form status
+            applyCustomBackground();
+            checkFormStatus();
+          }
+        } catch (error) {
+          console.error("Error loading meeting info:", error);
+        }
+      }
+
+      // Apply custom background if URL is provided
+      function applyCustomBackground() {
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        const backgroundUrl = isDarkMode ? backgroundUrlDark : backgroundUrlLight;
+
+        if (backgroundUrl && backgroundUrl.trim() !== "" && backgroundUrl !== "undefined") {
+          document.body.classList.add("custom-bg");
+
+          // Remove old style if exists
+          const oldStyle = document.getElementById("custom-bg-style");
+          if (oldStyle) {
+            oldStyle.remove();
+          }
+
+          const style = document.createElement("style");
+          style.id = "custom-bg-style";
+          style.textContent = `
+      body.custom-bg::before {
+        background-image: url('${backgroundUrl}') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        animation: none !important;
+        filter: blur(8px) !important;
+        -webkit-filter: blur(8px) !important;
+        transform: scale(1.1) !important;
+      }
+    `;
+          document.head.appendChild(style);
+        }
+      }
+
+      // Theme toggle functionality
+      function toggleTheme() {
+        const body = document.body;
+        const headerLogo = document.getElementById("headerLogo");
+
+        body.classList.toggle("dark-mode");
+
+        headerLogo.classList.add("bounce");
+        setTimeout(() => {
+          headerLogo.classList.remove("bounce");
+        }, 500);
+
+        if (body.classList.contains("dark-mode")) {
+          localStorage.setItem("theme", "dark");
+        } else {
+          localStorage.setItem("theme", "light");
+        }
+
+        // Reapply background with correct theme
+        applyCustomBackground();
+      }
+
+      function checkDarkMode() {
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      }
+
+      function applyInitialTheme() {
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedTheme === "dark" || (!savedTheme && checkDarkMode())) {
+          document.body.classList.add("dark-mode");
+        } else {
+          document.body.classList.remove("dark-mode");
+        }
+      }
+
+      function showLoading() {
+        document.getElementById("loadingIndicator").classList.remove("hidden");
+        document.getElementById("submitBtn").disabled = true;
+      }
+
+      function hideLoading() {
+        document.getElementById("loadingIndicator").classList.add("hidden");
+        document.getElementById("submitBtn").disabled = false;
+      }
+
+      function showTooltip() {
+        setTimeout(() => {
+          const tooltip = document.getElementById("themeTooltip");
+          tooltip.classList.add("show");
+          setTimeout(() => tooltip.classList.remove("show"), 5000);
+        }, 2000);
+      }
+
+      function checkInputLength() {
+        const staffIdInput = document.getElementById("staffId");
+        const submitBtn = document.getElementById("submitBtn");
+
+        if (staffIdInput.value === "0000") {
+          showPasswordModal();
+          return;
+        }
+
+        if (formStatus === "off") {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "BORANG DITUTUP";
+          submitBtn.classList.add("opacity-50");
+          submitBtn.classList.remove("glass-button");
+          submitBtn.classList.add("glass-button-red");
+          return;
+        }
+
+        submitBtn.classList.remove("glass-button-red");
+        submitBtn.classList.add("glass-button");
+
+        if (staffIdInput.value.length < 4) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "MASUKKAN ID STAF";
+          submitBtn.classList.add("opacity-50");
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "SEMAK";
+          submitBtn.classList.remove("opacity-50");
+        }
+      }
+
+      function updateJemputanLink(view) {
+        const jemputanLink = document.getElementById("jemputanLink");
+        const link = jemputanLink.querySelector("a");
+        link.classList.remove("heartbeat");
+
+        if (formStatus === "off") {
+          jemputanLink.classList.add("hidden");
+          return;
+        }
+
+        if (view === "main" || view === "alreadyRecorded" || view === "success") {
+          jemputanLink.classList.remove("hidden");
+          if (view === "alreadyRecorded" || view === "success") {
+            link.classList.add("heartbeat");
+          }
+        } else {
+          jemputanLink.classList.add("hidden");
+        }
+      }
+
+      function showSearchForm() {
+        const elements = [
+          "staffInfo",
+          "registrationForm",
+          "errorMessage",
+          "alreadyRecordedMessage",
+          "successMessage",
+        ];
+        elements.forEach((id) => document.getElementById(id).classList.add("hidden"));
+
+        const infoPopup = document.getElementById("infoPopup");
+        if (infoPopup) {
+          infoPopup.classList.add("hidden");
+          document.getElementById("infoButton").classList.add("vibrate");
+        }
+
+        const searchForm = document.getElementById("searchFormContainer");
+        searchForm.classList.add("hidden");
+        setTimeout(() => {
+          searchForm.classList.remove("hidden");
+          searchForm.classList.add("scale-in");
+          document.getElementById("staffId").focus();
+        }, 50);
+
+        updateJemputanLink("main");
+      }
+
+      async function handleSubmit(event) {
+        event.preventDefault();
+        const staffId = document.getElementById("staffId").value;
+
+        if (staffId === "0000") {
+          showPasswordModal();
+          return false;
+        }
+
+        currentStaffId = staffId;
+        showLoading();
+        document.getElementById("searchFormContainer").classList.add("hidden");
+
+        try {
+          const response = await fetch("/api/check-staff", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idStaf: staffId }),
+          });
+
+          const data = await response.json();
+          handleStaffInfo(data);
+        } catch (error) {
+          handleError(error);
+        }
+
+        return false;
+      }
+
+      function showToast(message, duration = 5000) {
+        const toast = document.getElementById("toast");
+        const toastMessage = document.getElementById("toastMessage");
+
+        toastMessage.textContent =
+          message ||
+          "Id Staf Anda Tiada Dalam Sistem Kami, Sila Lengkapkan Borang Dibawah untuk rekod kehadiran.";
+        toast.classList.remove("translate-x-full");
+
+        if (duration > 0) {
+          setTimeout(() => {
+            hideToast();
+          }, duration);
+        }
+      }
+
+      function hideToast() {
+        const toast = document.getElementById("toast");
+        toast.classList.add("translate-x-full");
+      }
+
+      function handleStaffInfo(data) {
+        hideLoading();
+
+        if (data.status === "already_recorded") {
+          const message = data.message;
+          const lastDateIndex = message.lastIndexOf("pada ") + 5;
+          const lastDate = message.substring(lastDateIndex);
+          const formattedMessage = `ID Staf <strong>${currentStaffId}</strong>, bernama <strong>${data.nama}</strong> sudah direkod pada <strong>${lastDate}</strong>`;
+
+          document.getElementById("alreadyRecordedText").innerHTML = formattedMessage;
+          document.getElementById("alreadyRecordedMessage").classList.remove("hidden");
+          updateJemputanLink("alreadyRecorded");
+        } else if (data.status === "not_found") {
+          document.getElementById("displayRegStaffId").textContent = currentStaffId;
+          document.getElementById("registrationForm").classList.remove("hidden");
+          document.getElementById("infoButton").classList.add("vibrate");
+          updateJemputanLink("registration");
+
+          setTimeout(() => {
+            showToast(
+              "Id Staf Anda Tiada Dalam Sistem Kami, Sila Lengkapkan Borang Dibawah untuk rekod kehadiran."
+            );
+          }, 500);
+        } else {
+          document.getElementById("displayStaffId").textContent = currentStaffId;
+          document.getElementById("staffName").textContent = data.nama;
+          document.getElementById("staffPosition").textContent = data.jawatan;
+          document.getElementById("staffLocation").textContent = data.lokasi;
+          currentStaffName = data.nama;
+
+          document.getElementById("staffInfo").classList.remove("hidden");
+          updateJemputanLink("staffInfo");
+        }
+      }
+
+      async function handleAttend() {
+        showLoading();
+
+        try {
+          const response = await fetch("/api/attendance/record", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              idStaf: currentStaffId,
+              nama: currentStaffName,
+              jenis: "HADIR",
+            }),
+          });
+
+          const data = await response.json();
+          showSuccess(data);
+        } catch (error) {
+          handleError(error);
+        }
+      }
+
+      async function handleRegistration(event) {
+        event.preventDefault();
+        const nama = document.getElementById("newStaffName").value;
+        const jawatan = document.getElementById("newStaffPosition").value;
+        const lokasi = document.getElementById("newStaffLocation").value;
+
+        showLoading();
+
+        try {
+          const response = await fetch("/api/staff/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              idStaf: currentStaffId,
+              nama,
+              jawatan,
+              lokasi,
+            }),
+          });
+
+          const data = await response.json();
+          handleRegistrationResponse(data);
+        } catch (error) {
+          handleError(error);
+        }
+
+        return false;
+      }
+
+      function handleRegistrationResponse(response) {
+        hideLoading();
+        if (response.status === "duplicate") {
+          showError(response.message);
+        } else {
+          showSuccess(response);
+        }
+      }
+
+      function showSuccess(response) {
+        hideLoading();
+        const elements = [
+          "staffInfo",
+          "registrationForm",
+          "errorMessage",
+          "alreadyRecordedMessage",
+        ];
+        elements.forEach((id) => document.getElementById(id).classList.add("hidden"));
+
+        const nama = response && response.nama ? response.nama : currentStaffName;
+        document.getElementById(
+          "successText"
+        ).innerHTML = `Terima kasih <strong>${nama}</strong> kerana hadir dan memberikan komitmen yang tinggi.`;
+
+        document.getElementById("successMessage").classList.remove("hidden");
+        updateJemputanLink("success");
+      }
+
+      function showError(message) {
+        hideLoading();
+        const elements = [
+          "staffInfo",
+          "registrationForm",
+          "successMessage",
+          "alreadyRecordedMessage",
+        ];
+        elements.forEach((id) => document.getElementById(id).classList.add("hidden"));
+
+        document.getElementById("errorText").textContent = message;
+        document.getElementById("errorMessage").classList.remove("hidden");
+        updateJemputanLink("error");
+      }
+
+      function handleError(error) {
+        hideLoading();
+        showSearchForm();
+        alert("Ralat telah berlaku. Sila cuba lagi.");
+        console.error("Error:", error);
+      }
+
+      function resetForm() {
+        document.getElementById("searchForm").reset();
+        const elements = [
+          "successMessage",
+          "errorMessage",
+          "alreadyRecordedMessage",
+          "staffInfo",
+          "registrationForm",
+        ];
+
+        elements.forEach((id) => {
+          const element = document.getElementById(id);
+          if (!element.classList.contains("hidden")) {
+            element.classList.add("fade-out");
+            setTimeout(() => {
+              element.classList.add("hidden");
+              element.classList.remove("fade-out");
+            }, 300);
+          }
+        });
+
+        setTimeout(() => {
+          const searchForm = document.getElementById("searchFormContainer");
+          searchForm.classList.remove("hidden");
+          searchForm.classList.add("scale-in");
+          updateJemputanLink("main");
+        }, 350);
+
+        currentStaffId = "";
+        currentStaffName = "";
+      }
+
+      function toggleInfoPopup() {
+        const popup = document.getElementById("infoPopup");
+        const infoButton = document.getElementById("infoButton");
+
+        if (popup.classList.contains("hidden")) {
+          popup.classList.remove("hidden");
+          infoButton.classList.remove("vibrate");
+        } else {
+          popup.classList.add("hidden");
+          infoButton.classList.add("vibrate");
+        }
+      }
+
+      function closeInfoPopup() {
+        const popup = document.getElementById("infoPopup");
+        popup.classList.add("hidden");
+        document.getElementById("infoButton").classList.add("vibrate");
+      }
+
+      function checkFormStatus() {
+        const submitBtn = document.getElementById("submitBtn");
+        const formClosedText = document.getElementById("formClosedText");
+        const meetingTitleText = document.getElementById("meetingTitleText");
+        const meetingDateContainer = document.getElementById("meetingDateContainer");
+        const meetingLocationContainer = document.getElementById("meetingLocationContainer");
+        const jemputanLink = document.getElementById("jemputanLink");
+
+        if (formStatus === "off") {
+          submitBtn.disabled = true;
+          submitBtn.classList.add("opacity-50");
+          submitBtn.textContent = "BORANG DITUTUP";
+          submitBtn.classList.remove("glass-button");
+          submitBtn.classList.add("glass-button-red");
+
+          formClosedText.style.display = "inline-block";
+          meetingTitleText.style.display = "none";
+          meetingDateContainer.style.display = "none";
+          meetingLocationContainer.style.display = "none";
+          jemputanLink.classList.add("hidden");
+        } else {
+          formClosedText.style.display = "none";
+          meetingTitleText.style.display = "inline";
+          meetingDateContainer.style.display = "block";
+          meetingLocationContainer.style.display = "block";
+
+          submitBtn.classList.remove("glass-button-red");
+          submitBtn.classList.add("glass-button");
+          checkInputLength();
+        }
+      }
+
+      function checkRegistrationForm() {
+        const nameInput = document.getElementById("newStaffName");
+        const positionInput = document.getElementById("newStaffPosition");
+        const locationInput = document.getElementById("newStaffLocation");
+        const registerBtn = document.getElementById("registerBtn");
+
+        if (nameInput.value.trim() && positionInput.value.trim() && locationInput.value.trim()) {
+          registerBtn.disabled = false;
+          registerBtn.textContent = "HANTAR";
+          registerBtn.classList.remove("opacity-50");
+        } else {
+          registerBtn.disabled = true;
+          registerBtn.textContent = "SILA ISIKAN SEMUA KOLUM";
+          registerBtn.classList.add("opacity-50");
+        }
+      }
+
+      // Admin functions
+      function checkSecretCode(id) {
+        return id === "0000";
+      }
+
+      function showPasswordModal() {
+        const modal = document.getElementById("passwordModal");
+        modal.classList.remove("hidden");
+        document.getElementById("adminPassword").value = "";
+        document.getElementById("adminPassword").focus();
+        document.getElementById("staffId").value = "";
+      }
+
+      function closePasswordModal() {
+        document.getElementById("passwordModal").classList.add("hidden");
+      }
+
+      async function validatePassword() {
+        const password = document.getElementById("adminPassword").value;
+        const correctPassword = "onearekeamall";
+
+        document.getElementById("passwordLoadingIndicator").classList.remove("hidden");
+
+        if (password === correctPassword) {
+          await loadAdminSettings();
+        } else {
+          document.getElementById("passwordLoadingIndicator").classList.add("hidden");
+          alert("Password salah. Sila cuba lagi.");
+        }
+      }
+
+      async function loadAdminSettings() {
+        try {
+          const response = await fetch("/api/meeting-info");
+          const data = await response.json();
+
+          document.getElementById("passwordLoadingIndicator").classList.add("hidden");
+          closePasswordModal();
+
+          if (data.success) {
+            showAdminSettingsModal(data.data);
+          }
+        } catch (error) {
+          document.getElementById("passwordLoadingIndicator").classList.add("hidden");
+          handleAdminError(error);
+        }
+      }
+
+      function showAdminSettingsModal(settings) {
+        const modal = document.getElementById("adminSettingsModal");
+
+        document.getElementById("adminTitle").value = settings.title || "";
+        document.getElementById("adminDate").value = settings.date || "";
+        document.getElementById("adminLocation").value = settings.location || "";
+        document.getElementById("adminLogo").value = settings.logo || "";
+        document.getElementById("adminBackground").value = settings.backgroundUrlLight || "";
+        document.getElementById("adminStatus").checked = settings.formStatus === "on";
+
+        modal.classList.remove("hidden");
+      }
+
+      function closeAdminSettingsModal() {
+        document.getElementById("adminSettingsModal").classList.add("hidden");
+      }
+
+      async function saveAdminSettings() {
+        const settings = {
+          title: document.getElementById("adminTitle").value,
+          date: document.getElementById("adminDate").value,
+          location: document.getElementById("adminLocation").value,
+          logo: document.getElementById("adminLogo").value,
+          background: document.getElementById("adminBackground").value,
+          status: document.getElementById("adminStatus").checked ? "on" : "off",
+        };
+
+        try {
+          const response = await fetch("/api/settings/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(settings),
+          });
+
+          const data = await response.json();
+          handleAdminSaveSuccess(data);
+        } catch (error) {
+          handleAdminError(error);
+        }
+      }
+
+      function handleAdminSaveSuccess(response) {
+        if (response.success) {
+          alert(response.message);
+          closeAdminSettingsModal();
+          setTimeout(function () {
+            window.location.reload();
+          }, 500);
+        } else {
+          alert("Ralat: " + (response.message || "Tidak dapat menyimpan tetapan."));
+        }
+      }
+
+      function handleAdminError(error) {
+        alert("Ralat: " + (error || "Sesuatu telah berlaku. Sila cuba lagi."));
+        console.error("Admin error:", error);
+      }
+
+      // Event listeners
+      document.addEventListener("DOMContentLoaded", () => {
+        applyInitialTheme();
+        loadMeetingInfo(); // Load meeting info first
+
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+          if (!localStorage.getItem("theme")) {
+            if (e.matches) {
+              document.body.classList.add("dark-mode");
+            } else {
+              document.body.classList.remove("dark-mode");
+            }
+            applyCustomBackground();
+          }
+        });
+
+        const infoButton = document.getElementById("infoButton");
+        const infoPopup = document.getElementById("infoPopup");
+        if (infoButton) {
+          infoButton.addEventListener("click", (event) => {
+            event.stopPropagation();
+            toggleInfoPopup();
+          });
+
+          document.addEventListener("click", (event) => {
+            if (
+              !infoPopup.classList.contains("hidden") &&
+              !infoPopup.contains(event.target) &&
+              event.target !== infoButton
+            ) {
+              closeInfoPopup();
+            }
+          });
+
+          document.querySelector(".popup-close").addEventListener("click", (event) => {
+            event.stopPropagation();
+            closeInfoPopup();
+          });
+        }
+
+        const staffIdInput = document.getElementById("staffId");
+        if (staffIdInput) {
+          staffIdInput.addEventListener("input", checkInputLength);
+          checkInputLength();
+        }
+
+        const passwordInput = document.getElementById("adminPassword");
+        if (passwordInput) {
+          passwordInput.addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              validatePassword();
+            }
+          });
+        }
+
+        checkRegistrationForm();
+      });
+
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          const overlay = document.getElementById("pageLoadingOverlay");
+          overlay.classList.add("fade-out");
+          setTimeout(() => {
+            overlay.style.display = "none";
+            updateJemputanLink("main");
+            showTooltip();
+          }, 500);
+        }, 1000);
+      });
+
+      // Initialize Flatpickr (English locale)
+      flatpickr("#adminDate", {
+        dateFormat: "d/m/Y",
+        allowInput: true,
+        minDate: "today",
+      });
+    </script>
+
+    <datalist id="jawatanList">
+      <option value="PENOLONG EKSEKUTIF PERLADANGAN"></option>
+      <option value="PENOLONG EKSEKUTIF PENTADBIRAN"></option>
+      <option value="PENOLONG EKSEKUTIF PEMBANGUNAN PESERTA"></option>
+      <option value="PEGAWAI TEKNOLOGI MAKLUMAT"></option>
+      <option value="PENOLONG PEGAWAI TEKNOLOGI MAKLUMAT"></option>
+    </datalist>
+
+    <datalist id="lokasiList">
+      <option value="IBU PEJABAT"></option>
+      <option value="PEJABAT PENGARAH NEGERI"></option>
+      <option value="KAWASAN BERANGAN MEK NAB"></option>
+      <option value="KAWASAN BUKIT TANDAK"></option>
+      <option value="ESTET TUMBI RAPAT"></option>
+      <option value="ESTET PANGGONG LALAT"></option>
+      <option value="ESTET DABONG"></option>
+      <option value="ESTET SUNGAI RAWIT"></option>
+      <option value="ESTET ARING"></option>
+      <option value="FELCRA NIAGA"></option>
+      <option value="FELCRA BINA"></option>
+    </datalist>
+  </body>
+</html>
