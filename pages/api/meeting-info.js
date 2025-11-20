@@ -71,7 +71,8 @@ export default async function handler(req, res) {
         location,
         logo,
         formStatus,
-        backgroundUrlLight: backgroundUrl || defaultBackgroundLight,
+        backgroundUrlLight: defaultBackgroundLight,
+        //backgroundUrlLight: backgroundUrl || defaultBackgroundLight,
         backgroundUrlDark: defaultBackgroundDark,
       },
     });
