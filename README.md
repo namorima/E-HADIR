@@ -1,6 +1,6 @@
-# 🎯 E-HADIR FELCRA - Digital Attendance System
+# 🎯 E-HADIR Majikan - Digital Attendance System
 
-Sistem kehadiran digital untuk FELCRA Berhad Kelantan menggunakan Google Sheets API dan Service Account.
+Sistem kehadiran digital untuk Majikan menggunakan Google Sheets API dan Service Account.
 
 ## 🚀 Features
 
@@ -26,7 +26,7 @@ Sistem kehadiran digital untuk FELCRA Berhad Kelantan menggunakan Google Sheets 
 
 ```bash
 git clone <your-repo-url>
-cd e-hadir-felcra
+cd e-hadir-Majikan
 ```
 
 ### 2. Install dependencies
@@ -88,7 +88,7 @@ Open http://localhost:3000
 ## 📁 File Structure
 
 ```
-e-hadir-felcra/
+e-hadir-Majikan/
 ├── public/
 │   └── index.html                 # Main HTML file
 ├── pages/
@@ -160,12 +160,12 @@ e-hadir-felcra/
 
 ## 📞 Support
 
-For issues or questions, contact FELCRA IT Department.
+For issues or questions, contact Majikan IT Department.
 
 ## 📄 License
 
-ISC License - FELCRA Berhad Kelantan
+ISC License - Majikan
 
 ---
 
-**Made with ❤️ by FELCRA IT Team**
+**Made with ❤️ by Majikan IT Team**

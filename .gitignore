@@ -49,3 +49,8 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+deploy.sh
+FILE-STRUCTURE-GUIDE.md
+QUICK-START.md
+SERVICE-ACCOUNT-SETUP.md
+
