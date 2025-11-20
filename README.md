@@ -54,7 +54,7 @@ NEXT_PUBLIC_ADMIN_PASSWORD=
 Share your spreadsheet with the service account email:
 
 ```
-suratmasukkeluar@surat-masuk-dan-keluar.iam.gserviceaccount.com
+dotdotdot@dotdotdot.iam.gserviceaccount.com
 ```
 
 Give it **Editor** permission!
