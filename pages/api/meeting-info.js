@@ -39,7 +39,8 @@ export default async function handler(req, res) {
     const values = response.data.values || [];
 
     // Default values - Updated backgrounds
-    const defaultLogo = "https://cdn.jsdelivr.net/gh/johnadik/kehadiran2@main/logo3.png";
+    const defaultLogo =
+      "https://serveproxy.com/?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Fjohnadik%2Fkehadiran2%40main%2Flogo3.png";
     const defaultBackgroundLight =
       "https://serveproxy.com/?url=https%3A%2F%2Ffirebasestorage.googleapis.com%2Fv0%2Fb%2Fmycdn-b2313.appspot.com%2Fo%2F1763628916sm154%3Falt%3Dmedia%26token%3Da410e76c-3a5f-4c05-b7f1-d78332b8aa24";
     const defaultBackgroundDark =
