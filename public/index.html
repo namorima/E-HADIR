@@ -1397,12 +1397,12 @@
       // ============================================
 
       // ============================================
-      // BACKGROUND CONFIG - Easy to Edit
+      // DEFAULT CONFIG - Load from setup.json
       // ============================================
-      const BACKGROUND_CONFIG = {
-        light:
-          "https://serveproxy.com/?url=https%3A%2F%2Ffirebasestorage.googleapis.com%2Fv0%2Fb%2Fmycdn-b2313.appspot.com%2Fo%2F1763628916sm154%3Falt%3Dmedia%26token%3Da410e76c-3a5f-4c05-b7f1-d78332b8aa24",
-        dark: "https://serveproxy.com/?url=https%3A%2F%2Ffirebasestorage.googleapis.com%2Fv0%2Fb%2Fmycdn-b2313.appspot.com%2Fo%2F17636288930klr%3Falt%3Dmedia%26token%3D9e98b210-518b-4348-8aa8-76c937cba161",
+      let DEFAULT_CONFIG = {
+        logo: "",
+        backgroundLight: "",
+        backgroundDark: "",
       };
 
       let formStatus = "";
@@ -1411,6 +1411,34 @@
       let currentStaffId = "";
       let currentStaffName = "";
       let meetingInfo = null;
+
+      // Load setup config from JSON file
+      async function loadSetupConfig() {
+        try {
+          const response = await fetch("/setup.json");
+          const config = await response.json();
+          DEFAULT_CONFIG = config;
+
+          // Set default values immediately after loading config
+          backgroundUrlLight = DEFAULT_CONFIG.backgroundLight;
+          backgroundUrlDark = DEFAULT_CONFIG.backgroundDark;
+
+          // Set logo
+          document.getElementById("loadingLogo").src = DEFAULT_CONFIG.logo;
+          document.getElementById("headerLogo").src = DEFAULT_CONFIG.logo;
+
+          // Apply theme first
+          applyInitialTheme();
+
+          // Then apply background
+          applyCustomBackground();
+
+          // Then load meeting info
+          await loadMeetingInfo();
+        } catch (error) {
+          console.error("Error loading setup config:", error);
+        }
+      }
 
       // Load meeting info on page load
       async function loadMeetingInfo() {
@@ -1421,13 +1449,12 @@
           if (data.success) {
             meetingInfo = data.data;
             formStatus = meetingInfo.formStatus;
-            // Use BACKGROUND_CONFIG as default if not provided
-            backgroundUrlLight = meetingInfo.backgroundUrlLight || BACKGROUND_CONFIG.light;
-            backgroundUrlDark = meetingInfo.backgroundUrlDark || BACKGROUND_CONFIG.dark;
+            // Use DEFAULT_CONFIG as fallback
+            backgroundUrlLight = meetingInfo.backgroundUrlLight || DEFAULT_CONFIG.backgroundLight;
+            backgroundUrlDark = meetingInfo.backgroundUrlDark || DEFAULT_CONFIG.backgroundDark;
 
-            // Update UI
-            document.getElementById("loadingLogo").src = meetingInfo.logo;
-            document.getElementById("headerLogo").src = meetingInfo.logo;
+            // Update UI (logo already set from DEFAULT_CONFIG)
+            document.getElementById("headerLogo").src = meetingInfo.logo || DEFAULT_CONFIG.logo;
             document.getElementById("meetingTitleText").textContent = meetingInfo.title;
             document.getElementById("meetingDate").textContent = meetingInfo.date;
             document.getElementById("meetingLocation").textContent = meetingInfo.location;
@@ -2001,8 +2028,7 @@
 
       // Event listeners
       document.addEventListener("DOMContentLoaded", () => {
-        applyInitialTheme();
-        loadMeetingInfo(); // Load meeting info first
+        loadSetupConfig(); // Load setup config first, then meeting info
 
         window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
           if (!localStorage.getItem("theme")) {
