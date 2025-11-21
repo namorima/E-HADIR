@@ -4,7 +4,10 @@
       "Bash(mkdir:*)",
       "Bash(npm install)",
       "Bash(dir:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(move \"logo.png\" \"public\\logo.png\")",
+      "Bash(move \"bgdark.jpg\" \"public\\bgdark.jpg\")",
+      "Bash(move \"bglight.jpg\" \"public\\bglight.jpg\")"
     ],
     "deny": [],
     "ask": []

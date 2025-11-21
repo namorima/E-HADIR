@@ -1449,12 +1449,12 @@
           if (data.success) {
             meetingInfo = data.data;
             formStatus = meetingInfo.formStatus;
-            // Use DEFAULT_CONFIG as fallback
-            backgroundUrlLight = meetingInfo.backgroundUrlLight || DEFAULT_CONFIG.backgroundLight;
-            backgroundUrlDark = meetingInfo.backgroundUrlDark || DEFAULT_CONFIG.backgroundDark;
+            // Always use setup.json for backgrounds and logo
+            backgroundUrlLight = DEFAULT_CONFIG.backgroundLight;
+            backgroundUrlDark = DEFAULT_CONFIG.backgroundDark;
 
-            // Update UI (logo already set from DEFAULT_CONFIG)
-            document.getElementById("headerLogo").src = meetingInfo.logo || DEFAULT_CONFIG.logo;
+            // Update UI (always use logo from setup.json)
+            document.getElementById("headerLogo").src = DEFAULT_CONFIG.logo;
             document.getElementById("meetingTitleText").textContent = meetingInfo.title;
             document.getElementById("meetingDate").textContent = meetingInfo.date;
             document.getElementById("meetingLocation").textContent = meetingInfo.location;
