@@ -861,6 +861,22 @@
       body.dark-mode label {
         color: #e5e7eb;
       }
+
+      /* Closed Form Message */
+      #closedFormMessage {
+        background: rgba(254, 226, 226, 0.3);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+
+      body.dark-mode #closedFormMessage {
+        background: rgba(45, 16, 16, 0.4);
+        border-color: rgba(239, 68, 68, 0.6);
+      }
+
+      body.dark-mode #closedFormMessage p {
+        color: #fca5a5 !important;
+      }
     </style>
   </head>
   <body>
@@ -951,6 +967,18 @@
               Semak
             </button>
           </form>
+
+          <!-- Closed Form Message -->
+          <div id="closedFormMessage" class="hidden mt-4 p-4 rounded-xl">
+            <div class="flex items-start">
+              <svg class="w-5 h-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+              <p class="text-sm text-red-800 leading-relaxed">
+                Pengisian Kehadiran Sudah Ditutup, Sila Hubungi Admin/Urusetia Untuk Maklumat Penuh Kehadiran.
+              </p>
+            </div>
+          </div>
         </div>
 
         <!-- Loading Bar Indicator -->
@@ -1556,6 +1584,7 @@
       function checkInputLength() {
         const staffIdInput = document.getElementById("staffId");
         const submitBtn = document.getElementById("submitBtn");
+        const closedFormMessage = document.getElementById("closedFormMessage");
 
         if (staffIdInput.value === "0000") {
           showPasswordModal();
@@ -1568,11 +1597,13 @@
           submitBtn.classList.add("opacity-50");
           submitBtn.classList.remove("glass-button");
           submitBtn.classList.add("glass-button-red");
+          closedFormMessage.classList.remove("hidden");
           return;
         }
 
         submitBtn.classList.remove("glass-button-red");
         submitBtn.classList.add("glass-button");
+        closedFormMessage.classList.add("hidden");
 
         if (staffIdInput.value.length < 4) {
           submitBtn.disabled = true;
@@ -1878,6 +1909,7 @@
         const meetingDateContainer = document.getElementById("meetingDateContainer");
         const meetingLocationContainer = document.getElementById("meetingLocationContainer");
         const jemputanLink = document.getElementById("jemputanLink");
+        const closedFormMessage = document.getElementById("closedFormMessage");
 
         if (formStatus === "off") {
           submitBtn.disabled = true;
@@ -1891,11 +1923,13 @@
           meetingDateContainer.style.display = "none";
           meetingLocationContainer.style.display = "none";
           jemputanLink.classList.add("hidden");
+          closedFormMessage.classList.remove("hidden");
         } else {
           formClosedText.style.display = "none";
           meetingTitleText.style.display = "inline";
           meetingDateContainer.style.display = "block";
           meetingLocationContainer.style.display = "block";
+          closedFormMessage.classList.add("hidden");
 
           submitBtn.classList.remove("glass-button-red");
           submitBtn.classList.add("glass-button");
