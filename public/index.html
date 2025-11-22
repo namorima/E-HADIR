@@ -1312,14 +1312,14 @@
     <!-- Admin Settings Modal -->
     <div
       id="adminSettingsModal"
-      class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden"
+      class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden px-4"
     >
-      <div class="glass-card p-8 w-full max-w-md scale-in">
+      <div class="glass-card p-6 md:p-8 w-full max-w-md md:max-w-4xl scale-in max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
-          <h3 class="text-lg font-bold text-gray-900">Admin Settings</h3>
+          <h3 class="text-lg md:text-xl font-bold text-gray-900">Admin Settings</h3>
           <button
             onclick="closeAdminSettingsModal()"
-            class="text-gray-500 hover:text-gray-700 transition-colors"
+            class="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded-lg"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -1332,14 +1332,45 @@
           </button>
         </div>
 
-        <div class="space-y-4">
-          <div>
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-gray-200 mb-6">
+          <button
+            id="tabTetapan"
+            onclick="switchAdminTab('tetapan')"
+            class="px-6 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors"
+          >
+            ⚙️ Tetapan
+          </button>
+          <button
+            id="tabDataStaf"
+            onclick="switchAdminTab('dataStaf')"
+            class="px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            👥 Data Staf
+          </button>
+        </div>
+
+        <!-- Tab Content: Tetapan -->
+        <div id="tabContentTetapan" class="tab-content">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <div class="md:col-span-2">
             <label for="adminTitle" class="block text-sm font-medium text-gray-700 mb-2"
               >TAJUK</label
             >
             <input
               type="text"
               id="adminTitle"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+            />
+          </div>
+
+          <div>
+            <label for="adminLocation" class="block text-sm font-medium text-gray-700 mb-2"
+              >TEMPAT</label
+            >
+            <input
+              type="text"
+              id="adminLocation"
               class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
             />
           </div>
@@ -1356,62 +1387,273 @@
             />
           </div>
 
-          <div>
-            <label for="adminLocation" class="block text-sm font-medium text-gray-700 mb-2"
-              >TEMPAT</label
-            >
-            <input
-              type="text"
-              id="adminLocation"
-              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-            />
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-3">UPLOAD GAMBAR</label>
+            <div class="flex flex-wrap gap-3">
+              <!-- LOGO Upload -->
+              <div class="flex-1 min-w-[200px]">
+                <input
+                  type="file"
+                  id="logoFileInput"
+                  accept="image/*"
+                  class="hidden"
+                  onchange="handleFileSelect(event, 'logo')"
+                />
+                <button
+                  type="button"
+                  onclick="document.getElementById('logoFileInput').click()"
+                  class="glass-button rounded-xl px-6 py-3 text-sm font-semibold text-white w-full"
+                >
+                  📤 Upload LOGO
+                </button>
+                <p class="text-xs text-gray-500 mt-2 text-center" id="logoStatus">Belum upload</p>
+              </div>
+
+              <!-- Background Light Upload -->
+              <div class="flex-1 min-w-[200px]">
+                <input
+                  type="file"
+                  id="bgLightFileInput"
+                  accept="image/*"
+                  class="hidden"
+                  onchange="handleFileSelect(event, 'bgLight')"
+                />
+                <button
+                  type="button"
+                  onclick="document.getElementById('bgLightFileInput').click()"
+                  class="glass-button rounded-xl px-6 py-3 text-sm font-semibold text-white w-full"
+                >
+                  <i class="fas fa-sun mr-1"></i> Upload BG LIGHT
+                </button>
+                <p class="text-xs text-gray-500 mt-2 text-center" id="bgLightStatus">Belum upload</p>
+              </div>
+
+              <!-- Background Dark Upload -->
+              <div class="flex-1 min-w-[200px]">
+                <input
+                  type="file"
+                  id="bgDarkFileInput"
+                  accept="image/*"
+                  class="hidden"
+                  onchange="handleFileSelect(event, 'bgDark')"
+                />
+                <button
+                  type="button"
+                  onclick="document.getElementById('bgDarkFileInput').click()"
+                  class="glass-button rounded-xl px-6 py-3 text-sm font-semibold text-white w-full"
+                >
+                  <i class="fas fa-moon mr-1"></i> Upload BG DARK
+                </button>
+                <p class="text-xs text-gray-500 mt-2 text-center" id="bgDarkStatus">Belum upload</p>
+              </div>
+            </div>
+
+            <!-- Hidden inputs to store URLs -->
+            <input type="hidden" id="adminLogo" />
+            <input type="hidden" id="adminBackgroundLight" />
+            <input type="hidden" id="adminBackgroundDark" />
           </div>
 
-          <div>
-            <label for="adminLogo" class="block text-sm font-medium text-gray-700 mb-2"
-              >LOGO URL</label
-            >
-            <input
-              type="text"
-              id="adminLogo"
-              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-            />
-          </div>
-
-          <div>
-            <label for="adminBackground" class="block text-sm font-medium text-gray-700 mb-2">
-              <i class="fas fa-image mr-1"></i>BACKGROUND URL
-            </label>
-            <input
-              type="text"
-              id="adminBackground"
-              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-              placeholder="https://example.com/image.jpg"
-            />
-            <p class="text-xs text-gray-500 mt-1 ml-1">
+          <div class="md:col-span-2">
+            <p class="text-xs text-gray-500 ml-1">
               💡 Kosongkan untuk guna background custom default (FELCRA)
             </p>
           </div>
 
-          <div class="flex items-center pt-2">
+          <div class="md:col-span-2 flex items-center pt-2 pb-2">
             <input
               type="checkbox"
               id="adminStatus"
-              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
             />
-            <label for="adminStatus" class="ml-3 block text-sm font-medium text-gray-700">
+            <label for="adminStatus" class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">
               Aktifkan Borang (Tick untuk "on", Untick untuk "off")
             </label>
           </div>
         </div>
 
-        <div class="mt-6">
+        <div class="mt-6 flex gap-3">
+          <button
+            onclick="closeAdminSettingsModal()"
+            class="glass-input flex-1 rounded-xl px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-opacity-70 transition-all"
+          >
+            Batal
+          </button>
           <button
             onclick="saveAdminSettings()"
-            class="glass-button w-full rounded-xl px-4 py-3 text-sm font-semibold text-white"
+            class="glass-button flex-1 rounded-xl px-6 py-3 text-sm font-semibold text-white"
           >
             Simpan Tetapan
           </button>
+        </div>
+        </div>
+        <!-- End Tab Content: Tetapan -->
+
+        <!-- Tab Content: Data Staf -->
+        <div id="tabContentDataStaf" class="tab-content hidden">
+          <div class="mb-4 flex gap-3">
+            <input
+              type="text"
+              id="searchStaf"
+              placeholder="🔍 Cari nama atau ID..."
+              class="glass-input flex-1 rounded-xl px-4 py-3 text-sm"
+              oninput="searchStaffData()"
+            />
+            <button
+              onclick="showAddStaffModal()"
+              class="glass-button rounded-xl px-6 py-3 text-sm font-semibold text-white whitespace-nowrap"
+            >
+              ➕ Tambah Staf
+            </button>
+            <button
+              onclick="closeAdminSettingsModal()"
+              class="glass-input rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-opacity-70 transition-all"
+              title="Tutup"
+            >
+              ✖
+            </button>
+          </div>
+
+          <div id="staffLoadingIndicator" class="hidden text-center py-8">
+            <div class="inline-flex items-center">
+              <div class="w-5 h-5 border-2 border-t-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mr-2"></div>
+              <span class="text-sm text-gray-600">Memuat data...</span>
+            </div>
+          </div>
+
+          <div id="staffTableContainer" class="overflow-x-auto max-h-[400px]">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-50 border-b border-gray-200 sticky top-0">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">ID</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">NAMA</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">JAWATAN</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">LOKASI</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">UNIT</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">JEMPUTAN</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700 sticky right-0 bg-gray-50">AKSI</th>
+                </tr>
+              </thead>
+              <tbody id="staffTableBody" class="divide-y divide-gray-200">
+                <!-- Data akan diload dari Google Sheets -->
+              </tbody>
+            </table>
+          </div>
+
+          <div id="staffEmptyState" class="hidden text-center py-12">
+            <p class="text-gray-500 text-sm">Tiada data staf dijumpai</p>
+          </div>
+        </div>
+        <!-- End Tab Content: Data Staf -->
+
+      </div>
+    </div>
+
+    <!-- Add/Edit Staff Modal -->
+    <div
+      id="staffModal"
+      class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden px-4"
+    >
+      <div class="glass-card p-6 md:p-8 w-full max-w-md scale-in">
+        <div class="flex justify-between items-center mb-6">
+          <h3 id="staffModalTitle" class="text-lg md:text-xl font-bold text-gray-900">Tambah Staf Baru</h3>
+          <button
+            onclick="closeStaffModal()"
+            class="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded-lg"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <input type="hidden" id="staffRowIndex" />
+
+          <div>
+            <label for="staffId" class="block text-sm font-medium text-gray-700 mb-2">ID STAF</label>
+            <input
+              type="text"
+              id="staffId"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+              placeholder="Contoh: 123456"
+            />
+          </div>
+
+          <div>
+            <label for="staffName" class="block text-sm font-medium text-gray-700 mb-2">NAMA</label>
+            <input
+              type="text"
+              id="staffName"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+              placeholder="Nama Penuh"
+            />
+          </div>
+
+          <div>
+            <label for="staffPosition" class="block text-sm font-medium text-gray-700 mb-2">JAWATAN</label>
+            <input
+              type="text"
+              id="staffPosition"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+              placeholder="Contoh: Pegawai Teknologi Maklumat"
+            />
+          </div>
+
+          <div>
+            <label for="staffLocation" class="block text-sm font-medium text-gray-700 mb-2">LOKASI</label>
+            <input
+              type="text"
+              id="staffLocation"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+              placeholder="Contoh: Ibu Pejabat"
+            />
+          </div>
+
+          <div>
+            <label for="staffUnit" class="block text-sm font-medium text-gray-700 mb-2">UNIT</label>
+            <input
+              type="text"
+              id="staffUnit"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+              placeholder="Contoh: Bahagian ICT"
+            />
+          </div>
+
+          <div>
+            <label for="staffInvitation" class="block text-sm font-medium text-gray-700 mb-2">JEMPUTAN</label>
+            <select
+              id="staffInvitation"
+              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
+            >
+              <option value="">Pilih...</option>
+              <option value="JEMPUTAN">JEMPUTAN</option>
+              <option value="WAKIL">WAKIL</option>
+              <option value="TIADA">TIADA</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-6 flex gap-3">
+          <button
+            onclick="closeStaffModal()"
+            class="glass-input flex-1 rounded-xl px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-opacity-70 transition-all"
+          >
+            Batal
+          </button>
+          <button
+            onclick="saveStaffData()"
+            class="glass-button flex-1 rounded-xl px-6 py-3 text-sm font-semibold text-white"
+          >
+            Simpan
+          </button>
+        </div>
+
+        <div id="staffSaveIndicator" class="hidden mt-4 text-center">
+          <div class="inline-flex items-center">
+            <div class="w-5 h-5 border-2 border-t-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mr-2"></div>
+            <span class="text-sm text-gray-600">Menyimpan...</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1477,12 +1719,22 @@
           if (data.success) {
             meetingInfo = data.data;
             formStatus = meetingInfo.formStatus;
-            // Always use setup.json for backgrounds and logo
-            backgroundUrlLight = DEFAULT_CONFIG.backgroundLight;
-            backgroundUrlDark = DEFAULT_CONFIG.backgroundDark;
 
-            // Update UI (always use logo from setup.json)
-            document.getElementById("headerLogo").src = DEFAULT_CONFIG.logo;
+            // Priority: Use admin settings images if available, otherwise fallback to setup.json
+            const logoUrl = (meetingInfo.logo && meetingInfo.logo.trim() !== "")
+              ? meetingInfo.logo
+              : DEFAULT_CONFIG.logo;
+
+            backgroundUrlLight = (meetingInfo.backgroundUrlLight && meetingInfo.backgroundUrlLight.trim() !== "")
+              ? meetingInfo.backgroundUrlLight
+              : DEFAULT_CONFIG.backgroundLight;
+
+            backgroundUrlDark = (meetingInfo.backgroundUrlDark && meetingInfo.backgroundUrlDark.trim() !== "")
+              ? meetingInfo.backgroundUrlDark
+              : DEFAULT_CONFIG.backgroundDark;
+
+            // Update UI
+            document.getElementById("headerLogo").src = logoUrl;
             document.getElementById("meetingTitleText").textContent = meetingInfo.title;
             document.getElementById("meetingDate").textContent = meetingInfo.date;
             document.getElementById("meetingLocation").textContent = meetingInfo.location;
@@ -2008,8 +2260,21 @@
         document.getElementById("adminTitle").value = settings.title || "";
         document.getElementById("adminDate").value = settings.date || "";
         document.getElementById("adminLocation").value = settings.location || "";
+
+        // Store existing URLs in hidden inputs
         document.getElementById("adminLogo").value = settings.logo || "";
-        document.getElementById("adminBackground").value = settings.backgroundUrlLight || "";
+        document.getElementById("adminBackgroundLight").value = settings.backgroundUrlLight || "";
+        document.getElementById("adminBackgroundDark").value = settings.backgroundUrlDark || "";
+
+        // Update status indicators (check if URL exists and not empty)
+        const hasLogo = settings.logo && settings.logo.trim() !== "" && settings.logo !== "undefined";
+        const hasBgLight = settings.backgroundUrlLight && settings.backgroundUrlLight.trim() !== "" && settings.backgroundUrlLight !== "undefined";
+        const hasBgDark = settings.backgroundUrlDark && settings.backgroundUrlDark.trim() !== "" && settings.backgroundUrlDark !== "undefined";
+
+        document.getElementById("logoStatus").textContent = hasLogo ? "✅ Sudah upload" : "Belum upload";
+        document.getElementById("bgLightStatus").textContent = hasBgLight ? "✅ Sudah upload" : "Belum upload";
+        document.getElementById("bgDarkStatus").textContent = hasBgDark ? "✅ Sudah upload" : "Belum upload";
+
         document.getElementById("adminStatus").checked = settings.formStatus === "on";
 
         modal.classList.remove("hidden");
@@ -2017,15 +2282,319 @@
 
       function closeAdminSettingsModal() {
         document.getElementById("adminSettingsModal").classList.add("hidden");
+        // Reset to Tetapan tab
+        switchAdminTab('tetapan');
+      }
+
+      // Tab switching functions
+      let allStaffData = [];
+
+      function switchAdminTab(tab) {
+        // Update tab buttons
+        document.getElementById("tabTetapan").className = tab === 'tetapan'
+          ? "px-6 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors"
+          : "px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors";
+
+        document.getElementById("tabDataStaf").className = tab === 'dataStaf'
+          ? "px-6 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors"
+          : "px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors";
+
+        // Show/hide tab content
+        document.getElementById("tabContentTetapan").classList.toggle("hidden", tab !== 'tetapan');
+        document.getElementById("tabContentDataStaf").classList.toggle("hidden", tab !== 'dataStaf');
+
+        // Load staff data when switching to Data Staf tab
+        if (tab === 'dataStaf') {
+          loadStaffData();
+        }
+      }
+
+      // Staff data management functions
+      async function loadStaffData() {
+        try {
+          document.getElementById("staffLoadingIndicator").classList.remove("hidden");
+          document.getElementById("staffTableContainer").classList.add("hidden");
+          document.getElementById("staffEmptyState").classList.add("hidden");
+
+          const response = await fetch("/api/get-staff");
+          const data = await response.json();
+
+          if (data.success && data.staff && data.staff.length > 0) {
+            allStaffData = data.staff;
+            renderStaffTable(allStaffData);
+            document.getElementById("staffTableContainer").classList.remove("hidden");
+          } else {
+            document.getElementById("staffEmptyState").classList.remove("hidden");
+          }
+
+          document.getElementById("staffLoadingIndicator").classList.add("hidden");
+        } catch (error) {
+          console.error("Error loading staff data:", error);
+          document.getElementById("staffLoadingIndicator").classList.add("hidden");
+          document.getElementById("staffEmptyState").classList.remove("hidden");
+          alert("Gagal memuat data staf. Sila cuba lagi.");
+        }
+      }
+
+      function renderStaffTable(staffList) {
+        const tbody = document.getElementById("staffTableBody");
+        tbody.innerHTML = "";
+
+        staffList.forEach((staff, index) => {
+          const row = document.createElement("tr");
+          row.className = "hover:bg-gray-50 transition-colors";
+          row.innerHTML = `
+            <td class="px-4 py-3 text-gray-900">${staff.id || '-'}</td>
+            <td class="px-4 py-3 text-gray-900">${staff.name || '-'}</td>
+            <td class="px-4 py-3 text-gray-600">${staff.position || '-'}</td>
+            <td class="px-4 py-3 text-gray-600">${staff.location || '-'}</td>
+            <td class="px-4 py-3 text-gray-600">${staff.unit || '-'}</td>
+            <td class="px-4 py-3 text-gray-600">${staff.invitation || '-'}</td>
+            <td class="px-4 py-3 text-center">
+              <button
+                onclick="editStaff(${staff.rowIndex})"
+                class="text-blue-600 hover:text-blue-800 font-medium text-sm mr-3"
+              >
+                ✏️ Edit
+              </button>
+              <button
+                onclick="confirmDeleteStaff(${staff.rowIndex})"
+                class="text-red-600 hover:text-red-800 font-medium text-sm"
+              >
+                🗑️ Padam
+              </button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      function searchStaffData() {
+        const searchTerm = document.getElementById("searchStaf").value.toLowerCase();
+        if (!searchTerm) {
+          renderStaffTable(allStaffData);
+          return;
+        }
+
+        const filtered = allStaffData.filter(staff =>
+          (staff.id && staff.id.toLowerCase().includes(searchTerm)) ||
+          (staff.name && staff.name.toLowerCase().includes(searchTerm)) ||
+          (staff.position && staff.position.toLowerCase().includes(searchTerm)) ||
+          (staff.location && staff.location.toLowerCase().includes(searchTerm)) ||
+          (staff.unit && staff.unit.toLowerCase().includes(searchTerm)) ||
+          (staff.invitation && staff.invitation.toLowerCase().includes(searchTerm))
+        );
+
+        renderStaffTable(filtered);
+      }
+
+      function showAddStaffModal() {
+        document.getElementById("staffModalTitle").textContent = "Tambah Staf Baru";
+        document.getElementById("staffRowIndex").value = "";
+        document.getElementById("staffId").value = "";
+        document.getElementById("staffName").value = "";
+        document.getElementById("staffPosition").value = "";
+        document.getElementById("staffLocation").value = "";
+        document.getElementById("staffUnit").value = "";
+        document.getElementById("staffInvitation").value = "";
+        document.getElementById("staffModal").classList.remove("hidden");
+      }
+
+      function editStaff(rowIndex) {
+        const staff = allStaffData.find(s => s.rowIndex === rowIndex);
+        if (!staff) return;
+
+        document.getElementById("staffModalTitle").textContent = "Edit Data Staf";
+        document.getElementById("staffRowIndex").value = rowIndex;
+        document.getElementById("staffId").value = staff.id || "";
+        document.getElementById("staffName").value = staff.name || "";
+        document.getElementById("staffPosition").value = staff.position || "";
+        document.getElementById("staffLocation").value = staff.location || "";
+        document.getElementById("staffUnit").value = staff.unit || "";
+        document.getElementById("staffInvitation").value = staff.invitation || "";
+        document.getElementById("staffModal").classList.remove("hidden");
+      }
+
+      function closeStaffModal() {
+        document.getElementById("staffModal").classList.add("hidden");
+      }
+
+      async function saveStaffData() {
+        const rowIndex = document.getElementById("staffRowIndex").value;
+        const staffData = {
+          id: document.getElementById("staffId").value.trim(),
+          name: document.getElementById("staffName").value.trim(),
+          position: document.getElementById("staffPosition").value.trim(),
+          location: document.getElementById("staffLocation").value.trim(),
+          unit: document.getElementById("staffUnit").value.trim(),
+          invitation: document.getElementById("staffInvitation").value.trim(),
+          rowIndex: rowIndex ? parseInt(rowIndex) : null
+        };
+
+        if (!staffData.id || !staffData.name) {
+          alert("ID dan Nama adalah wajib!");
+          return;
+        }
+
+        try {
+          document.getElementById("staffSaveIndicator").classList.remove("hidden");
+
+          const endpoint = rowIndex ? "/api/update-staff" : "/api/add-staff";
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(staffData)
+          });
+
+          const data = await response.json();
+
+          document.getElementById("staffSaveIndicator").classList.add("hidden");
+
+          if (data.success) {
+            alert(rowIndex ? "Data staf berjaya dikemaskini!" : "Staf baru berjaya ditambah!");
+            closeStaffModal();
+            loadStaffData();
+          } else {
+            alert("Gagal menyimpan data: " + (data.message || "Unknown error"));
+          }
+        } catch (error) {
+          document.getElementById("staffSaveIndicator").classList.add("hidden");
+          console.error("Error saving staff:", error);
+          alert("Gagal menyimpan data staf. Sila cuba lagi.");
+        }
+      }
+
+      async function confirmDeleteStaff(rowIndex) {
+        const staff = allStaffData.find(s => s.rowIndex === rowIndex);
+        if (!staff) return;
+
+        if (!confirm(`Adakah anda pasti mahu memadam staf "${staff.name}"?`)) {
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/delete-staff", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rowIndex })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            alert("Staf berjaya dipadam!");
+            loadStaffData();
+          } else {
+            alert("Gagal memadam staf: " + (data.message || "Unknown error"));
+          }
+        } catch (error) {
+          console.error("Error deleting staff:", error);
+          alert("Gagal memadam staf. Sila cuba lagi.");
+        }
+      }
+
+      // Function to handle file selection and upload to Cloudinary
+      async function handleFileSelect(event, type) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          alert('Sila pilih fail gambar sahaja!');
+          return;
+        }
+
+        // Validate file size (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          alert('Saiz fail terlalu besar! Maksimum 5MB.');
+          return;
+        }
+
+        // Show loading status
+        const statusEl = document.getElementById(`${type}Status`);
+        const inputEl = document.getElementById(
+          type === 'logo' ? 'adminLogo' :
+          type === 'bgLight' ? 'adminBackgroundLight' :
+          'adminBackgroundDark'
+        );
+
+        statusEl.textContent = '📤 Uploading...';
+        statusEl.className = 'text-xs text-blue-600 mt-1 ml-1';
+
+        try {
+          // Convert file to base64
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+
+          reader.onload = async function() {
+            const base64Image = reader.result;
+
+            // Upload to Cloudinary via API
+            const response = await fetch('/api/upload/image', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                image: base64Image,
+                type: type,
+                folder: `ehadir/${type}`
+              })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              // Set the uploaded URL (already with serveproxy prefix)
+              inputEl.value = data.url;
+              statusEl.textContent = `✅ Upload berjaya! (${(file.size / 1024).toFixed(1)} KB)`;
+              statusEl.className = 'text-xs text-green-600 mt-1 ml-1';
+            } else {
+              throw new Error(data.message || 'Upload failed');
+            }
+          };
+
+          reader.onerror = function() {
+            throw new Error('Failed to read file');
+          };
+
+        } catch (error) {
+          console.error('Upload error:', error);
+          statusEl.textContent = `❌ Upload gagal: ${error.message}`;
+          statusEl.className = 'text-xs text-red-600 mt-1 ml-1';
+          inputEl.value = '';
+        }
+      }
+
+      // Function to add serveproxy prefix to URL
+      function addServeProxyPrefix(url) {
+        if (!url || url.trim() === "") {
+          return "";
+        }
+
+        // Check if URL already has serveproxy prefix
+        if (url.startsWith("https://serveproxy.com/?url=")) {
+          return url;
+        }
+
+        // Encode the URL and add serveproxy prefix
+        const encodedUrl = encodeURIComponent(url);
+        return `https://serveproxy.com/?url=${encodedUrl}`;
       }
 
       async function saveAdminSettings() {
+        const logoUrl = document.getElementById("adminLogo").value;
+        const bgLightUrl = document.getElementById("adminBackgroundLight").value;
+        const bgDarkUrl = document.getElementById("adminBackgroundDark").value;
+
         const settings = {
           title: document.getElementById("adminTitle").value,
           date: document.getElementById("adminDate").value,
           location: document.getElementById("adminLocation").value,
-          logo: document.getElementById("adminLogo").value,
-          background: document.getElementById("adminBackground").value,
+          logo: logoUrl, // Already has serveproxy prefix from upload
+          backgroundLight: bgLightUrl, // Already has serveproxy prefix from upload
+          backgroundDark: bgDarkUrl, // Already has serveproxy prefix from upload
           status: document.getElementById("adminStatus").checked ? "on" : "off",
         };
 

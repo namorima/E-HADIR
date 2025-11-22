@@ -1,7 +1,7 @@
 // pages/api/meeting-info.js
-// API route untuk fetch meeting info dari Google Sheets
+// API route untuk fetch meeting info dari Database
 
-import { google } from "googleapis";
+import { getAdminSettings, initDatabase } from "../../lib/db";
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -18,27 +18,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Initialize Google Sheets API with Service Account
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-      },
-      scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-    });
+    // Initialize database if needed
+    await initDatabase();
 
-    const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+    // Get settings from database
+    const settings = await getAdminSettings();
 
-    // Fetch data dari FX sheet (K1:K6)
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: "FX!K1:K6",
-    });
-
-    const values = response.data.values || [];
-
-    // Default values - Updated backgrounds
+    // Default values
     const defaultLogo =
       "https://serveproxy.com/?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Fjohnadik%2Fkehadiran2%40main%2Flogo3.png";
     const defaultBackgroundLight =
@@ -46,34 +32,20 @@ export default async function handler(req, res) {
     const defaultBackgroundDark =
       "https://serveproxy.com/?url=https%3A%2F%2Ffirebasestorage.googleapis.com%2Fv0%2Fb%2Fmycdn-b2313.appspot.com%2Fo%2F17636288930klr%3Falt%3Dmedia%26token%3D9e98b210-518b-4348-8aa8-76c937cba161";
 
-    // Extract values
-
-    //const title = values[0]?.[0] || "LAPORAN KEHADIRAN";
-    //const date = values[1]?.[0] || formatDateToMalay(new Date());
-    //const location = values[2]?.[0] || "ARAS 2, BILIK MESYUARAT PEJABAT PENGARAH NEGERI";
-    //const logo = values[3]?.[0] || defaultLogo;
-    //const formStatus = (values[4]?.[0] || "on").toString().toLowerCase();
-    //const backgroundUrl = values[5]?.[0] || "";
-
-    const title = values[0]?.[0] || "LAPORAN KEHADIRAN";
-    const date = values[1]?.[0] || formatDateToMalay(new Date());
-    const location = values[2]?.[0] || "ARAS 2, BILIK MESYUARAT PEJABAT PENGARAH NEGERI";
-    const logo = defaultLogo;
-    const formStatus = (values[4]?.[0] || "on").toString().toLowerCase();
-    const backgroundUrl = values[5]?.[0] || "";
+    // Format date if empty
+    const date = settings.date || formatDateToMalay(new Date());
 
     // Return meeting info
     return res.status(200).json({
       success: true,
       data: {
-        title,
+        title: settings.title || "LAPORAN KEHADIRAN",
         date,
-        location,
-        logo,
-        formStatus,
-        backgroundUrlLight: defaultBackgroundLight,
-        //backgroundUrlLight: backgroundUrl || defaultBackgroundLight,
-        backgroundUrlDark: defaultBackgroundDark,
+        location: settings.location || "ARAS 2, BILIK MESYUARAT PEJABAT PENGARAH NEGERI",
+        logo: settings.logo_url || defaultLogo,
+        formStatus: (settings.status || "on").toString().toLowerCase(),
+        backgroundUrlLight: settings.background_light_url || defaultBackgroundLight,
+        backgroundUrlDark: settings.background_dark_url || defaultBackgroundDark,
       },
     });
   } catch (error) {

@@ -7,7 +7,8 @@
       "Bash(npm run dev:*)",
       "Bash(move \"logo.png\" \"public\\logo.png\")",
       "Bash(move \"bgdark.jpg\" \"public\\bgdark.jpg\")",
-      "Bash(move \"bglight.jpg\" \"public\\bglight.jpg\")"
+      "Bash(move \"bglight.jpg\" \"public\\bglight.jpg\")",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

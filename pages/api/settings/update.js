@@ -1,7 +1,7 @@
 // pages/api/settings/update.js
-// Update FX settings using Service Account
+// Update admin settings in Database
 
-import { google } from 'googleapis';
+import { updateAdminSettings } from '../../../lib/db';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,38 +17,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { title, date, location, logo, background, status } = req.body;
+    const { title, date, location, logo, backgroundLight, backgroundDark, status } = req.body;
 
-    // Initialize Google Sheets API with Service Account
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-
-    const sheets = google.sheets({ version: 'v4', auth });
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-
-    // Handle date format (DD/MM/YYYY)
-    let dateValue = date || "";
-    
-    // Update FX sheet K1:K6
-    await sheets.spreadsheets.values.update({
-      spreadsheetId,
-      range: 'FX!K1:K6',
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [
-          [title || ""],
-          [dateValue],
-          [location || ""],
-          [logo || ""],
-          [status || "on"],
-          [background || ""]
-        ]
-      }
+    // Update settings in database
+    await updateAdminSettings({
+      title: title || "",
+      date: date || "",
+      location: location || "",
+      logo: logo || "",
+      status: status || "on",
+      backgroundLight: backgroundLight || "",
+      backgroundDark: backgroundDark || ""
     });
 
     return res.status(200).json({
