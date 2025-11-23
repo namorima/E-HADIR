@@ -1314,7 +1314,7 @@
       id="adminSettingsModal"
       class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden px-4"
     >
-      <div class="glass-card p-6 md:p-8 w-full max-w-md md:max-w-4xl scale-in max-h-[90vh] overflow-y-auto">
+      <div class="glass-card p-6 md:p-8 w-full max-w-md md:max-w-6xl scale-in max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
           <h3 class="text-lg md:text-xl font-bold text-gray-900">Admin Settings</h3>
           <button
@@ -1521,20 +1521,20 @@
             </div>
           </div>
 
-          <div id="staffTableContainer" class="overflow-x-auto max-h-[400px]">
+          <div id="staffTableContainer" class="overflow-x-auto overflow-y-auto max-h-[400px] border border-gray-200 rounded-lg">
             <table class="w-full text-sm">
-              <thead class="bg-gray-50 border-b border-gray-200 sticky top-0">
+              <thead class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
                 <tr>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700">ID</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700">NAMA</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700">JAWATAN</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700">LOKASI</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700">UNIT</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700">JEMPUTAN</th>
-                  <th class="px-4 py-3 text-center font-semibold text-gray-700 sticky right-0 bg-gray-50">AKSI</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">ID</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">NAMA</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">JAWATAN</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">LOKASI</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">UNIT</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">JEMPUTAN</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700 bg-gray-50">AKSI</th>
                 </tr>
               </thead>
-              <tbody id="staffTableBody" class="divide-y divide-gray-200">
+              <tbody id="staffTableBody" class="divide-y divide-gray-200 bg-white">
                 <!-- Data akan diload dari Google Sheets -->
               </tbody>
             </table>
@@ -2312,18 +2312,22 @@
       // Staff data management functions
       async function loadStaffData() {
         try {
+          console.log('Loading staff data...');
           document.getElementById("staffLoadingIndicator").classList.remove("hidden");
           document.getElementById("staffTableContainer").classList.add("hidden");
           document.getElementById("staffEmptyState").classList.add("hidden");
 
           const response = await fetch("/api/get-staff");
           const data = await response.json();
+          console.log('Staff data response:', data);
 
           if (data.success && data.staff && data.staff.length > 0) {
             allStaffData = data.staff;
+            console.log('Loaded staff count:', allStaffData.length);
             renderStaffTable(allStaffData);
             document.getElementById("staffTableContainer").classList.remove("hidden");
           } else {
+            console.log('No staff data found');
             document.getElementById("staffEmptyState").classList.remove("hidden");
           }
 
@@ -2337,10 +2341,12 @@
       }
 
       function renderStaffTable(staffList) {
+        console.log('Rendering staff table with', staffList.length, 'items');
         const tbody = document.getElementById("staffTableBody");
         tbody.innerHTML = "";
 
         staffList.forEach((staff, index) => {
+          console.log('Rendering staff:', staff);
           const row = document.createElement("tr");
           row.className = "hover:bg-gray-50 transition-colors";
           row.innerHTML = `
@@ -2367,6 +2373,7 @@
           `;
           tbody.appendChild(row);
         });
+        console.log('Table rendering complete');
       }
 
       function searchStaffData() {
@@ -2401,8 +2408,16 @@
       }
 
       function editStaff(rowIndex) {
+        console.log('Edit staff called with rowIndex:', rowIndex);
+        console.log('All staff data:', allStaffData);
+
         const staff = allStaffData.find(s => s.rowIndex === rowIndex);
-        if (!staff) return;
+        console.log('Found staff:', staff);
+
+        if (!staff) {
+          alert('Data staf tidak dijumpai. Sila refresh dan cuba lagi.');
+          return;
+        }
 
         document.getElementById("staffModalTitle").textContent = "Edit Data Staf";
         document.getElementById("staffRowIndex").value = rowIndex;
@@ -2412,6 +2427,8 @@
         document.getElementById("staffLocation").value = staff.location || "";
         document.getElementById("staffUnit").value = staff.unit || "";
         document.getElementById("staffInvitation").value = staff.invitation || "";
+
+        console.log('Populated form values');
         document.getElementById("staffModal").classList.remove("hidden");
       }
 
