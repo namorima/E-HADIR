@@ -255,19 +255,24 @@
 
       /* Glass Input */
       .glass-input {
-        background: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.4);
         box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(139, 195, 74, 0.1);
         transition: all 0.3s ease;
+        color: #1f2937;
       }
 
       .glass-input:focus {
-        background: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.9);
         border-color: rgba(124, 179, 66, 0.6);
         box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 0 0 3px rgba(124, 179, 66, 0.15);
         outline: none;
+      }
+
+      .glass-input::placeholder {
+        color: rgba(107, 114, 128, 0.7);
       }
 
       body.dark-mode .glass-input {
@@ -876,6 +881,50 @@
 
       body.dark-mode #closedFormMessage p {
         color: #fca5a5 !important;
+      }
+
+      /* Staff Table Styling */
+      #staffTableContainer {
+        background: white;
+      }
+
+      body.dark-mode #staffTableContainer {
+        background: rgba(31, 41, 55, 0.5);
+        border-color: rgba(75, 85, 99, 0.5);
+      }
+
+      #staffTableContainer thead th {
+        background: #f9fafb;
+        color: #374151;
+      }
+
+      body.dark-mode #staffTableContainer thead th {
+        background: rgba(55, 65, 81, 0.8);
+        color: #e5e7eb;
+      }
+
+      #staffTableBody tr {
+        background: white;
+      }
+
+      body.dark-mode #staffTableBody tr {
+        background: rgba(31, 41, 55, 0.3);
+      }
+
+      #staffTableBody tr:hover {
+        background: #f9fafb;
+      }
+
+      body.dark-mode #staffTableBody tr:hover {
+        background: rgba(55, 65, 81, 0.5);
+      }
+
+      #staffTableBody td {
+        color: #111827;
+      }
+
+      body.dark-mode #staffTableBody td {
+        color: #e5e7eb;
       }
     </style>
   </head>
@@ -1554,7 +1603,7 @@
       id="staffModal"
       class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden px-4"
     >
-      <div class="glass-card p-6 md:p-8 w-full max-w-md scale-in">
+      <div class="glass-card p-6 md:p-8 w-full max-w-md md:max-w-3xl scale-in max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
           <h3 id="staffModalTitle" class="text-lg md:text-xl font-bold text-gray-900">Tambah Staf Baru</h3>
           <button
@@ -1567,7 +1616,7 @@
           </button>
         </div>
 
-        <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input type="hidden" id="staffRowIndex" />
 
           <div>
@@ -2408,28 +2457,73 @@
       }
 
       function editStaff(rowIndex) {
-        console.log('Edit staff called with rowIndex:', rowIndex);
-        console.log('All staff data:', allStaffData);
+        console.log('=== EDIT STAFF DEBUG ===');
+        console.log('1. rowIndex:', rowIndex);
 
-        const staff = allStaffData.find(s => s.rowIndex === rowIndex);
-        console.log('Found staff:', staff);
+        // Convert to number to ensure match
+        const rowIndexNum = parseInt(rowIndex);
+        const staff = allStaffData.find(s => parseInt(s.rowIndex) === rowIndexNum);
+
+        console.log('2. Found staff:', staff);
 
         if (!staff) {
-          alert('Data staf tidak dijumpai. Sila refresh dan cuba lagi.');
+          alert('Data staf tidak dijumpai. RowIndex: ' + rowIndex);
           return;
         }
 
-        document.getElementById("staffModalTitle").textContent = "Edit Data Staf";
-        document.getElementById("staffRowIndex").value = rowIndex;
-        document.getElementById("staffId").value = staff.id || "";
-        document.getElementById("staffName").value = staff.name || "";
-        document.getElementById("staffPosition").value = staff.position || "";
-        document.getElementById("staffLocation").value = staff.location || "";
-        document.getElementById("staffUnit").value = staff.unit || "";
-        document.getElementById("staffInvitation").value = staff.invitation || "";
+        // Get elements
+        const titleEl = document.getElementById("staffModalTitle");
+        const rowIndexEl = document.getElementById("staffRowIndex");
+        const idEl = document.getElementById("staffId");
+        const nameEl = document.getElementById("staffName");
+        const positionEl = document.getElementById("staffPosition");
+        const locationEl = document.getElementById("staffLocation");
+        const unitEl = document.getElementById("staffUnit");
+        const invitationEl = document.getElementById("staffInvitation");
 
-        console.log('Populated form values');
+        // Set values BEFORE showing modal
+        if (titleEl) titleEl.textContent = "Edit Data Staf";
+        if (rowIndexEl) rowIndexEl.value = rowIndex;
+
+        // Use setAttribute as fallback
+        if (idEl) {
+          idEl.value = staff.id || "";
+          idEl.setAttribute('value', staff.id || "");
+          console.log('3. ID set to:', staff.id);
+        }
+        if (nameEl) {
+          nameEl.value = staff.name || "";
+          nameEl.setAttribute('value', staff.name || "");
+          console.log('4. NAME set to:', staff.name);
+        }
+        if (positionEl) {
+          positionEl.value = staff.position || "";
+          positionEl.setAttribute('value', staff.position || "");
+        }
+        if (locationEl) {
+          locationEl.value = staff.location || "";
+          locationEl.setAttribute('value', staff.location || "");
+        }
+        if (unitEl) {
+          unitEl.value = staff.unit || "";
+          unitEl.setAttribute('value', staff.unit || "");
+        }
+        if (invitationEl) {
+          invitationEl.value = staff.invitation || "";
+        }
+
+        // Force a reflow
+        void idEl.offsetHeight;
+
+        // Show modal
         document.getElementById("staffModal").classList.remove("hidden");
+
+        // Verify after a delay
+        setTimeout(() => {
+          console.log('5. Verification - ID input value:', document.getElementById("staffId").value);
+          console.log('6. Verification - NAME input value:', document.getElementById("staffName").value);
+          console.log('=== END DEBUG ===');
+        }, 150);
       }
 
       function closeStaffModal() {
