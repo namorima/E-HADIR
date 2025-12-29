@@ -15,7 +15,10 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
 
     <style>
       /* ============================================
@@ -25,8 +28,8 @@
         margin: 0;
         padding: 0;
         min-height: 100vh;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto,
-          sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+          "Segoe UI", Roboto, sans-serif;
         position: relative;
         overflow-x: hidden;
         transition: all 0.3s ease;
@@ -111,12 +114,32 @@
             rgba(104, 159, 56, 0.03) 4px
           ),
           /* Fairway contours */
-            radial-gradient(ellipse at 20% 30%, rgba(139, 195, 74, 0.15) 0%, transparent 50%),
-          radial-gradient(ellipse at 80% 70%, rgba(124, 179, 66, 0.12) 0%, transparent 50%),
-          radial-gradient(ellipse at 50% 50%, rgba(104, 159, 56, 0.08) 0%, transparent 60%),
+            radial-gradient(
+              ellipse at 20% 30%,
+              rgba(139, 195, 74, 0.15) 0%,
+              transparent 50%
+            ),
+          radial-gradient(
+            ellipse at 80% 70%,
+            rgba(124, 179, 66, 0.12) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at 50% 50%,
+            rgba(104, 159, 56, 0.08) 0%,
+            transparent 60%
+          ),
           /* Green texture variation */
-            radial-gradient(circle at 30% 80%, rgba(85, 139, 47, 0.1) 0%, transparent 40%),
-          radial-gradient(circle at 70% 20%, rgba(156, 204, 101, 0.08) 0%, transparent 45%);
+            radial-gradient(
+              circle at 30% 80%,
+              rgba(85, 139, 47, 0.1) 0%,
+              transparent 40%
+            ),
+          radial-gradient(
+            circle at 70% 20%,
+            rgba(156, 204, 101, 0.08) 0%,
+            transparent 45%
+          );
         animation: grassSway 20s ease-in-out infinite;
       }
 
@@ -163,8 +186,16 @@
             rgba(139, 195, 74, 0.05) 2px,
             rgba(139, 195, 74, 0.05) 4px
           ),
-          radial-gradient(ellipse at 20% 30%, rgba(124, 179, 66, 0.08) 0%, transparent 50%),
-          radial-gradient(ellipse at 80% 70%, rgba(104, 159, 56, 0.06) 0%, transparent 50%);
+          radial-gradient(
+            ellipse at 20% 30%,
+            rgba(124, 179, 66, 0.08) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at 80% 70%,
+            rgba(104, 159, 56, 0.06) 0%,
+            transparent 50%
+          );
       }
 
       /* Overlay for custom background */
@@ -186,7 +217,8 @@
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
         border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 32px 0 rgba(124, 179, 66, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+        box-shadow: 0 8px 32px 0 rgba(124, 179, 66, 0.15),
+          inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
           0 1px 2px 0 rgba(0, 0, 0, 0.05);
         border-radius: 24px;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -195,20 +227,23 @@
       .glass-card:hover {
         background: rgba(255, 255, 255, 0.45);
         transform: translateY(-2px);
-        box-shadow: 0 12px 40px 0 rgba(124, 179, 66, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
+        box-shadow: 0 12px 40px 0 rgba(124, 179, 66, 0.2),
+          inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
           0 2px 4px 0 rgba(0, 0, 0, 0.08);
       }
 
       body.dark-mode .glass-card {
         background: rgba(30, 30, 30, 0.4);
         border: 1px solid rgba(139, 195, 74, 0.15);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(139, 195, 74, 0.1),
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 0 rgba(139, 195, 74, 0.1),
           0 1px 2px 0 rgba(139, 195, 74, 0.05);
       }
 
       body.dark-mode .glass-card:hover {
         background: rgba(30, 30, 30, 0.5);
-        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(139, 195, 74, 0.15),
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 0 rgba(139, 195, 74, 0.15),
           0 2px 4px 0 rgba(139, 195, 74, 0.08);
       }
 
@@ -218,39 +253,46 @@
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       .glass-button:hover:not(:disabled) {
         background: rgba(59, 130, 246, 0.95);
         transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45),
+          inset 0 1px 0 rgba(255, 255, 255, 0.5);
       }
 
       .glass-button:active:not(:disabled) {
         transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
       }
 
       .glass-button-green {
         background: rgba(16, 185, 129, 0.85);
-        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
       }
 
       .glass-button-green:hover:not(:disabled) {
         background: rgba(16, 185, 129, 0.95);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45),
+          inset 0 1px 0 rgba(255, 255, 255, 0.5);
       }
 
       .glass-button-red {
         background: rgba(239, 68, 68, 0.85);
-        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
       }
 
       .glass-button-red:hover:not(:disabled) {
         background: rgba(239, 68, 68, 0.95);
-        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45),
+          inset 0 1px 0 rgba(255, 255, 255, 0.5);
       }
 
       /* Glass Input */
@@ -259,7 +301,8 @@
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(139, 195, 74, 0.1);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06),
+          0 1px 2px rgba(139, 195, 74, 0.1);
         transition: all 0.3s ease;
         color: #1f2937;
       }
@@ -267,7 +310,8 @@
       .glass-input:focus {
         background: rgba(255, 255, 255, 0.9);
         border-color: rgba(124, 179, 66, 0.6);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 0 0 3px rgba(124, 179, 66, 0.15);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06),
+          0 0 0 3px rgba(124, 179, 66, 0.15);
         outline: none;
       }
 
@@ -284,7 +328,8 @@
       body.dark-mode .glass-input:focus {
         background: rgba(30, 30, 30, 0.6);
         border-color: rgba(124, 179, 66, 0.5);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 0 0 3px rgba(124, 179, 66, 0.15);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06),
+          0 0 0 3px rgba(124, 179, 66, 0.15);
       }
 
       body.dark-mode .glass-input::placeholder {
@@ -447,6 +492,38 @@
         }
       }
 
+      /* Slide in from left animation for text loaded from database */
+      .slide-in-from-left {
+        animation: slideInFromLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes slideInFromLeft {
+        from {
+          transform: translateX(-30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      /* Stagger animation delays */
+      .animate-delay-1 {
+        animation-delay: 0.1s;
+        opacity: 0;
+      }
+
+      .animate-delay-2 {
+        animation-delay: 0.3s;
+        opacity: 0;
+      }
+
+      .animate-delay-3 {
+        animation-delay: 0.5s;
+        opacity: 0;
+      }
+
       /* Vibration Animation */
       .vibrate {
         animation: vibrate 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
@@ -560,7 +637,8 @@
       }
 
       body.dark-mode .tooltip::before {
-        border-color: transparent rgba(226, 232, 240, 0.95) transparent transparent;
+        border-color: transparent rgba(226, 232, 240, 0.95) transparent
+          transparent;
       }
 
       /* ============================================
@@ -964,7 +1042,9 @@
             class="w-20 h-20 mx-auto mb-6 logo-hover"
             onclick="toggleTheme()"
           />
-          <div id="themeTooltip" class="tooltip">Klik logo untuk tukar tema</div>
+          <div id="themeTooltip" class="tooltip">
+            Klik logo untuk tukar tema
+          </div>
         </div>
 
         <h1
@@ -973,7 +1053,10 @@
         >
           <i class="fas mr-2"></i>
           <span id="meetingTitleText"></span>
-          <span id="formClosedText" class="form-closed-text" style="display: none"
+          <span
+            id="formClosedText"
+            class="form-closed-text"
+            style="display: none"
             >BORANG DITUTUP</span
           >
         </h1>
@@ -991,9 +1074,16 @@
       <!-- Main Form -->
       <div class="w-full max-w-md">
         <div id="searchFormContainer" class="glass-card p-8 scale-in">
-          <form id="searchForm" onsubmit="return handleSubmit(event)" class="space-y-5">
+          <form
+            id="searchForm"
+            onsubmit="return handleSubmit(event)"
+            class="space-y-5"
+          >
             <div>
-              <label for="staffId" class="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                for="staffId"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
                 ID Staf
               </label>
               <input
@@ -1034,8 +1124,8 @@
                 ></path>
               </svg>
               <p class="text-sm text-red-800 leading-relaxed">
-                Pengisian Kehadiran Sudah Ditutup, Sila Hubungi Admin/Urusetia Untuk Maklumat Penuh
-                Kehadiran.
+                Pengisian Kehadiran Sudah Ditutup, Sila Hubungi Admin/Urusetia
+                Untuk Maklumat Penuh Kehadiran.
               </p>
             </div>
           </div>
@@ -1074,8 +1164,13 @@
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
             ></path>
           </svg>
-          <h2 class="text-xl font-bold text-red-800 mb-3">Kehadiran Sudah Direkod</h2>
-          <p id="alreadyRecordedText" class="text-gray-700 mb-6 text-sm leading-relaxed"></p>
+          <h2 class="text-xl font-bold text-red-800 mb-3">
+            Kehadiran Sudah Direkod
+          </h2>
+          <p
+            id="alreadyRecordedText"
+            class="text-gray-700 mb-6 text-sm leading-relaxed"
+          ></p>
           <button
             onclick="resetForm()"
             class="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
@@ -1090,7 +1185,10 @@
             <div class="info-section flex items-center justify-between">
               <div class="flex items-center space-x-3">
                 <span class="text-sm text-gray-600">ID Staf:</span>
-                <span id="displayStaffId" class="font-semibold text-gray-900"></span>
+                <span
+                  id="displayStaffId"
+                  class="font-semibold text-gray-900"
+                ></span>
               </div>
               <button
                 onclick="showSearchForm()"
@@ -1102,15 +1200,21 @@
 
             <div class="space-y-3">
               <div>
-                <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">Nama</p>
+                <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                  Nama
+                </p>
                 <p id="staffName" class="font-medium text-gray-900"></p>
               </div>
               <div>
-                <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">Jawatan</p>
+                <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                  Jawatan
+                </p>
                 <p id="staffPosition" class="font-medium text-gray-900"></p>
               </div>
               <div>
-                <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">Lokasi</p>
+                <p class="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                  Lokasi
+                </p>
                 <p id="staffLocation" class="font-medium text-gray-900"></p>
               </div>
             </div>
@@ -1136,14 +1240,18 @@
           <div id="infoPopup" class="popup hidden">
             <span class="popup-close" onclick="closeInfoPopup()">&times;</span>
             <p class="leading-relaxed">
-              Maklumat anda mungkin tiada dalam sistem kami, mohon isi maklumat diperlukan di bawah.
+              Maklumat anda mungkin tiada dalam sistem kami, mohon isi maklumat
+              diperlukan di bawah.
             </p>
           </div>
 
           <div class="info-section flex items-center justify-between mb-5">
             <div class="flex items-center space-x-3">
               <span class="text-sm text-gray-600">ID Staf:</span>
-              <span id="displayRegStaffId" class="font-semibold text-gray-900"></span>
+              <span
+                id="displayRegStaffId"
+                class="font-semibold text-gray-900"
+              ></span>
             </div>
             <button
               onclick="showSearchForm()"
@@ -1155,7 +1263,9 @@
 
           <form onsubmit="return handleRegistration(event)" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Nama</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Nama</label
+              >
               <input
                 type="text"
                 id="newStaffName"
@@ -1165,7 +1275,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Jawatan</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Jawatan</label
+              >
               <input
                 type="text"
                 id="newStaffPosition"
@@ -1176,7 +1288,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Lokasi</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Lokasi</label
+              >
               <input
                 type="text"
                 id="newStaffLocation"
@@ -1197,7 +1311,10 @@
         </div>
 
         <!-- Error Message -->
-        <div id="errorMessage" class="hidden mt-5 message-card glass-card p-8 text-center">
+        <div
+          id="errorMessage"
+          class="hidden mt-5 message-card glass-card p-8 text-center"
+        >
           <svg
             class="w-14 h-14 text-red-600 mx-auto mb-5"
             fill="none"
@@ -1213,7 +1330,10 @@
             ></path>
           </svg>
           <h2 class="text-xl font-bold text-gray-900 mb-3">Perhatian</h2>
-          <p id="errorText" class="text-gray-700 mb-6 text-sm leading-relaxed"></p>
+          <p
+            id="errorText"
+            class="text-gray-700 mb-6 text-sm leading-relaxed"
+          ></p>
           <button
             onclick="resetForm()"
             class="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
@@ -1223,7 +1343,10 @@
         </div>
 
         <!-- Success Message -->
-        <div id="successMessage" class="hidden mt-5 message-card glass-card p-10 text-center">
+        <div
+          id="successMessage"
+          class="hidden mt-5 message-card glass-card p-10 text-center"
+        >
           <svg
             class="w-16 h-16 text-green-600 mx-auto mb-5"
             fill="none"
@@ -1238,10 +1361,15 @@
               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
             ></path>
           </svg>
-          <h2 class="text-2xl font-bold text-green-900 mb-4">Kehadiran Berjaya Direkod</h2>
-          <p id="successText" class="text-gray-700 mb-8 text-sm leading-relaxed">
-            Terima kasih kerana hadir dan memberikan komitmen yang tinggi dalam menjayakan program
-            ini.
+          <h2 class="text-2xl font-bold text-green-900 mb-4">
+            Kehadiran Berjaya Direkod
+          </h2>
+          <p
+            id="successText"
+            class="text-gray-700 mb-8 text-sm leading-relaxed"
+          >
+            Terima kasih kerana hadir dan memberikan komitmen yang tinggi dalam
+            menjayakan program ini.
           </p>
           <button
             onclick="resetForm()"
@@ -1262,7 +1390,12 @@
           style="color: rgba(59, 130, 246, 0.9)"
         >
           <span>Lihat Senarai Jemputan</span>
-          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            class="w-4 h-4 ml-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -1300,8 +1433,8 @@
           </div>
           <div class="ml-3">
             <p class="text-sm leading-relaxed" id="toastMessage">
-              Id Staf Anda Tiada Dalam Sistem Kami, Sila Lengkapkan Borang Dibawah untuk rekod
-              kehadiran.
+              Id Staf Anda Tiada Dalam Sistem Kami, Sila Lengkapkan Borang
+              Dibawah untuk rekod kehadiran.
             </p>
           </div>
           <div class="ml-auto pl-3">
@@ -1335,7 +1468,9 @@
       <div class="glass-card p-8 w-80 scale-in">
         <h3 class="text-lg font-bold text-gray-900 mb-5">Admin Access</h3>
         <div class="mb-5">
-          <label for="adminPassword" class="block text-sm font-medium text-gray-700 mb-2"
+          <label
+            for="adminPassword"
+            class="block text-sm font-medium text-gray-700 mb-2"
             >Password</label
           >
           <input
@@ -1379,12 +1514,19 @@
         class="glass-card p-6 md:p-8 w-full max-w-md md:max-w-6xl scale-in max-h-[90vh] overflow-y-auto"
       >
         <div class="flex justify-between items-center mb-6">
-          <h3 class="text-lg md:text-xl font-bold text-gray-900">Admin Settings</h3>
+          <h3 class="text-lg md:text-xl font-bold text-gray-900">
+            Admin Settings
+          </h3>
           <button
             onclick="closeAdminSettingsModal()"
             class="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded-lg"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -1417,7 +1559,9 @@
         <div id="tabContentTetapan" class="tab-content">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div class="md:col-span-2">
-              <label for="adminTitle" class="block text-sm font-medium text-gray-700 mb-2"
+              <label
+                for="adminTitle"
+                class="block text-sm font-medium text-gray-700 mb-2"
                 >TAJUK</label
               >
               <input
@@ -1428,7 +1572,9 @@
             </div>
 
             <div>
-              <label for="adminLocation" class="block text-sm font-medium text-gray-700 mb-2"
+              <label
+                for="adminLocation"
+                class="block text-sm font-medium text-gray-700 mb-2"
                 >TEMPAT</label
               >
               <input
@@ -1439,7 +1585,9 @@
             </div>
 
             <div>
-              <label for="adminDate" class="block text-sm font-medium text-gray-700 mb-2"
+              <label
+                for="adminDate"
+                class="block text-sm font-medium text-gray-700 mb-2"
                 >TARIKH (DD/MM/YYYY)</label
               >
               <input
@@ -1451,7 +1599,9 @@
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-3">UPLOAD GAMBAR</label>
+              <label class="block text-sm font-medium text-gray-700 mb-3"
+                >UPLOAD GAMBAR</label
+              >
               <div class="flex flex-wrap gap-3">
                 <!-- LOGO Upload -->
                 <div class="flex-1 min-w-[200px]">
@@ -1469,7 +1619,12 @@
                   >
                     📤 Upload LOGO
                   </button>
-                  <p class="text-xs text-gray-500 mt-2 text-center" id="logoStatus">Belum upload</p>
+                  <p
+                    class="text-xs text-gray-500 mt-2 text-center"
+                    id="logoStatus"
+                  >
+                    Belum upload
+                  </p>
                 </div>
 
                 <!-- Background Light Upload -->
@@ -1488,7 +1643,10 @@
                   >
                     <i class="fas fa-sun mr-1"></i> Upload BG LIGHT
                   </button>
-                  <p class="text-xs text-gray-500 mt-2 text-center" id="bgLightStatus">
+                  <p
+                    class="text-xs text-gray-500 mt-2 text-center"
+                    id="bgLightStatus"
+                  >
                     Belum upload
                   </p>
                 </div>
@@ -1509,7 +1667,10 @@
                   >
                     <i class="fas fa-moon mr-1"></i> Upload BG DARK
                   </button>
-                  <p class="text-xs text-gray-500 mt-2 text-center" id="bgDarkStatus">
+                  <p
+                    class="text-xs text-gray-500 mt-2 text-center"
+                    id="bgDarkStatus"
+                  >
                     Belum upload
                   </p>
                 </div>
@@ -1598,22 +1759,51 @@
             class="overflow-x-auto overflow-y-auto max-h-[400px] border border-gray-200 rounded-lg"
           >
             <table class="w-full text-sm">
-              <thead class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+              <thead
+                class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10"
+              >
                 <tr>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">ID</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">NAMA</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">
+                  <th
+                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
+                  >
+                    ID
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
+                  >
+                    NAMA
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
+                  >
                     JAWATAN
                   </th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">LOKASI</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">UNIT</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50">
+                  <th
+                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
+                  >
+                    LOKASI
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
+                  >
+                    UNIT
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
+                  >
                     JEMPUTAN
                   </th>
-                  <th class="px-4 py-3 text-center font-semibold text-gray-700 bg-gray-50">AKSI</th>
+                  <th
+                    class="px-4 py-3 text-center font-semibold text-gray-700 bg-gray-50"
+                  >
+                    AKSI
+                  </th>
                 </tr>
               </thead>
-              <tbody id="staffTableBody" class="divide-y divide-gray-200 bg-white">
+              <tbody
+                id="staffTableBody"
+                class="divide-y divide-gray-200 bg-white"
+              >
                 <!-- Data akan diload dari Google Sheets -->
               </tbody>
             </table>
@@ -1636,14 +1826,22 @@
         class="glass-card p-6 md:p-8 w-full max-w-md md:max-w-3xl scale-in max-h-[90vh] overflow-y-auto"
       >
         <div class="flex justify-between items-center mb-6">
-          <h3 id="staffModalTitle" class="text-lg md:text-xl font-bold text-gray-900">
+          <h3
+            id="staffModalTitle"
+            class="text-lg md:text-xl font-bold text-gray-900"
+          >
             Tambah Staf Baru
           </h3>
           <button
             onclick="closeStaffModal()"
             class="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded-lg"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -1658,7 +1856,9 @@
           <input type="hidden" id="staffRowIndex" />
 
           <div>
-            <label for="staffId" class="block text-sm font-medium text-gray-700 mb-2"
+            <label
+              for="staffId"
+              class="block text-sm font-medium text-gray-700 mb-2"
               >ID STAF</label
             >
             <input
@@ -1670,7 +1870,11 @@
           </div>
 
           <div>
-            <label for="staffName" class="block text-sm font-medium text-gray-700 mb-2">NAMA</label>
+            <label
+              for="staffName"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >NAMA</label
+            >
             <input
               type="text"
               id="staffName"
@@ -1680,7 +1884,9 @@
           </div>
 
           <div>
-            <label for="staffPosition" class="block text-sm font-medium text-gray-700 mb-2"
+            <label
+              for="staffPosition"
+              class="block text-sm font-medium text-gray-700 mb-2"
               >JAWATAN</label
             >
             <input
@@ -1692,7 +1898,9 @@
           </div>
 
           <div>
-            <label for="staffLocation" class="block text-sm font-medium text-gray-700 mb-2"
+            <label
+              for="staffLocation"
+              class="block text-sm font-medium text-gray-700 mb-2"
               >LOKASI</label
             >
             <input
@@ -1704,7 +1912,11 @@
           </div>
 
           <div>
-            <label for="staffUnit" class="block text-sm font-medium text-gray-700 mb-2">UNIT</label>
+            <label
+              for="staffUnit"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >UNIT</label
+            >
             <input
               type="text"
               id="staffUnit"
@@ -1714,7 +1926,9 @@
           </div>
 
           <div>
-            <label for="staffInvitation" class="block text-sm font-medium text-gray-700 mb-2"
+            <label
+              for="staffInvitation"
+              class="block text-sm font-medium text-gray-700 mb-2"
               >JEMPUTAN</label
             >
             <select
@@ -1824,20 +2038,36 @@
                 : DEFAULT_CONFIG.logo;
 
             backgroundUrlLight =
-              meetingInfo.backgroundUrlLight && meetingInfo.backgroundUrlLight.trim() !== ""
+              meetingInfo.backgroundUrlLight &&
+              meetingInfo.backgroundUrlLight.trim() !== ""
                 ? meetingInfo.backgroundUrlLight
                 : DEFAULT_CONFIG.backgroundLight;
 
             backgroundUrlDark =
-              meetingInfo.backgroundUrlDark && meetingInfo.backgroundUrlDark.trim() !== ""
+              meetingInfo.backgroundUrlDark &&
+              meetingInfo.backgroundUrlDark.trim() !== ""
                 ? meetingInfo.backgroundUrlDark
                 : DEFAULT_CONFIG.backgroundDark;
 
             // Update UI
             document.getElementById("headerLogo").src = logoUrl;
-            document.getElementById("meetingTitleText").textContent = meetingInfo.title;
-            document.getElementById("meetingDate").textContent = meetingInfo.date;
-            document.getElementById("meetingLocation").textContent = meetingInfo.location;
+
+            // Update text content
+            const titleElement = document.getElementById("meetingTitleText");
+            const dateElement = document.getElementById("meetingDate");
+            const locationElement = document.getElementById("meetingLocation");
+
+            titleElement.textContent = meetingInfo.title;
+            dateElement.textContent = meetingInfo.date;
+            locationElement.textContent = meetingInfo.location;
+
+            // Add animation classes with staggered delays
+            titleElement.classList.add("slide-in-from-left", "animate-delay-1");
+            dateElement.classList.add("slide-in-from-left", "animate-delay-2");
+            locationElement.classList.add(
+              "slide-in-from-left",
+              "animate-delay-3"
+            );
 
             // Apply background and check form status
             applyCustomBackground();
@@ -1851,9 +2081,15 @@
       // Apply custom background if URL is provided
       function applyCustomBackground() {
         const isDarkMode = document.body.classList.contains("dark-mode");
-        const backgroundUrl = isDarkMode ? backgroundUrlDark : backgroundUrlLight;
+        const backgroundUrl = isDarkMode
+          ? backgroundUrlDark
+          : backgroundUrlLight;
 
-        if (backgroundUrl && backgroundUrl.trim() !== "" && backgroundUrl !== "undefined") {
+        if (
+          backgroundUrl &&
+          backgroundUrl.trim() !== "" &&
+          backgroundUrl !== "undefined"
+        ) {
           document.body.classList.add("custom-bg");
 
           // Remove old style if exists
@@ -1902,7 +2138,10 @@
       }
 
       function checkDarkMode() {
-        return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        return (
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+        );
       }
 
       function applyInitialTheme() {
@@ -1978,7 +2217,11 @@
           return;
         }
 
-        if (view === "main" || view === "alreadyRecorded" || view === "success") {
+        if (
+          view === "main" ||
+          view === "alreadyRecorded" ||
+          view === "success"
+        ) {
           jemputanLink.classList.remove("hidden");
           if (view === "alreadyRecorded" || view === "success") {
             link.classList.add("heartbeat");
@@ -1996,7 +2239,9 @@
           "alreadyRecordedMessage",
           "successMessage",
         ];
-        elements.forEach((id) => document.getElementById(id).classList.add("hidden"));
+        elements.forEach((id) =>
+          document.getElementById(id).classList.add("hidden")
+        );
 
         const infoPopup = document.getElementById("infoPopup");
         if (infoPopup) {
@@ -2077,12 +2322,18 @@
           const lastDate = message.substring(lastDateIndex);
           const formattedMessage = `ID Staf <strong>${currentStaffId}</strong>, bernama <strong>${data.nama}</strong> sudah direkod pada <strong>${lastDate}</strong>`;
 
-          document.getElementById("alreadyRecordedText").innerHTML = formattedMessage;
-          document.getElementById("alreadyRecordedMessage").classList.remove("hidden");
+          document.getElementById("alreadyRecordedText").innerHTML =
+            formattedMessage;
+          document
+            .getElementById("alreadyRecordedMessage")
+            .classList.remove("hidden");
           updateJemputanLink("alreadyRecorded");
         } else if (data.status === "not_found") {
-          document.getElementById("displayRegStaffId").textContent = currentStaffId;
-          document.getElementById("registrationForm").classList.remove("hidden");
+          document.getElementById("displayRegStaffId").textContent =
+            currentStaffId;
+          document
+            .getElementById("registrationForm")
+            .classList.remove("hidden");
           document.getElementById("infoButton").classList.add("vibrate");
           updateJemputanLink("registration");
 
@@ -2092,7 +2343,8 @@
             );
           }, 500);
         } else {
-          document.getElementById("displayStaffId").textContent = currentStaffId;
+          document.getElementById("displayStaffId").textContent =
+            currentStaffId;
           document.getElementById("staffName").textContent = data.nama;
           document.getElementById("staffPosition").textContent = data.jawatan;
           document.getElementById("staffLocation").textContent = data.lokasi;
@@ -2170,9 +2422,12 @@
           "errorMessage",
           "alreadyRecordedMessage",
         ];
-        elements.forEach((id) => document.getElementById(id).classList.add("hidden"));
+        elements.forEach((id) =>
+          document.getElementById(id).classList.add("hidden")
+        );
 
-        const nama = response && response.nama ? response.nama : currentStaffName;
+        const nama =
+          response && response.nama ? response.nama : currentStaffName;
         document.getElementById(
           "successText"
         ).innerHTML = `Terima kasih <strong>${nama}</strong> kerana hadir dan memberikan komitmen yang tinggi.`;
@@ -2189,7 +2444,9 @@
           "successMessage",
           "alreadyRecordedMessage",
         ];
-        elements.forEach((id) => document.getElementById(id).classList.add("hidden"));
+        elements.forEach((id) =>
+          document.getElementById(id).classList.add("hidden")
+        );
 
         document.getElementById("errorText").textContent = message;
         document.getElementById("errorMessage").classList.remove("hidden");
@@ -2258,8 +2515,12 @@
         const submitBtn = document.getElementById("submitBtn");
         const formClosedText = document.getElementById("formClosedText");
         const meetingTitleText = document.getElementById("meetingTitleText");
-        const meetingDateContainer = document.getElementById("meetingDateContainer");
-        const meetingLocationContainer = document.getElementById("meetingLocationContainer");
+        const meetingDateContainer = document.getElementById(
+          "meetingDateContainer"
+        );
+        const meetingLocationContainer = document.getElementById(
+          "meetingLocationContainer"
+        );
         const jemputanLink = document.getElementById("jemputanLink");
         const closedFormMessage = document.getElementById("closedFormMessage");
 
@@ -2295,7 +2556,11 @@
         const locationInput = document.getElementById("newStaffLocation");
         const registerBtn = document.getElementById("registerBtn");
 
-        if (nameInput.value.trim() && positionInput.value.trim() && locationInput.value.trim()) {
+        if (
+          nameInput.value.trim() &&
+          positionInput.value.trim() &&
+          locationInput.value.trim()
+        ) {
           registerBtn.disabled = false;
           registerBtn.textContent = "HANTAR";
           registerBtn.classList.remove("opacity-50");
@@ -2327,12 +2592,16 @@
         const password = document.getElementById("adminPassword").value;
         const correctPassword = "onearekeamall";
 
-        document.getElementById("passwordLoadingIndicator").classList.remove("hidden");
+        document
+          .getElementById("passwordLoadingIndicator")
+          .classList.remove("hidden");
 
         if (password === correctPassword) {
           await loadAdminSettings();
         } else {
-          document.getElementById("passwordLoadingIndicator").classList.add("hidden");
+          document
+            .getElementById("passwordLoadingIndicator")
+            .classList.add("hidden");
           alert("Password salah. Sila cuba lagi.");
         }
       }
@@ -2342,14 +2611,18 @@
           const response = await fetch("/api/meeting-info");
           const data = await response.json();
 
-          document.getElementById("passwordLoadingIndicator").classList.add("hidden");
+          document
+            .getElementById("passwordLoadingIndicator")
+            .classList.add("hidden");
           closePasswordModal();
 
           if (data.success) {
             showAdminSettingsModal(data.data);
           }
         } catch (error) {
-          document.getElementById("passwordLoadingIndicator").classList.add("hidden");
+          document
+            .getElementById("passwordLoadingIndicator")
+            .classList.add("hidden");
           handleAdminError(error);
         }
       }
@@ -2359,16 +2632,21 @@
 
         document.getElementById("adminTitle").value = settings.title || "";
         document.getElementById("adminDate").value = settings.date || "";
-        document.getElementById("adminLocation").value = settings.location || "";
+        document.getElementById("adminLocation").value =
+          settings.location || "";
 
         // Store existing URLs in hidden inputs
         document.getElementById("adminLogo").value = settings.logo || "";
-        document.getElementById("adminBackgroundLight").value = settings.backgroundUrlLight || "";
-        document.getElementById("adminBackgroundDark").value = settings.backgroundUrlDark || "";
+        document.getElementById("adminBackgroundLight").value =
+          settings.backgroundUrlLight || "";
+        document.getElementById("adminBackgroundDark").value =
+          settings.backgroundUrlDark || "";
 
         // Update status indicators (check if URL exists and not empty)
         const hasLogo =
-          settings.logo && settings.logo.trim() !== "" && settings.logo !== "undefined";
+          settings.logo &&
+          settings.logo.trim() !== "" &&
+          settings.logo !== "undefined";
         const hasBgLight =
           settings.backgroundUrlLight &&
           settings.backgroundUrlLight.trim() !== "" &&
@@ -2388,7 +2666,8 @@
           ? "✅ Sudah upload"
           : "Belum upload";
 
-        document.getElementById("adminStatus").checked = settings.formStatus === "on";
+        document.getElementById("adminStatus").checked =
+          settings.formStatus === "on";
 
         modal.classList.remove("hidden");
       }
@@ -2415,7 +2694,9 @@
             : "px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors";
 
         // Show/hide tab content
-        document.getElementById("tabContentTetapan").classList.toggle("hidden", tab !== "tetapan");
+        document
+          .getElementById("tabContentTetapan")
+          .classList.toggle("hidden", tab !== "tetapan");
         document
           .getElementById("tabContentDataStaf")
           .classList.toggle("hidden", tab !== "dataStaf");
@@ -2430,8 +2711,12 @@
       async function loadStaffData() {
         try {
           console.log("Loading staff data...");
-          document.getElementById("staffLoadingIndicator").classList.remove("hidden");
-          document.getElementById("staffTableContainer").classList.add("hidden");
+          document
+            .getElementById("staffLoadingIndicator")
+            .classList.remove("hidden");
+          document
+            .getElementById("staffTableContainer")
+            .classList.add("hidden");
           document.getElementById("staffEmptyState").classList.add("hidden");
 
           const response = await fetch("/api/get-staff");
@@ -2442,16 +2727,24 @@
             allStaffData = data.staff;
             console.log("Loaded staff count:", allStaffData.length);
             renderStaffTable(allStaffData);
-            document.getElementById("staffTableContainer").classList.remove("hidden");
+            document
+              .getElementById("staffTableContainer")
+              .classList.remove("hidden");
           } else {
             console.log("No staff data found");
-            document.getElementById("staffEmptyState").classList.remove("hidden");
+            document
+              .getElementById("staffEmptyState")
+              .classList.remove("hidden");
           }
 
-          document.getElementById("staffLoadingIndicator").classList.add("hidden");
+          document
+            .getElementById("staffLoadingIndicator")
+            .classList.add("hidden");
         } catch (error) {
           console.error("Error loading staff data:", error);
-          document.getElementById("staffLoadingIndicator").classList.add("hidden");
+          document
+            .getElementById("staffLoadingIndicator")
+            .classList.add("hidden");
           document.getElementById("staffEmptyState").classList.remove("hidden");
           alert("Gagal memuat data staf. Sila cuba lagi.");
         }
@@ -2494,7 +2787,9 @@
       }
 
       function searchStaffData() {
-        const searchTerm = document.getElementById("searchStaf").value.toLowerCase();
+        const searchTerm = document
+          .getElementById("searchStaf")
+          .value.toLowerCase();
         if (!searchTerm) {
           renderStaffTable(allStaffData);
           return;
@@ -2504,17 +2799,21 @@
           (staff) =>
             (staff.id && staff.id.toLowerCase().includes(searchTerm)) ||
             (staff.name && staff.name.toLowerCase().includes(searchTerm)) ||
-            (staff.position && staff.position.toLowerCase().includes(searchTerm)) ||
-            (staff.location && staff.location.toLowerCase().includes(searchTerm)) ||
+            (staff.position &&
+              staff.position.toLowerCase().includes(searchTerm)) ||
+            (staff.location &&
+              staff.location.toLowerCase().includes(searchTerm)) ||
             (staff.unit && staff.unit.toLowerCase().includes(searchTerm)) ||
-            (staff.invitation && staff.invitation.toLowerCase().includes(searchTerm))
+            (staff.invitation &&
+              staff.invitation.toLowerCase().includes(searchTerm))
         );
 
         renderStaffTable(filtered);
       }
 
       function showAddStaffModal() {
-        document.getElementById("staffModalTitle").textContent = "Tambah Staf Baru";
+        document.getElementById("staffModalTitle").textContent =
+          "Tambah Staf Baru";
         document.getElementById("staffRowIndex").value = "";
         document.getElementById("staffId").value = "";
         document.getElementById("staffName").value = "";
@@ -2531,7 +2830,9 @@
 
         // Convert to number to ensure match
         const rowIndexNum = parseInt(rowIndex);
-        const staff = allStaffData.find((s) => parseInt(s.rowIndex) === rowIndexNum);
+        const staff = allStaffData.find(
+          (s) => parseInt(s.rowIndex) === rowIndexNum
+        );
 
         console.log("2. Found staff:", staff);
 
@@ -2623,7 +2924,9 @@
         }
 
         try {
-          document.getElementById("staffSaveIndicator").classList.remove("hidden");
+          document
+            .getElementById("staffSaveIndicator")
+            .classList.remove("hidden");
 
           const endpoint = rowIndex ? "/api/update-staff" : "/api/add-staff";
           const response = await fetch(endpoint, {
@@ -2637,7 +2940,11 @@
           document.getElementById("staffSaveIndicator").classList.add("hidden");
 
           if (data.success) {
-            alert(rowIndex ? "Data staf berjaya dikemaskini!" : "Staf baru berjaya ditambah!");
+            alert(
+              rowIndex
+                ? "Data staf berjaya dikemaskini!"
+                : "Staf baru berjaya ditambah!"
+            );
             closeStaffModal();
             loadStaffData();
           } else {
@@ -2736,7 +3043,9 @@
             if (data.success) {
               // Set the uploaded URL (already with serveproxy prefix)
               inputEl.value = data.url;
-              statusEl.textContent = `✅ Upload berjaya! (${(file.size / 1024).toFixed(1)} KB)`;
+              statusEl.textContent = `✅ Upload berjaya! (${(
+                file.size / 1024
+              ).toFixed(1)} KB)`;
               statusEl.className = "text-xs text-green-600 mt-1 ml-1";
             } else {
               throw new Error(data.message || "Upload failed");
@@ -2772,7 +3081,9 @@
 
       async function saveAdminSettings() {
         const logoUrl = document.getElementById("adminLogo").value;
-        const bgLightUrl = document.getElementById("adminBackgroundLight").value;
+        const bgLightUrl = document.getElementById(
+          "adminBackgroundLight"
+        ).value;
         const bgDarkUrl = document.getElementById("adminBackgroundDark").value;
 
         const settings = {
@@ -2807,7 +3118,9 @@
             window.location.reload();
           }, 500);
         } else {
-          alert("Ralat: " + (response.message || "Tidak dapat menyimpan tetapan."));
+          alert(
+            "Ralat: " + (response.message || "Tidak dapat menyimpan tetapan.")
+          );
         }
       }
 
@@ -2820,16 +3133,18 @@
       document.addEventListener("DOMContentLoaded", () => {
         loadSetupConfig(); // Load setup config first, then meeting info
 
-        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-          if (!localStorage.getItem("theme")) {
-            if (e.matches) {
-              document.body.classList.add("dark-mode");
-            } else {
-              document.body.classList.remove("dark-mode");
+        window
+          .matchMedia("(prefers-color-scheme: dark)")
+          .addEventListener("change", (e) => {
+            if (!localStorage.getItem("theme")) {
+              if (e.matches) {
+                document.body.classList.add("dark-mode");
+              } else {
+                document.body.classList.remove("dark-mode");
+              }
+              applyCustomBackground();
             }
-            applyCustomBackground();
-          }
-        });
+          });
 
         const infoButton = document.getElementById("infoButton");
         const infoPopup = document.getElementById("infoPopup");
@@ -2849,10 +3164,12 @@
             }
           });
 
-          document.querySelector(".popup-close").addEventListener("click", (event) => {
-            event.stopPropagation();
-            closeInfoPopup();
-          });
+          document
+            .querySelector(".popup-close")
+            .addEventListener("click", (event) => {
+              event.stopPropagation();
+              closeInfoPopup();
+            });
         }
 
         const staffIdInput = document.getElementById("staffId");
