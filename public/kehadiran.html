@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ms">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>E-HADIR | Senarai Kehadiran</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+      /* ============================================
+       LIQUID GLASS THEME & ANIMATIONS
+       ============================================ */
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        font-family: 'Inter', sans-serif;
+        position: relative;
+        overflow-x: hidden;
+        transition: all 0.5s ease;
+      }
+
+      /* Animated Golf Field Background (Default) */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        background: linear-gradient(
+          135deg,
+          #7cb342 0%, #8bc34a 10%, #9ccc65 20%, #689f38 30%, #7cb342 40%,
+          #558b2f 50%, #8bc34a 60%, #7cb342 70%, #689f38 80%, #9ccc65 90%, #7cb342 100%
+        );
+        background-size: 400% 400%;
+        animation: golfFieldFlow 25s ease infinite;
+      }
+
+      @keyframes golfFieldFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      body.dark-mode::before {
+        background: linear-gradient(135deg, #1b3a1b 0%, #2d4a2d 100%);
+      }
+
+      /* Custom Background Support */
+      body.custom-bg::before {
+        background: none !important;
+        animation: none !important;
+      }
+
+      /* Grass Texture Overlay (Only visible on default bg) */
+      body:not(.custom-bg)::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-image: 
+          repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(85,139,47,0.03) 2px, rgba(85,139,47,0.03) 4px),
+          radial-gradient(circle at 50% 50%, rgba(104,159,56,0.08) 0%, transparent 60%);
+      }
+
+      /* Glass Card Style */
+      .glass-card {
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+      }
+
+      body.dark-mode .glass-card {
+        background: rgba(30, 30, 30, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      }
+      
+      /* Typography Colors */
+      .text-primary { color: #1a202c; }
+      .text-secondary { color: #4a5568; }
+      .text-accent { color: #2f855a; }
+      
+      body.dark-mode .text-primary { color: #f7fafc; }
+      body.dark-mode .text-secondary { color: #a0aec0; }
+      body.dark-mode .text-accent { color: #68d391; }
+
+      .status-badge {
+        padding: 6px 12px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .scale-in {
+        animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      @keyframes scaleIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+
+      /* Responsive View */
+      .staff-table-view { display: none; }
+      @media (min-width: 1024px) {
+        .staff-table-view { display: block; }
+        .staff-cards-view { display: none; }
+      }
+      
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+      body.dark-mode ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+    </style>
+  </head>
+  <body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div class="flex items-center gap-4">
+          <a href="index.html" class="glass-card p-3 rounded-full hover:bg-white/40 transition-all text-primary" title="Kembali ke Utama">
+            <i class="fas fa-home"></i>
+          </a>
+          <div>
+            <!-- Dynamic Event Title will be loaded here -->
+            <h1 id="eventTitle" class="text-2xl md:text-3xl font-bold text-primary tracking-tight drop-shadow-sm">Senarai Kehadiran</h1>
+            <p class="text-secondary/80 text-xs font-bold uppercase tracking-wider mt-1">Status: <span id="onlineStatus" class="bg-green-500/20 px-2 py-0.5 rounded text-green-700 dark:text-green-400">Live Update</span></p>
+          </div>
+        </div>
+        <div id="currentTime" class="glass-card px-6 py-3 text-sm font-mono text-primary font-bold tracking-wider shadow-lg"></div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="glass-card p-4 border-l-4 border-blue-500 hover:scale-[1.02]">
+          <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Jumlah Jemputan</p>
+          <h3 id="statTotal" class="text-3xl font-black text-primary">0</h3>
+        </div>
+        <div class="glass-card p-4 border-l-4 border-green-500 hover:scale-[1.02]">
+          <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Hadir (Daftar)</p>
+          <h3 id="statPresent" class="text-3xl font-black text-green-600 dark:text-green-400">0</h3>
+        </div>
+        <div class="glass-card p-4 border-l-4 border-gray-500 hover:scale-[1.02]">
+          <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Belum Hadir</p>
+          <h3 id="statAbsent" class="text-3xl font-black text-gray-400">0</h3>
+        </div>
+        <div class="glass-card p-4 border-l-4 border-purple-500 hover:scale-[1.02]">
+          <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Peratus Kehadiran</p>
+          <h3 id="statRate" class="text-3xl font-black text-purple-600 dark:text-purple-400">0%</h3>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="glass-card p-6 mb-6">
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-secondary">
+            <i class="fas fa-search"></i>
+          </span>
+          <input type="text" id="searchInput" oninput="filterData()" class="block w-full bg-white/40 dark:bg-black/20 border border-white/40 dark:border-white/10 pl-11 pr-4 py-3.5 rounded-xl text-primary placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-semibold shadow-inner" placeholder="Cari Nama Staf..." />
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div id="mainContent" class="scale-in">
+        <!-- Desktop Table -->
+        <div class="staff-table-view glass-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead class="bg-black/5 dark:bg-white/5 text-xs font-black uppercase text-secondary border-b border-black/5 dark:border-white/10">
+                <tr>
+                  <th class="p-4 w-1/3">Nama Staf</th>
+                  <th class="p-4 w-1/4">Jawatan</th>
+                  <th class="p-4 text-center">Kehadiran</th>
+                  <th class="p-4 text-right">Masa Rekod</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody" class="text-sm divide-y divide-black/5 dark:divide-white/5">
+                <!-- Rows injected here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div id="cardsBody" class="staff-cards-view space-y-3">
+          <!-- Cards injected here -->
+        </div>
+      </div>
+
+      <!-- Loading/Empty States -->
+      <div id="loadingIndicator" class="text-center py-24 glass-card mt-6">
+        <i class="fas fa-spinner fa-spin text-5xl text-blue-600 mb-6 drop-shadow-sm"></i>
+        <p class="text-xl font-bold text-secondary animate-pulse">Mengemaskini data kehadiran...</p>
+      </div>
+
+      <div id="emptyState" class="hidden text-center py-20 bg-white/40 dark:bg-black/40 rounded-3xl mx-auto max-w-lg mt-6 backdrop-blur-md border border-white/40 shadow-xl">
+        <i class="fas fa-search text-6xl text-gray-500 mb-6 opacity-60"></i>
+        <p class="text-primary font-bold text-xl mb-2">Tiada Rekod Ditemui</p>
+        <p class="text-secondary">Cuba carian dengan kata kunci lain.</p>
+      </div>
+    </div>
+
+    <script>
+      let mergedData = [];
+      let isLoading = true;
+      let backgroundLight = "";
+      let backgroundDark = "";
+
+      // Initialize
+      window.onload = async () => {
+        applyInitialTheme();
+        updateTime();
+        setInterval(updateTime, 1000);
+        await refreshData();
+        
+        // Auto refresh
+        setInterval(refreshData, 30000);
+        
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+           if (!localStorage.getItem('theme')) {
+             if (e.matches) document.body.classList.add('dark-mode');
+             else document.body.classList.remove('dark-mode');
+             applyCustomBackground();
+           }
+        });
+      };
+
+      // Theme Functions
+      function applyInitialTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+
+      function applyCustomBackground() {
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        const backgroundUrl = isDarkMode ? backgroundDark : backgroundLight;
+
+        if (backgroundUrl && backgroundUrl.trim() !== "" && backgroundUrl !== "undefined") {
+          document.body.classList.add("custom-bg");
+          
+          let style = document.getElementById("custom-bg-style");
+          if (style) style.remove();
+
+          style = document.createElement("style");
+          style.id = "custom-bg-style";
+          style.textContent = `
+            body.custom-bg::before {
+              background-image: url('${backgroundUrl}') !important;
+              background-size: cover !important;
+              background-position: center !important;
+              background-attachment: fixed !important; 
+              filter: blur(8px) !important;
+              transform: scale(1.1) !important;
+            }
+          `;
+          document.head.appendChild(style);
+        } else {
+          document.body.classList.remove("custom-bg");
+          const style = document.getElementById("custom-bg-style");
+          if (style) style.remove();
+        }
+      }
+
+      function updateTime() {
+        const now = new Date();
+        document.getElementById('currentTime').innerHTML = 
+          `<i class="far fa-clock mr-2 text-blue-600 dark:text-blue-400"></i>${now.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+      }
+
+      async function refreshData() {
+        const loading = document.getElementById('loadingIndicator');
+        const content = document.getElementById('mainContent');
+        
+        if(isLoading) loading.classList.remove('hidden');
+
+        try {
+          // Fetch settings, staff, and attendance
+          const [settingsRes, staffRes, attendRes] = await Promise.all([
+            fetch('/api/admin-settings'),
+            fetch('/api/get-staff'),
+            fetch('/api/attendance/list')
+          ]);
+
+          const settingsData = await settingsRes.json();
+          const staffData = await staffRes.json();
+          const attendData = await attendRes.json();
+
+          // 1. Settings & Background
+          if (settingsData) {
+            if (settingsData.title) document.getElementById('eventTitle').textContent = settingsData.title;
+            
+            backgroundLight = settingsData.backgroundLight;
+            backgroundDark = settingsData.backgroundDark;
+            applyCustomBackground();
+          }
+
+          if (staffData.success && attendData.success) {
+            processData(staffData.staff, attendData.attendance);
+          }
+          
+          document.getElementById('onlineStatus').className = 'bg-green-500/20 px-2 py-0.5 rounded text-green-700 dark:text-green-400 animate-pulse';
+          document.getElementById('onlineStatus').innerText = 'Live Update';
+        } catch (error) {
+          console.error('Error fetching data:', error);
+          document.getElementById('onlineStatus').className = 'bg-red-500/20 px-2 py-0.5 rounded text-red-700 dark:text-red-400';
+          document.getElementById('onlineStatus').innerText = 'Offline';
+        } finally {
+          isLoading = false;
+          loading.classList.add('hidden');
+          content.classList.remove('hidden');
+        }
+      }
+
+      function processData(staffList, attendanceList) {
+        const attendanceMap = new Map();
+        attendanceList.forEach(a => {
+          attendanceMap.set(a.staff_id.toString().toLowerCase(), a);
+        });
+
+        mergedData = [];
+        staffList.forEach(staff => {
+          const attendRecord = attendanceMap.get(staff.id.toString().toLowerCase());
+          const isInvited = (staff.status || '').toUpperCase() === 'JEMPUTAN';
+          // Check if attendance status specifically says 'WAKIL'
+          const isWakil = attendRecord && (attendRecord.status || '').toUpperCase() === 'WAKIL';
+
+          // Show if Invited OR is a Wakil (even if not invited)
+          if (isInvited || isWakil) {
+            mergedData.push({
+              ...staff,
+              isPresent: !!attendRecord,
+              timestamp: attendRecord ? attendRecord.timestamp : null
+            });
+          }
+        });
+
+        mergedData.sort((a, b) => {
+          if ((a.ranking_order || 9999) !== (b.ranking_order || 9999)) {
+            return (a.ranking_order || 9999) - (b.ranking_order || 9999);
+          }
+          return a.name.localeCompare(b.name);
+        });
+
+        updateStats();
+        renderData(mergedData);
+      }
+
+      function updateStats() {
+        const total = mergedData.length;
+        const present = mergedData.filter(d => d.isPresent).length;
+        const absent = total - present;
+        const rate = total > 0 ? Math.round((present / total) * 100) : 0;
+
+        animateValue('statTotal', parseInt(document.getElementById('statTotal').innerText), total, 800);
+        animateValue('statPresent', parseInt(document.getElementById('statPresent').innerText), present, 800);
+        animateValue('statAbsent', parseInt(document.getElementById('statAbsent').innerText), absent, 800);
+        document.getElementById('statRate').innerText = `${rate}%`;
+      }
+
+      function animateValue(id, start, end, duration) {
+        if (start === end) return;
+        const obj = document.getElementById(id);
+        const range = end - start;
+        let minTimer = 50;
+        let stepTime = Math.abs(Math.floor(duration / range));
+        stepTime = Math.max(stepTime, minTimer);
+        let startTime = new Date().getTime();
+        let endTime = startTime + duration;
+        let timer;
+      
+        function run() {
+          let now = new Date().getTime();
+          let remaining = Math.max((endTime - now) / duration, 0);
+          let value = Math.round(end - (remaining * range));
+          obj.innerHTML = value;
+          if (value == end) clearInterval(timer);
+        }
+        
+        timer = setInterval(run, stepTime);
+        run();
+      }
+
+      function renderData(data) {
+        const tbody = document.getElementById('tableBody');
+        const cards = document.getElementById('cardsBody');
+        
+        tbody.innerHTML = '';
+        cards.innerHTML = '';
+
+        if (data.length === 0) {
+          document.getElementById('emptyState').classList.remove('hidden');
+          return;
+        }
+        document.getElementById('emptyState').classList.add('hidden');
+
+        data.forEach(item => {
+          const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit'}) : '-';
+          
+          const statusBadge = item.isPresent 
+            ? `<span class="status-badge bg-green-500 text-white shadow-md"><i class="fas fa-check-circle"></i> HADIR</span>`
+            : `<span class="status-badge bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="far fa-clock"></i> BELUM</span>`;
+            
+          const rowClass = item.isPresent 
+            ? 'bg-green-50 dark:bg-green-900/10' 
+            : 'hover:bg-black/5 dark:hover:bg-white/5';
+
+          // Table Row - HIDDEN ID, ADDED LOCATION
+          tbody.innerHTML += `
+            <tr class="transition-colors ${rowClass}">
+              <td class="p-4">
+                <div class="font-bold text-primary text-[15px]">${item.name}</div>
+              </td>
+              <td class="p-4">
+                <div class="text-[10px] font-medium text-secondary uppercase">${item.position || '-'}</div>
+                <div class="text-[10px] font-medium text-gray-400 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${item.location || '-'}</div>
+              </td>
+              <td class="p-4 text-center">${statusBadge}</td>
+              <td class="p-4 text-right text-xs font-mono font-bold text-secondary">${timeStr}</td>
+            </tr>
+          `;
+
+          // Card - HIDDEN ID, ADDED LOCATION
+          cards.innerHTML += `
+            <div class="glass-card p-4 border-l-4 ${item.isPresent ? 'border-green-500 bg-green-50/50 dark:bg-green-900/20' : 'border-gray-400 dark:border-gray-600'}">
+              <div class="flex justify-between items-start mb-3">
+                <div class="pr-2">
+                  <h4 class="font-bold text-primary text-[15px] leading-tight mb-1">${item.name}</h4>
+                </div>
+                <div class="flex-shrink-0">${statusBadge}</div>
+              </div>
+              
+              <div class="space-y-1">
+                 <div class="text-[11px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">
+                  <i class="fas fa-briefcase mr-1 opacity-50"></i> ${item.position || '-'}
+                </div>
+                <div class="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
+                  <i class="fas fa-map-marker-alt mr-1 opacity-50"></i> ${item.location || '-'}
+                </div>
+              </div>
+
+              ${item.isPresent ? `
+                <div class="flex items-center justify-end gap-2 text-[9px] text-gray-500 dark:text-gray-400 font-bold font-mono mt-1 opacity-80">
+                  <i class="fas fa-history"></i> MASA REKOD: ${timeStr}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        });
+      }
+
+      function filterData() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = mergedData.filter(item => 
+          item.name.toLowerCase().includes(q)
+        );
+        renderData(filtered);
+      }
+    </script>
+  </body>
+</html>

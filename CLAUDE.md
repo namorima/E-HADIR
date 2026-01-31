@@ -9,6 +9,7 @@ E-HADIR is a digital attendance system built with Next.js that integrates with G
 ## Commands
 
 ### Development
+
 ```bash
 npm run dev          # Start development server on http://localhost:3000
 npm run build        # Build production application
@@ -17,6 +18,7 @@ npm run lint         # Run ESLint for code quality
 ```
 
 ### Installation
+
 ```bash
 npm install          # Install all dependencies
 ```
@@ -27,43 +29,49 @@ npm install          # Install all dependencies
 
 1. **Client Entry**: User loads `public/index.html` (single-page application)
 2. **Configuration Loading**: Client fetches `/setup.json` for logo and background images
-3. **Meeting Info**: Client calls `/api/meeting-info` to load event details from Google Sheets
+3. **Meeting Info**: Client calls `/api/meeting-info` to load event details from Neon DB
 4. **Staff Check**: User enters ID → calls `/api/check-staff`
-   - Returns staff info if found in `DATA STAF` sheet
-   - Returns "already_recorded" if attendance already exists in `KEHADIRAN` sheet
+   - Returns staff info if found in `staff` table
+   - Returns "already_recorded" if attendance already exists in `attendance` table
    - Returns "not_found" if staff doesn't exist
-5. **Registration**: For new staff → calls `/api/staff/add` to add to `DATA STAF` sheet
-6. **Attendance Recording**: Calls `/api/attendance/record` to write to `KEHADIRAN` sheet
+5. **Registration**: For new staff → calls `/api/staff/add` to add to `staff` table
+6. **Attendance Recording**: Calls `/api/attendance/record` to write to `attendance` table
 
-### Google Sheets Integration
+### Database Integration
 
-The system uses **Service Account authentication** (not OAuth) with three main sheets:
+The system uses **Neon PostgreSQL** with four main tables:
 
-- **DATA STAF**: Master staff list (columns: ID, Nama, Jawatan, Lokasi, [empty], Status)
-- **DATA JEMPUTAN**: Invitation list (used to check if staff is invited)
-- **KEHADIRAN**: Attendance records (columns: Timestamp, ID, Nama, Status)
-- **FX**: Settings sheet (cells K1-K6: Title, Date, Location, Logo, FormStatus, BackgroundURL)
+- **staff**: Master staff list (id, name, position, location, unit, status)
+- **invitations**: Invitation list (staff_id, event_id)
+- **attendance**: Attendance records (staff_id, name, status, timestamp)
+- **admin_settings**: Settings (title, date, location, logo_url, status, background URLs)
 
 ### API Route Architecture
 
 All API routes are in `pages/api/`:
 
-- `meeting-info.js`: GET - Fetches meeting settings from FX sheet (K1:K6)
+- `meeting-info.js`: GET - Fetches meeting settings from `admin_settings` table
 - `check-staff.js`: POST - Checks if staff ID exists and if attendance already recorded
-- `attendance/record.js`: POST - Records attendance to KEHADIRAN sheet
-- `staff/add.js`: POST - Adds new staff to DATA STAF sheet
-- `settings/update.js`: POST - Updates FX sheet settings (admin only)
+- `attendance/record.js`: POST - Records attendance to `attendance` table
+- `staff/add.js`: POST - Adds new staff to `staff` table and records attendance
+- `settings/update.js`: POST - Updates `admin_settings` table (admin only)
+- `get-staff.js`: GET - Fetches all staff from database
+- `add-staff.js`: POST - Adds new staff to database
+- `update-staff.js`: POST - Updates staff information
+- `delete-staff.js`: POST - Deletes staff (CASCADE deletes related records)
+- `db/init.js`: GET - Initialize all database tables
+- `db/migrate.js`: POST - One-time migration from Google Sheets to Neon DB
 
-**Important**: All API routes use Service Account credentials from environment variables. The `googleapis` library handles authentication with `GoogleAuth` class.
+**Important**: All API routes use Neon PostgreSQL via `@neondatabase/serverless` package. Database functions are in `lib/db.js`.
 
 ### Configuration System
 
 The app uses a dual-configuration approach:
 
 1. **setup.json** (public/setup.json): Client-side config for logo and background images (loaded by browser)
-2. **Google Sheets FX sheet**: Server-side config for meeting info, form status, and dynamic settings
+2. **Neon Database admin_settings table**: Server-side config for meeting info, form status, and dynamic settings
 
-The `meeting-info.js` API route intentionally ignores the logo URL from FX sheet and always returns default values from hardcoded constants (lines 42-47) to maintain consistency.
+The `meeting-info.js` API route fetches settings from the database and returns the latest configuration.
 
 ### Date/Time Handling
 
@@ -90,44 +98,70 @@ The `meeting-info.js` API route intentionally ignores the logo URL from FX sheet
 Required in `.env.local`:
 
 ```env
+DATABASE_URL=postgresql://user:password@host/database?sslmode=require
+NEXT_PUBLIC_ADMIN_PASSWORD=your-admin-password
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
+**Critical**: `DATABASE_URL` must be a valid Neon PostgreSQL connection string. Get this from Neon Console → Connection Details.
+
+**Optional** (for migration only):
+
+```env
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 GOOGLE_CLIENT_EMAIL=your-service-account@project.iam.gserviceaccount.com
 GOOGLE_SHEET_ID=your-spreadsheet-id
-NEXT_PUBLIC_ADMIN_PASSWORD=your-admin-password
 ```
-
-**Critical**: `GOOGLE_PRIVATE_KEY` must include literal `\n` characters (not actual newlines). The API routes replace `\\n` with actual newlines (`.replace(/\\n/g, '\n')`).
 
 ## Deployment Considerations
 
 ### Next.js Configuration
+
 - Uses rewrites to serve static HTML from root (`/` → `/index.html`)
 - CORS headers configured for all `/api/*` routes
 - Webpack configured to disable `fs` module for client-side bundles
 
-### Google Sheets Permissions
-The Service Account email must have **Editor** permissions on the target spreadsheet.
+### Database Setup
+
+1. Create Neon PostgreSQL database
+2. Set `DATABASE_URL` in environment variables
+3. Visit `/api/db/init` to create tables
+4. (Optional) Visit `/api/db/migrate` to import data from Google Sheets
 
 ### Vercel/Netlify
-Environment variables must be configured in the hosting platform's dashboard. The app is optimized for serverless deployment.
+
+Environment variables must be configured in the hosting platform's dashboard. The app is optimized for serverless deployment with Neon's serverless driver.
 
 ## Key Implementation Details
 
 ### Staff Status Logic
+
 - Default status is "WAKIL" (representative/proxy attendance)
-- Status becomes "HADIR" (present) if staff ID exists in `DATA JEMPUTAN` sheet
-- Status column (F) in `DATA STAF` is auto-populated on first attendance if empty
+- Status becomes "HADIR" (present) if staff ID exists in `invitations` table
+- Status column in `staff` table is auto-populated on first attendance if empty
 
 ### Duplicate Prevention
-The `check-staff.js` route searches `KEHADIRAN` sheet backwards (from last row) to find most recent attendance record for a given staff ID, preventing duplicate entries.
+
+The `check-staff.js` route queries `attendance` table (ORDER BY created_at DESC) to find most recent attendance record for a given staff ID, preventing duplicate entries.
+
+### Database Performance
+
+- Indexes on `staff_id`, `timestamp`, and `created_at` for fast queries
+- Foreign key constraints ensure data integrity
+- CASCADE delete removes related records automatically
 
 ### Form Status Control
-The FX sheet cell K5 controls form availability:
+
+The `admin_settings.status` column controls form availability:
+
 - "on" = Form active
 - "off" = Form disabled (shows "BORANG DITUTUP")
 - Checked client-side and server-side
 
 ### Custom Backgrounds
+
 - Images stored in `public/` folder or external URLs
 - Applied via dynamic CSS injection with blur effect
 - Falls back to default animated golf field gradient if not configured

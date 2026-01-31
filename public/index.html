@@ -19,6 +19,9 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
       /* ============================================
@@ -28,8 +31,7 @@
         margin: 0;
         padding: 0;
         min-height: 100vh;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-          "Segoe UI", Roboto, sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         position: relative;
         overflow-x: hidden;
         transition: all 0.3s ease;
@@ -549,6 +551,22 @@
         }
       }
 
+      /* Slide In Animation for Toast */
+      .animate-slide-in {
+        animation: slideInRight 0.3s ease-out forwards;
+      }
+
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
       /* ============================================
        LOGO & THEME TOGGLE
        ============================================ */
@@ -1006,7 +1024,7 @@
       }
     </style>
   </head>
-  <body>
+  <body class="dark-mode">
     <!-- Page Loading Overlay -->
     <div
       id="pageLoadingOverlay"
@@ -1048,8 +1066,8 @@
         </div>
 
         <h1
-          class="text-xl font-bold text-gray-900 mb-3 title-container"
-          style="letter-spacing: 0.02em"
+          class="text-lg font-bold text-gray-900 mb-3 title-container"
+          style="letter-spacing: 0.01em"
         >
           <i class="fas mr-2"></i>
           <span id="meetingTitleText"></span>
@@ -1101,9 +1119,9 @@
             <button
               type="submit"
               id="submitBtn"
-              class="glass-button w-full rounded-xl px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+              class="glass-button w-full rounded-lg px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-50 uppercase tracking-wider"
             >
-              Semak
+              Semak Kehadiran
             </button>
           </form>
 
@@ -1383,9 +1401,7 @@
       <!-- Google Sheet Integration Link -->
       <div id="jemputanLink" class="mt-6 text-center fade-in hidden">
         <a
-          href="https://v0-google-sheet-integration-psi.vercel.app/"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="kehadiran.html"
           class="inline-flex items-center text-sm font-medium transition-all hover:scale-105"
           style="color: rgba(59, 130, 246, 0.9)"
         >
@@ -1505,469 +1521,6 @@
       </div>
     </div>
 
-    <!-- Admin Settings Modal -->
-    <div
-      id="adminSettingsModal"
-      class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden px-4"
-    >
-      <div
-        class="glass-card p-6 md:p-8 w-full max-w-md md:max-w-6xl scale-in max-h-[90vh] overflow-y-auto"
-      >
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-lg md:text-xl font-bold text-gray-900">
-            Admin Settings
-          </h3>
-          <button
-            onclick="closeAdminSettingsModal()"
-            class="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded-lg"
-          >
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Tab Navigation -->
-        <div class="flex border-b border-gray-200 mb-6">
-          <button
-            id="tabTetapan"
-            onclick="switchAdminTab('tetapan')"
-            class="px-6 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors"
-          >
-            ⚙️ Tetapan
-          </button>
-          <button
-            id="tabDataStaf"
-            onclick="switchAdminTab('dataStaf')"
-            class="px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            👥 Data Staf
-          </button>
-        </div>
-
-        <!-- Tab Content: Tetapan -->
-        <div id="tabContentTetapan" class="tab-content">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <div class="md:col-span-2">
-              <label
-                for="adminTitle"
-                class="block text-sm font-medium text-gray-700 mb-2"
-                >TAJUK</label
-              >
-              <input
-                type="text"
-                id="adminTitle"
-                class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-              />
-            </div>
-
-            <div>
-              <label
-                for="adminLocation"
-                class="block text-sm font-medium text-gray-700 mb-2"
-                >TEMPAT</label
-              >
-              <input
-                type="text"
-                id="adminLocation"
-                class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-              />
-            </div>
-
-            <div>
-              <label
-                for="adminDate"
-                class="block text-sm font-medium text-gray-700 mb-2"
-                >TARIKH (DD/MM/YYYY)</label
-              >
-              <input
-                type="text"
-                id="adminDate"
-                class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-                placeholder="DD/MM/YYYY"
-              />
-            </div>
-
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-3"
-                >UPLOAD GAMBAR</label
-              >
-              <div class="flex flex-wrap gap-3">
-                <!-- LOGO Upload -->
-                <div class="flex-1 min-w-[200px]">
-                  <input
-                    type="file"
-                    id="logoFileInput"
-                    accept="image/*"
-                    class="hidden"
-                    onchange="handleFileSelect(event, 'logo')"
-                  />
-                  <button
-                    type="button"
-                    onclick="document.getElementById('logoFileInput').click()"
-                    class="glass-button rounded-xl px-6 py-3 text-sm font-semibold text-white w-full"
-                  >
-                    📤 Upload LOGO
-                  </button>
-                  <p
-                    class="text-xs text-gray-500 mt-2 text-center"
-                    id="logoStatus"
-                  >
-                    Belum upload
-                  </p>
-                </div>
-
-                <!-- Background Light Upload -->
-                <div class="flex-1 min-w-[200px]">
-                  <input
-                    type="file"
-                    id="bgLightFileInput"
-                    accept="image/*"
-                    class="hidden"
-                    onchange="handleFileSelect(event, 'bgLight')"
-                  />
-                  <button
-                    type="button"
-                    onclick="document.getElementById('bgLightFileInput').click()"
-                    class="glass-button rounded-xl px-6 py-3 text-sm font-semibold text-white w-full"
-                  >
-                    <i class="fas fa-sun mr-1"></i> Upload BG LIGHT
-                  </button>
-                  <p
-                    class="text-xs text-gray-500 mt-2 text-center"
-                    id="bgLightStatus"
-                  >
-                    Belum upload
-                  </p>
-                </div>
-
-                <!-- Background Dark Upload -->
-                <div class="flex-1 min-w-[200px]">
-                  <input
-                    type="file"
-                    id="bgDarkFileInput"
-                    accept="image/*"
-                    class="hidden"
-                    onchange="handleFileSelect(event, 'bgDark')"
-                  />
-                  <button
-                    type="button"
-                    onclick="document.getElementById('bgDarkFileInput').click()"
-                    class="glass-button rounded-xl px-6 py-3 text-sm font-semibold text-white w-full"
-                  >
-                    <i class="fas fa-moon mr-1"></i> Upload BG DARK
-                  </button>
-                  <p
-                    class="text-xs text-gray-500 mt-2 text-center"
-                    id="bgDarkStatus"
-                  >
-                    Belum upload
-                  </p>
-                </div>
-              </div>
-
-              <!-- Hidden inputs to store URLs -->
-              <input type="hidden" id="adminLogo" />
-              <input type="hidden" id="adminBackgroundLight" />
-              <input type="hidden" id="adminBackgroundDark" />
-            </div>
-
-            <div class="md:col-span-2">
-              <p class="text-xs text-gray-500 ml-1">
-                💡 Kosongkan untuk guna background custom default (FELCRA)
-              </p>
-            </div>
-
-            <div class="md:col-span-2 flex items-center pt-2 pb-2">
-              <input
-                type="checkbox"
-                id="adminStatus"
-                class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-              />
-              <label
-                for="adminStatus"
-                class="ml-3 block text-sm font-medium text-gray-700 cursor-pointer"
-              >
-                Aktifkan Borang (Tick untuk "on", Untick untuk "off")
-              </label>
-            </div>
-          </div>
-
-          <div class="mt-6 flex gap-3">
-            <button
-              onclick="closeAdminSettingsModal()"
-              class="glass-input flex-1 rounded-xl px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-opacity-70 transition-all"
-            >
-              Batal
-            </button>
-            <button
-              onclick="saveAdminSettings()"
-              class="glass-button flex-1 rounded-xl px-6 py-3 text-sm font-semibold text-white"
-            >
-              Simpan Tetapan
-            </button>
-          </div>
-        </div>
-        <!-- End Tab Content: Tetapan -->
-
-        <!-- Tab Content: Data Staf -->
-        <div id="tabContentDataStaf" class="tab-content hidden">
-          <div class="mb-4 flex gap-3">
-            <input
-              type="text"
-              id="searchStaf"
-              placeholder="🔍 Cari nama atau ID..."
-              class="glass-input flex-1 rounded-xl px-4 py-3 text-sm"
-              oninput="searchStaffData()"
-            />
-            <button
-              onclick="showAddStaffModal()"
-              class="glass-button rounded-xl px-6 py-3 text-sm font-semibold text-white whitespace-nowrap"
-            >
-              ➕ Tambah Staf
-            </button>
-            <button
-              onclick="closeAdminSettingsModal()"
-              class="glass-input rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-opacity-70 transition-all"
-              title="Tutup"
-            >
-              ✖
-            </button>
-          </div>
-
-          <div id="staffLoadingIndicator" class="hidden text-center py-8">
-            <div class="inline-flex items-center">
-              <div
-                class="w-5 h-5 border-2 border-t-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mr-2"
-              ></div>
-              <span class="text-sm text-gray-600">Memuat data...</span>
-            </div>
-          </div>
-
-          <div
-            id="staffTableContainer"
-            class="overflow-x-auto overflow-y-auto max-h-[400px] border border-gray-200 rounded-lg"
-          >
-            <table class="w-full text-sm">
-              <thead
-                class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10"
-              >
-                <tr>
-                  <th
-                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
-                  >
-                    ID
-                  </th>
-                  <th
-                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
-                  >
-                    NAMA
-                  </th>
-                  <th
-                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
-                  >
-                    JAWATAN
-                  </th>
-                  <th
-                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
-                  >
-                    LOKASI
-                  </th>
-                  <th
-                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
-                  >
-                    UNIT
-                  </th>
-                  <th
-                    class="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50"
-                  >
-                    JEMPUTAN
-                  </th>
-                  <th
-                    class="px-4 py-3 text-center font-semibold text-gray-700 bg-gray-50"
-                  >
-                    AKSI
-                  </th>
-                </tr>
-              </thead>
-              <tbody
-                id="staffTableBody"
-                class="divide-y divide-gray-200 bg-white"
-              >
-                <!-- Data akan diload dari Google Sheets -->
-              </tbody>
-            </table>
-          </div>
-
-          <div id="staffEmptyState" class="hidden text-center py-12">
-            <p class="text-gray-500 text-sm">Tiada data staf dijumpai</p>
-          </div>
-        </div>
-        <!-- End Tab Content: Data Staf -->
-      </div>
-    </div>
-
-    <!-- Add/Edit Staff Modal -->
-    <div
-      id="staffModal"
-      class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden px-4"
-    >
-      <div
-        class="glass-card p-6 md:p-8 w-full max-w-md md:max-w-3xl scale-in max-h-[90vh] overflow-y-auto"
-      >
-        <div class="flex justify-between items-center mb-6">
-          <h3
-            id="staffModalTitle"
-            class="text-lg md:text-xl font-bold text-gray-900"
-          >
-            Tambah Staf Baru
-          </h3>
-          <button
-            onclick="closeStaffModal()"
-            class="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded-lg"
-          >
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="hidden" id="staffRowIndex" />
-
-          <div>
-            <label
-              for="staffId"
-              class="block text-sm font-medium text-gray-700 mb-2"
-              >ID STAF</label
-            >
-            <input
-              type="text"
-              id="staffId"
-              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-              placeholder="Contoh: 123456"
-            />
-          </div>
-
-          <div>
-            <label
-              for="staffName"
-              class="block text-sm font-medium text-gray-700 mb-2"
-              >NAMA</label
-            >
-            <input
-              type="text"
-              id="staffName"
-              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-              placeholder="Nama Penuh"
-            />
-          </div>
-
-          <div>
-            <label
-              for="staffPosition"
-              class="block text-sm font-medium text-gray-700 mb-2"
-              >JAWATAN</label
-            >
-            <input
-              type="text"
-              id="staffPosition"
-              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-              placeholder="Contoh: Pegawai Teknologi Maklumat"
-            />
-          </div>
-
-          <div>
-            <label
-              for="staffLocation"
-              class="block text-sm font-medium text-gray-700 mb-2"
-              >LOKASI</label
-            >
-            <input
-              type="text"
-              id="staffLocation"
-              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-              placeholder="Contoh: Ibu Pejabat"
-            />
-          </div>
-
-          <div>
-            <label
-              for="staffUnit"
-              class="block text-sm font-medium text-gray-700 mb-2"
-              >UNIT</label
-            >
-            <input
-              type="text"
-              id="staffUnit"
-              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-              placeholder="Contoh: Bahagian ICT"
-            />
-          </div>
-
-          <div>
-            <label
-              for="staffInvitation"
-              class="block text-sm font-medium text-gray-700 mb-2"
-              >JEMPUTAN</label
-            >
-            <select
-              id="staffInvitation"
-              class="glass-input block w-full rounded-xl px-4 py-3 text-sm"
-            >
-              <option value="">Pilih...</option>
-              <option value="JEMPUTAN">JEMPUTAN</option>
-              <option value="WAKIL">WAKIL</option>
-              <option value="TIADA">TIADA</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="mt-6 flex gap-3">
-          <button
-            onclick="closeStaffModal()"
-            class="glass-input flex-1 rounded-xl px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-opacity-70 transition-all"
-          >
-            Batal
-          </button>
-          <button
-            onclick="saveStaffData()"
-            class="glass-button flex-1 rounded-xl px-6 py-3 text-sm font-semibold text-white"
-          >
-            Simpan
-          </button>
-        </div>
-
-        <div id="staffSaveIndicator" class="hidden mt-4 text-center">
-          <div class="inline-flex items-center">
-            <div
-              class="w-5 h-5 border-2 border-t-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mr-2"
-            ></div>
-            <span class="text-sm text-gray-600">Menyimpan...</span>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -2597,7 +2150,7 @@
           .classList.remove("hidden");
 
         if (password === correctPassword) {
-          await loadAdminSettings();
+          window.location.href = "setup.html";
         } else {
           document
             .getElementById("passwordLoadingIndicator")
@@ -2679,8 +2232,6 @@
       }
 
       // Tab switching functions
-      let allStaffData = [];
-
       function switchAdminTab(tab) {
         // Update tab buttons
         document.getElementById("tabTetapan").className =
@@ -2704,285 +2255,6 @@
         // Load staff data when switching to Data Staf tab
         if (tab === "dataStaf") {
           loadStaffData();
-        }
-      }
-
-      // Staff data management functions
-      async function loadStaffData() {
-        try {
-          console.log("Loading staff data...");
-          document
-            .getElementById("staffLoadingIndicator")
-            .classList.remove("hidden");
-          document
-            .getElementById("staffTableContainer")
-            .classList.add("hidden");
-          document.getElementById("staffEmptyState").classList.add("hidden");
-
-          const response = await fetch("/api/get-staff");
-          const data = await response.json();
-          console.log("Staff data response:", data);
-
-          if (data.success && data.staff && data.staff.length > 0) {
-            allStaffData = data.staff;
-            console.log("Loaded staff count:", allStaffData.length);
-            renderStaffTable(allStaffData);
-            document
-              .getElementById("staffTableContainer")
-              .classList.remove("hidden");
-          } else {
-            console.log("No staff data found");
-            document
-              .getElementById("staffEmptyState")
-              .classList.remove("hidden");
-          }
-
-          document
-            .getElementById("staffLoadingIndicator")
-            .classList.add("hidden");
-        } catch (error) {
-          console.error("Error loading staff data:", error);
-          document
-            .getElementById("staffLoadingIndicator")
-            .classList.add("hidden");
-          document.getElementById("staffEmptyState").classList.remove("hidden");
-          alert("Gagal memuat data staf. Sila cuba lagi.");
-        }
-      }
-
-      function renderStaffTable(staffList) {
-        console.log("Rendering staff table with", staffList.length, "items");
-        const tbody = document.getElementById("staffTableBody");
-        tbody.innerHTML = "";
-
-        staffList.forEach((staff, index) => {
-          console.log("Rendering staff:", staff);
-          const row = document.createElement("tr");
-          row.className = "hover:bg-gray-50 transition-colors";
-          row.innerHTML = `
-            <td class="px-4 py-3 text-gray-900">${staff.id || "-"}</td>
-            <td class="px-4 py-3 text-gray-900">${staff.name || "-"}</td>
-            <td class="px-4 py-3 text-gray-600">${staff.position || "-"}</td>
-            <td class="px-4 py-3 text-gray-600">${staff.location || "-"}</td>
-            <td class="px-4 py-3 text-gray-600">${staff.unit || "-"}</td>
-            <td class="px-4 py-3 text-gray-600">${staff.invitation || "-"}</td>
-            <td class="px-4 py-3 text-center">
-              <button
-                onclick="editStaff(${staff.rowIndex})"
-                class="text-blue-600 hover:text-blue-800 font-medium text-sm mr-3"
-              >
-                ✏️ Edit
-              </button>
-              <button
-                onclick="confirmDeleteStaff(${staff.rowIndex})"
-                class="text-red-600 hover:text-red-800 font-medium text-sm"
-              >
-                🗑️ Padam
-              </button>
-            </td>
-          `;
-          tbody.appendChild(row);
-        });
-        console.log("Table rendering complete");
-      }
-
-      function searchStaffData() {
-        const searchTerm = document
-          .getElementById("searchStaf")
-          .value.toLowerCase();
-        if (!searchTerm) {
-          renderStaffTable(allStaffData);
-          return;
-        }
-
-        const filtered = allStaffData.filter(
-          (staff) =>
-            (staff.id && staff.id.toLowerCase().includes(searchTerm)) ||
-            (staff.name && staff.name.toLowerCase().includes(searchTerm)) ||
-            (staff.position &&
-              staff.position.toLowerCase().includes(searchTerm)) ||
-            (staff.location &&
-              staff.location.toLowerCase().includes(searchTerm)) ||
-            (staff.unit && staff.unit.toLowerCase().includes(searchTerm)) ||
-            (staff.invitation &&
-              staff.invitation.toLowerCase().includes(searchTerm))
-        );
-
-        renderStaffTable(filtered);
-      }
-
-      function showAddStaffModal() {
-        document.getElementById("staffModalTitle").textContent =
-          "Tambah Staf Baru";
-        document.getElementById("staffRowIndex").value = "";
-        document.getElementById("staffId").value = "";
-        document.getElementById("staffName").value = "";
-        document.getElementById("staffPosition").value = "";
-        document.getElementById("staffLocation").value = "";
-        document.getElementById("staffUnit").value = "";
-        document.getElementById("staffInvitation").value = "";
-        document.getElementById("staffModal").classList.remove("hidden");
-      }
-
-      function editStaff(rowIndex) {
-        console.log("=== EDIT STAFF DEBUG ===");
-        console.log("1. rowIndex:", rowIndex);
-
-        // Convert to number to ensure match
-        const rowIndexNum = parseInt(rowIndex);
-        const staff = allStaffData.find(
-          (s) => parseInt(s.rowIndex) === rowIndexNum
-        );
-
-        console.log("2. Found staff:", staff);
-
-        if (!staff) {
-          alert("Data staf tidak dijumpai. RowIndex: " + rowIndex);
-          return;
-        }
-
-        // Get elements
-        const titleEl = document.getElementById("staffModalTitle");
-        const rowIndexEl = document.getElementById("staffRowIndex");
-        const idEl = document.getElementById("staffId");
-        const nameEl = document.getElementById("staffName");
-        const positionEl = document.getElementById("staffPosition");
-        const locationEl = document.getElementById("staffLocation");
-        const unitEl = document.getElementById("staffUnit");
-        const invitationEl = document.getElementById("staffInvitation");
-
-        // Set values BEFORE showing modal
-        if (titleEl) titleEl.textContent = "Edit Data Staf";
-        if (rowIndexEl) rowIndexEl.value = rowIndex;
-
-        // Use setAttribute as fallback
-        if (idEl) {
-          idEl.value = staff.id || "";
-          idEl.setAttribute("value", staff.id || "");
-          console.log("3. ID set to:", staff.id);
-        }
-        if (nameEl) {
-          nameEl.value = staff.name || "";
-          nameEl.setAttribute("value", staff.name || "");
-          console.log("4. NAME set to:", staff.name);
-        }
-        if (positionEl) {
-          positionEl.value = staff.position || "";
-          positionEl.setAttribute("value", staff.position || "");
-        }
-        if (locationEl) {
-          locationEl.value = staff.location || "";
-          locationEl.setAttribute("value", staff.location || "");
-        }
-        if (unitEl) {
-          unitEl.value = staff.unit || "";
-          unitEl.setAttribute("value", staff.unit || "");
-        }
-        if (invitationEl) {
-          invitationEl.value = staff.invitation || "";
-        }
-
-        // Force a reflow
-        void idEl.offsetHeight;
-
-        // Show modal
-        document.getElementById("staffModal").classList.remove("hidden");
-
-        // Verify after a delay
-        setTimeout(() => {
-          console.log(
-            "5. Verification - ID input value:",
-            document.getElementById("staffId").value
-          );
-          console.log(
-            "6. Verification - NAME input value:",
-            document.getElementById("staffName").value
-          );
-          console.log("=== END DEBUG ===");
-        }, 150);
-      }
-
-      function closeStaffModal() {
-        document.getElementById("staffModal").classList.add("hidden");
-      }
-
-      async function saveStaffData() {
-        const rowIndex = document.getElementById("staffRowIndex").value;
-        const staffData = {
-          id: document.getElementById("staffId").value.trim(),
-          name: document.getElementById("staffName").value.trim(),
-          position: document.getElementById("staffPosition").value.trim(),
-          location: document.getElementById("staffLocation").value.trim(),
-          unit: document.getElementById("staffUnit").value.trim(),
-          invitation: document.getElementById("staffInvitation").value.trim(),
-          rowIndex: rowIndex ? parseInt(rowIndex) : null,
-        };
-
-        if (!staffData.id || !staffData.name) {
-          alert("ID dan Nama adalah wajib!");
-          return;
-        }
-
-        try {
-          document
-            .getElementById("staffSaveIndicator")
-            .classList.remove("hidden");
-
-          const endpoint = rowIndex ? "/api/update-staff" : "/api/add-staff";
-          const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(staffData),
-          });
-
-          const data = await response.json();
-
-          document.getElementById("staffSaveIndicator").classList.add("hidden");
-
-          if (data.success) {
-            alert(
-              rowIndex
-                ? "Data staf berjaya dikemaskini!"
-                : "Staf baru berjaya ditambah!"
-            );
-            closeStaffModal();
-            loadStaffData();
-          } else {
-            alert("Gagal menyimpan data: " + (data.message || "Unknown error"));
-          }
-        } catch (error) {
-          document.getElementById("staffSaveIndicator").classList.add("hidden");
-          console.error("Error saving staff:", error);
-          alert("Gagal menyimpan data staf. Sila cuba lagi.");
-        }
-      }
-
-      async function confirmDeleteStaff(rowIndex) {
-        const staff = allStaffData.find((s) => s.rowIndex === rowIndex);
-        if (!staff) return;
-
-        if (!confirm(`Adakah anda pasti mahu memadam staf "${staff.name}"?`)) {
-          return;
-        }
-
-        try {
-          const response = await fetch("/api/delete-staff", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rowIndex }),
-          });
-
-          const data = await response.json();
-
-          if (data.success) {
-            alert("Staf berjaya dipadam!");
-            loadStaffData();
-          } else {
-            alert("Gagal memadam staf: " + (data.message || "Unknown error"));
-          }
-        } catch (error) {
-          console.error("Error deleting staff:", error);
-          alert("Gagal memadam staf. Sila cuba lagi.");
         }
       }
 
@@ -3209,6 +2481,451 @@
         allowInput: true,
         minDate: "today",
       });
+
+      // ============================================
+      // STAFF MANAGEMENT FUNCTIONS
+      // ============================================
+      let allStaffData = [];
+      let filteredStaffData = [];
+      let selectedStaffIds = new Set();
+      let currentPage = 1;
+      let rowsPerPage = 10;
+
+      async function loadStaffData() {
+        const loadingIndicator = document.getElementById('staffLoadingIndicator');
+        const tableContainer = document.getElementById('staffTableContainer');
+        const cardsContainer = document.getElementById('staffCardsContainer');
+        const emptyState = document.getElementById('staffEmptyState');
+        
+        try {
+          loadingIndicator.classList.remove('hidden');
+          tableContainer.classList.add('hidden');
+          cardsContainer.classList.add('hidden');
+          emptyState.classList.add('hidden');
+          
+          const response = await fetch('/api/get-staff');
+          const data = await response.json();
+          
+          if (data.success && data.staff) {
+            allStaffData = data.staff;
+            filteredStaffData = [...allStaffData];
+            populateFilterDropdowns();
+            updateStaffStats();
+            applyStaffFilters();
+            loadingIndicator.classList.add('hidden');
+            
+            if (allStaffData.length === 0) {
+              emptyState.classList.remove('hidden');
+            } else {
+              tableContainer.classList.remove('hidden');
+              cardsContainer.classList.remove('hidden');
+            }
+          }
+        } catch (error) {
+          console.error('Error loading staff:', error);
+          loadingIndicator.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+        }
+      }
+
+      function populateFilterDropdowns() {
+        const units = [...new Set(allStaffData.map(s => s.unit).filter(Boolean))].sort();
+        const locations = [...new Set(allStaffData.map(s => s.location).filter(Boolean))].sort();
+        
+        const filterUnit = document.getElementById('filterUnit');
+        const filterLocation = document.getElementById('filterLocation');
+        
+        filterUnit.innerHTML = '<option value="">Semua Unit</option>';
+        filterLocation.innerHTML = '<option value="">Semua Lokasi</option>';
+        
+        units.forEach(unit => {
+          filterUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+        });
+        
+        locations.forEach(location => {
+          filterLocation.innerHTML += `<option value="${location}">${location}</option>`;
+        });
+      }
+
+      function updateStaffStats() {
+        const totalStaff = allStaffData.length;
+        const invitedStaff = allStaffData.filter(s => s.status === 'JEMPUTAN').length;
+        const proxyStaff = allStaffData.filter(s => s.status === 'WAKIL').length;
+        
+        document.getElementById('totalStaffCount').textContent = totalStaff;
+        document.getElementById('invitedStaffCount').textContent = invitedStaff;
+        document.getElementById('proxyStaffCount').textContent = proxyStaff;
+        document.getElementById('selectedStaffCount').textContent = selectedStaffIds.size;
+      }
+
+      function searchStaffData() {
+        applyStaffFilters();
+      }
+
+      function applyStaffFilters() {
+        const searchTerm = document.getElementById('searchStaf').value.toLowerCase();
+        const filterUnit = document.getElementById('filterUnit').value;
+        const filterLocation = document.getElementById('filterLocation').value;
+        const filterInvitation = document.getElementById('filterInvitation').value;
+        
+        filteredStaffData = allStaffData.filter(staff => {
+          const searchMatch = !searchTerm || 
+            staff.id.toLowerCase().includes(searchTerm) ||
+            staff.name.toLowerCase().includes(searchTerm) ||
+            (staff.position && staff.position.toLowerCase().includes(searchTerm)) ||
+            (staff.location && staff.location.toLowerCase().includes(searchTerm)) ||
+            (staff.unit && staff.unit.toLowerCase().includes(searchTerm));
+          
+          const unitMatch = !filterUnit || staff.unit === filterUnit;
+          const locationMatch = !filterLocation || staff.location === filterLocation;
+          const invitationMatch = !filterInvitation || staff.status === filterInvitation;
+          
+          return searchMatch && unitMatch && locationMatch && invitationMatch;
+        });
+        
+        currentPage = 1;
+        renderPaginatedStaff();
+      }
+
+      function clearStaffFilters() {
+        document.getElementById('searchStaf').value = '';
+        document.getElementById('filterUnit').value = '';
+        document.getElementById('filterLocation').value = '';
+        document.getElementById('filterInvitation').value = '';
+        applyStaffFilters();
+      }
+
+      function renderPaginatedStaff() {
+        const totalRecords = filteredStaffData.length;
+        const totalPages = Math.ceil(totalRecords / rowsPerPage);
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = Math.min(startIndex + rowsPerPage, totalRecords);
+        const currentPageData = filteredStaffData.slice(startIndex, endIndex);
+        
+        document.getElementById('showingFrom').textContent = totalRecords > 0 ? startIndex + 1 : 0;
+        document.getElementById('showingTo').textContent = endIndex;
+        document.getElementById('totalRecords').textContent = totalRecords;
+        document.getElementById('currentPage').textContent = currentPage;
+        document.getElementById('totalPages').textContent = totalPages || 1;
+        
+        document.getElementById('prevPageBtn').disabled = currentPage === 1;
+        document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+        
+        renderStaffTable(currentPageData);
+        renderStaffCards(currentPageData);
+        
+        const emptyState = document.getElementById('staffEmptyState');
+        const paginationControls = document.getElementById('paginationControls');
+        
+        if (totalRecords === 0) {
+          emptyState.classList.remove('hidden');
+          paginationControls.classList.add('hidden');
+        } else {
+          emptyState.classList.add('hidden');
+          paginationControls.classList.remove('hidden');
+        }
+      }
+
+      function renderStaffTable(data) {
+        const tbody = document.getElementById('staffTableBody');
+        tbody.innerHTML = '';
+        
+        data.forEach(staff => {
+          const isSelected = selectedStaffIds.has(staff.id);
+          const statusBadge = getStatusBadge(staff.status);
+          
+          tbody.innerHTML += `
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <td class="px-4 py-3 text-center">
+                <input type="checkbox" class="w-4 h-4 rounded" ${isSelected ? 'checked' : ''} 
+                  onchange="toggleStaffSelection('${staff.id}')"/>
+              </td>
+              <td class="px-4 py-3 text-gray-900 dark:text-gray-100 font-medium">${staff.id}</td>
+              <td class="px-4 py-3 text-gray-900 dark:text-gray-100">${staff.name}</td>
+              <td class="px-4 py-3 text-gray-800 dark:text-gray-300 text-xs">${staff.position || '-'}</td>
+              <td class="px-4 py-3 text-gray-800 dark:text-gray-300 text-xs">${staff.location || '-'}</td>
+              <td class="px-4 py-3 text-gray-800 dark:text-gray-300 text-xs">${staff.unit || '-'}</td>
+              <td class="px-4 py-3 text-center">${statusBadge}</td>
+              <td class="px-4 py-3 text-center">
+                <button onclick="showEditStaffModal('${staff.id}')" class="text-blue-600 hover:text-blue-800 p-1">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteStaffConfirm('${staff.id}')" class="text-red-600 hover:text-red-800 p-1 ml-2">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      function renderStaffCards(data) {
+        const container = document.getElementById('staffCardsContainer');
+        container.innerHTML = '';
+        
+        data.forEach(staff => {
+          const isSelected = selectedStaffIds.has(staff.id);
+          const statusBadge = getStatusBadge(staff.status);
+          
+          container.innerHTML += `
+            <div class="glass-card p-4">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="w-5 h-5 rounded" ${isSelected ? 'checked' : ''}
+                    onchange="toggleStaffSelection('${staff.id}')"/>
+                  <div>
+                    <h4 class="font-bold text-gray-900 dark:text-white">${staff.name}</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">${staff.id}</p>
+                  </div>
+                </div>
+                ${statusBadge}
+              </div>
+              <div class="space-y-2 mb-3 text-sm">
+                <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                  <i class="fas fa-briefcase w-4"></i><span>${staff.position || '-'}</span>
+                </div>
+                <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                  <i class="fas fa-map-marker-alt w-4"></i><span>${staff.location || '-'}</span>
+                </div>
+                <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                  <i class="fas fa-building w-4"></i><span>${staff.unit || '-'}</span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="showEditStaffModal('${staff.id}')" 
+                  class="flex-1 glass-button rounded-lg px-4 py-2 text-sm font-semibold text-white">
+                  <i class="fas fa-edit mr-1"></i>Edit
+                </button>
+                <button onclick="deleteStaffConfirm('${staff.id}')" 
+                  class="flex-1 glass-button-red rounded-lg px-4 py-2 text-sm font-semibold text-white">
+                  <i class="fas fa-trash mr-1"></i>Delete
+                </button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      function getStatusBadge(status) {
+        const badges = {
+          'JEMPUTAN': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"><i class="fas fa-envelope mr-1"></i>Jemputan</span>',
+          'WAKIL': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"><i class="fas fa-user-tag mr-1"></i>Wakil</span>',
+          'TIADA': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"><i class="fas fa-minus-circle mr-1"></i>Tiada</span>'
+        };
+        return badges[status] || badges['TIADA'];
+      }
+
+      function changeRowsPerPage() {
+        rowsPerPage = parseInt(document.getElementById('rowsPerPage').value);
+        currentPage = 1;
+        renderPaginatedStaff();
+      }
+
+      function previousPage() {
+        if (currentPage > 1) {
+          currentPage--;
+          renderPaginatedStaff();
+        }
+      }
+
+      function nextPage() {
+        const totalPages = Math.ceil(filteredStaffData.length / rowsPerPage);
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderPaginatedStaff();
+        }
+      }
+
+      function toggleStaffSelection(staffId) {
+        if (selectedStaffIds.has(staffId)) {
+          selectedStaffIds.delete(staffId);
+        } else {
+          selectedStaffIds.add(staffId);
+        }
+        updateBulkActionsBar();
+        updateStaffStats();
+      }
+
+      function toggleSelectAll() {
+        const checkbox = document.getElementById('selectAllStaff');
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = Math.min(startIndex + rowsPerPage, filteredStaffData.length);
+        const currentPageData = filteredStaffData.slice(startIndex, endIndex);
+        
+        if (checkbox.checked) {
+          currentPageData.forEach(staff => selectedStaffIds.add(staff.id));
+        } else {
+          currentPageData.forEach(staff => selectedStaffIds.delete(staff.id));
+        }
+        updateBulkActionsBar();
+        updateStaffStats();
+        renderPaginatedStaff();
+      }
+
+      function updateBulkActionsBar() {
+        const bulkActionsBar = document.getElementById('bulkActionsBar');
+        const bulkSelectedCount = document.getElementById('bulkSelectedCount');
+        
+        if (selectedStaffIds.size > 0) {
+          bulkActionsBar.classList.remove('hidden');
+          bulkSelectedCount.textContent = selectedStaffIds.size;
+        } else {
+          bulkActionsBar.classList.add('hidden');
+        }
+      }
+
+      function clearBulkSelection() {
+        selectedStaffIds.clear();
+        updateBulkActionsBar();
+        updateStaffStats();
+        renderPaginatedStaff();
+      }
+
+      async function bulkUpdateInvitation(status) {
+        if (selectedStaffIds.size === 0) return alert('Sila pilih staf terlebih dahulu');
+        if (!confirm(`Kemaskini ${selectedStaffIds.size} staf kepada "${status}"?`)) return;
+        
+        try {
+          for (const staffId of selectedStaffIds) {
+            const staff = allStaffData.find(s => s.id === staffId);
+            await fetch('/api/update-staff', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ...staff, status })
+            });
+          }
+          alert('Berjaya dikemaskini');
+          clearBulkSelection();
+          loadStaffData();
+        } catch (error) {
+          alert('Gagal: ' + error.message);
+        }
+      }
+
+      async function bulkDeleteStaff() {
+        if (selectedStaffIds.size === 0) return alert('Sila pilih staf terlebih dahulu');
+        if (!confirm(`AMARAN: Padam ${selectedStaffIds.size} staf?`)) return;
+        
+        try {
+          for (const staffId of selectedStaffIds) {
+            await fetch('/api/delete-staff', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: staffId })
+            });
+          }
+          alert('Berjaya dipadam');
+          clearBulkSelection();
+          loadStaffData();
+        } catch (error) {
+          alert('Gagal: ' + error.message);
+        }
+      }
+
+      function sortStaffTable(column) {
+        filteredStaffData.sort((a, b) => {
+          const aVal = (a[column] || '').toLowerCase();
+          const bVal = (b[column] || '').toLowerCase();
+          return aVal > bVal ? 1 : -1;
+        });
+        renderPaginatedStaff();
+      }
+
+      function showAddStaffModal() {
+        document.getElementById('staffModalTitle').textContent = 'Tambah Staf Baru';
+        document.getElementById('modalStaffId').value = '';
+        document.getElementById('modalStaffId').disabled = false;
+        document.getElementById('modalStaffName').value = '';
+        document.getElementById('modalStaffPosition').value = '';
+        document.getElementById('modalStaffLocation').value = '';
+        document.getElementById('modalStaffUnit').value = '';
+        document.getElementById('modalStaffInvitation').value = '';
+        document.getElementById('staffModal').classList.remove('hidden');
+      }
+
+      function showEditStaffModal(staffId) {
+        const staff = allStaffData.find(s => s.id === staffId);
+        if (!staff) {
+          alert('Data staf tidak dijumpai!');
+          return;
+        }
+        
+        document.getElementById('staffModalTitle').textContent = 'Edit Staf';
+        document.getElementById('modalStaffId').value = staff.id;
+        document.getElementById('modalStaffId').disabled = true;
+        document.getElementById('modalStaffName').value = staff.name || '';
+        document.getElementById('modalStaffPosition').value = staff.position || '';
+        document.getElementById('modalStaffLocation').value = staff.location || '';
+        document.getElementById('modalStaffUnit').value = staff.unit || '';
+        document.getElementById('modalStaffInvitation').value = staff.status || '';
+        
+        document.getElementById('staffModal').classList.remove('hidden');
+      }
+
+      function closeStaffModal() {
+        document.getElementById('staffModal').classList.add('hidden');
+      }
+
+      async function saveStaffData() {
+        const id = document.getElementById('modalStaffId').value.trim();
+        const name = document.getElementById('modalStaffName').value.trim();
+        const position = document.getElementById('modalStaffPosition').value.trim();
+        const location = document.getElementById('modalStaffLocation').value.trim();
+        const unit = document.getElementById('modalStaffUnit').value.trim();
+        const status = document.getElementById('modalStaffInvitation').value;
+        const isEdit = document.getElementById('modalStaffId').disabled;
+        
+        if (!id || !name) return alert('ID dan Nama adalah wajib');
+        
+        const saveIndicator = document.getElementById('staffSaveIndicator');
+        saveIndicator.classList.remove('hidden');
+        
+        try {
+          const endpoint = isEdit ? '/api/update-staff' : '/api/add-staff';
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, name, position, location, unit, status })
+          });
+          
+          const data = await response.json();
+          if (data.success) {
+            alert(isEdit ? 'Berjaya dikemaskini' : 'Berjaya ditambah');
+            closeStaffModal();
+            loadStaffData();
+          } else {
+            throw new Error(data.error);
+          }
+        } catch (error) {
+          alert('Gagal: ' + error.message);
+        } finally {
+          saveIndicator.classList.add('hidden');
+        }
+      }
+
+      async function deleteStaffConfirm(staffId) {
+        const staff = allStaffData.find(s => s.id === staffId);
+        if (!staff) return;
+        if (!confirm(`Padam "${staff.name}" (${staffId})?`)) return;
+        
+        try {
+          const response = await fetch('/api/delete-staff', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: staffId })
+          });
+          
+          const data = await response.json();
+          if (data.success) {
+            alert('Berjaya dipadam');
+            loadStaffData();
+          } else {
+            throw new Error(data.error);
+          }
+        } catch (error) {
+          alert('Gagal: ' + error.message);
+        }
+      }
     </script>
 
     <datalist id="jawatanList">

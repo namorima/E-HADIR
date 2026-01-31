@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="ms">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>E-HADIR | Admin Setup</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+      /* Shared Styles from index.html */
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        position: relative;
+        overflow-x: hidden;
+        transition: all 0.3s ease;
+      }
+
+      /* Dark mode by default */
+      body.dark-mode {
+        background-color: #0f172a;
+        color: #f3f4f6;
+      }
+
+      body.dark-mode::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        background: linear-gradient(135deg, #1b3a1b 0%, #2d4a2d 100%);
+        background-size: cover;
+      }
+
+      .glass-card {
+        background: rgba(255, 255, 255, 0.35);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 32px 0 rgba(124, 179, 66, 0.15);
+        border-radius: 24px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      body.dark-mode .glass-card {
+        background: rgba(30, 30, 30, 0.6);
+        border: 1px solid rgba(139, 195, 74, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      }
+
+      .glass-button {
+        background: rgba(59, 130, 246, 0.85);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .glass-button:hover {
+        background: rgba(59, 130, 246, 0.95);
+        transform: translateY(-1px);
+      }
+
+      .glass-input {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        transition: all 0.3s ease;
+      }
+
+      body.dark-mode .glass-input {
+        background: rgba(30, 30, 30, 0.5);
+        border: 1px solid rgba(139, 195, 74, 0.2);
+        color: #f3f4f6;
+      }
+
+      /* Specific Table Improvements */
+      .high-contrast-table th {
+        background: rgba(15, 23, 42, 0.9) !important;
+        color: #ffffff !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .high-contrast-table td {
+        color: #e2e8f0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .high-contrast-table tr:hover {
+        background: rgba(59, 130, 246, 0.1) !important;
+      }
+
+      .status-badge {
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.5);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(59, 130, 246, 0.7);
+      }
+
+      .scale-in {
+        animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes scaleIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+
+      /* Responsive Table vs Cards */
+      .staff-table-view {
+        display: none;
+      }
+      .staff-cards-view {
+        display: block;
+      }
+
+      @media (min-width: 1024px) {
+        .staff-table-view {
+          display: block;
+        }
+        .staff-cards-view {
+          display: none;
+        }
+      }
+
+      .staff-card {
+        border-left: 4px solid #3b82f6;
+        transition: all 0.3s ease;
+      }
+      .staff-card.selected {
+        border-left-color: #60a5fa;
+        background: rgba(59, 130, 246, 0.2);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+      }
+    </style>
+  </head>
+  <body class="dark-mode p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header Area -->
+      <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div class="flex items-center gap-4">
+          <a href="index.html" class="glass-button p-3 rounded-full hover:bg-opacity-80 transition-all shadow-lg text-white" title="Kembali ke Utama">
+            <i class="fas fa-arrow-left"></i>
+          </a>
+          <div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Setup Admin</h1>
+            <p class="text-blue-300/70 text-xs font-medium uppercase tracking-wider">Konfigurasi & Pengurusan Staf</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span id="currentTime" class="glass-card px-4 py-2 text-sm font-mono text-white"></span>
+            <div class="glass-card px-4 py-2 text-sm font-semibold text-white">
+                <i class="fas fa-user-shield mr-2"></i>Admin Access
+            </div>
+        </div>
+      </div>
+
+      <!-- Main Content Card -->
+      <div class="glass-card overflow-hidden scale-in">
+        <!-- Tab Navigation -->
+        <div class="flex bg-black/20 backdrop-blur-md border-b border-white/10">
+          <button
+            id="tabTetapan"
+            onclick="switchAdminTab('tetapan')"
+            class="flex-1 md:flex-none px-6 py-4 text-xs font-bold transition-all border-b-2 border-blue-500 text-blue-400"
+          >
+            <i class="fas fa-cog mr-2"></i>TETAPAN SISTEM
+          </button>
+          <button
+            id="tabDataStaf"
+            onclick="switchAdminTab('dataStaf')"
+            class="flex-1 md:flex-none px-6 py-4 text-xs font-bold transition-all border-b-2 border-transparent text-gray-400 hover:text-white"
+          >
+            <i class="fas fa-users mr-2"></i>PENGURUSAN STAF
+          </button>
+          <button
+            id="tabKehadiran"
+            onclick="switchAdminTab('kehadiran')"
+            class="flex-1 md:flex-none px-6 py-4 text-xs font-bold transition-all border-b-2 border-transparent text-gray-400 hover:text-white"
+          >
+            <i class="fas fa-clipboard-check mr-2"></i>PENGURUSAN KEHADIRAN
+          </button>
+          <button
+            id="tabJawatan"
+            onclick="switchAdminTab('jawatan')"
+            class="flex-1 md:flex-none px-6 py-4 text-xs font-bold transition-all border-b-2 border-transparent text-gray-400 hover:text-white"
+          >
+            <i class="fas fa-sort-numeric-down mr-2"></i>SUSUNAN JAWATAN
+          </button>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <!-- Tab Content: Tetapan -->
+          <div id="tabContentTetapan" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="md:col-span-2">
+                <label for="adminTitle" class="block text-xs font-bold text-blue-300 mb-2 uppercase tracking-widest">Tajuk Acara / Mesyuarat</label>
+                <input type="text" id="adminTitle" class="glass-input block w-full rounded-xl px-4 py-2.5 text-sm font-medium" placeholder="Contoh: MESYUARAT AGUNG TAHUNAN" />
+              </div>
+
+              <div>
+                <label for="adminLocation" class="block text-xs font-bold text-blue-300 mb-2 uppercase tracking-widest">Lokasi</label>
+                <input type="text" id="adminLocation" class="glass-input block w-full rounded-xl px-4 py-2.5 text-sm font-medium" placeholder="Contoh: DEWAN SERBAGUNA" />
+              </div>
+
+              <div>
+                <label for="adminDate" class="block text-xs font-bold text-blue-300 mb-2 uppercase tracking-widest">Tarikh</label>
+                <input type="text" id="adminDate" class="glass-input block w-full rounded-xl px-4 py-2.5 text-sm font-medium" />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-xs font-bold text-blue-300 mb-4 uppercase tracking-widest">Muat Naik Media (Logo & Latar Belakang)</label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <!-- LOGO -->
+                  <div class="glass-card p-4 text-center">
+                    <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'logo')" />
+                    <div class="flex gap-2 mb-3">
+                      <button onclick="document.getElementById('logoFileInput').click()" class="flex-1 py-2 px-2 glass-button text-white text-[9px] font-bold rounded-lg truncate">
+                          <i class="fas fa-upload mr-1 text-[8px]"></i>LOGO ACARA
+                      </button>
+                      <button onclick="previewImage('adminLogo')" class="px-3 py-2 glass-button bg-gray-600 hover:bg-gray-700 text-white text-[9px] font-bold rounded-lg" title="Lihat Logo">
+                          <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                    <p class="text-[10px] text-gray-400 truncate" id="logoStatus">Belum dimuat naik</p>
+                  </div>
+                  <!-- BG LIGHT -->
+                  <div class="glass-card p-4 text-center">
+                    <input type="file" id="bgLightFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'bgLight')" />
+                    <div class="flex gap-2 mb-3">
+                      <button onclick="document.getElementById('bgLightFileInput').click()" class="flex-1 py-2 px-2 glass-button text-white text-[9px] font-bold rounded-lg truncate">
+                          <i class="fas fa-sun mr-1 text-[8px]"></i>BG SIANG
+                      </button>
+                      <button onclick="previewImage('adminBackgroundLight')" class="px-3 py-2 glass-button bg-gray-600 hover:bg-gray-700 text-white text-[9px] font-bold rounded-lg" title="Lihat Background Siang">
+                          <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                    <p class="text-[10px] text-gray-400 truncate" id="bgLightStatus">Belum dimuat naik</p>
+                  </div>
+                  <!-- BG DARK -->
+                  <div class="glass-card p-4 text-center">
+                    <input type="file" id="bgDarkFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'bgDark')" />
+                    <div class="flex gap-2 mb-3">
+                      <button onclick="document.getElementById('bgDarkFileInput').click()" class="flex-1 py-2 px-2 glass-button text-white text-[9px] font-bold rounded-lg truncate">
+                          <i class="fas fa-moon mr-1 text-[8px]"></i>BG MALAM
+                      </button>
+                      <button onclick="previewImage('adminBackgroundDark')" class="px-3 py-2 glass-button bg-gray-600 hover:bg-gray-700 text-white text-[9px] font-bold rounded-lg" title="Lihat Background Malam">
+                          <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                    <p class="text-[10px] text-gray-400 truncate" id="bgDarkStatus">Belum dimuat naik</p>
+                  </div>
+                </div>
+                <!-- Hidden inputs -->
+                <input type="hidden" id="adminLogo" /><input type="hidden" id="adminBackgroundLight" /><input type="hidden" id="adminBackgroundDark" />
+              </div>
+
+              <div class="md:col-span-2 flex items-center p-4 glass-card bg-blue-500/10 border-blue-500/20">
+                <input type="checkbox" id="adminStatus" class="h-6 w-6 rounded border-white/20 text-blue-600 focus:ring-blue-500 cursor-pointer" />
+                <label for="adminStatus" class="ml-4 block text-sm font-bold text-white cursor-pointer select-none">
+                  AKTIFKAN BORANG KEHADIRAN (Sila tick untuk membolehkan staf mendaftar)
+                </label>
+              </div>
+            </div>
+
+            <div class="mt-8">
+              <button onclick="saveAdminSettings()" class="w-full md:w-auto glass-button bg-blue-600 hover:bg-blue-700 rounded-lg px-6 py-2.5 text-xs font-semibold text-white shadow-xl">
+                <i class="fas fa-save mr-2 opacity-70"></i>Simpan Tetapan
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab Content: Data Staf -->
+          <div id="tabContentDataStaf" class="tab-content hidden">
+            <!-- Stats Dashboard Area -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="glass-card p-4 border-l-4 border-blue-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('')">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Staf</p>
+                    <h3 id="totalStaffCount" class="text-2xl font-semibold text-white">0</h3>
+                </div>
+                <div class="glass-card p-4 border-l-4 border-green-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('JEMPUTAN')">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Jemputan</p>
+                    <h3 id="invitedStaffCount" class="text-2xl font-semibold text-green-400">0</h3>
+                </div>
+                <div class="glass-card p-4 border-l-4 border-orange-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('WAKIL')">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Wakil</p>
+                    <h3 id="proxyStaffCount" class="text-2xl font-semibold text-orange-400">0</h3>
+                </div>
+                <div class="glass-card p-4 border-l-4 border-purple-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('TIADA JEMPUTAN')">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tiada Jemputan</p>
+                    <h3 id="noInvitationStaffCount" class="text-2xl font-semibold text-purple-400">0</h3>
+                </div>
+            </div>
+
+            <!-- Controls Area -->
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fas fa-search text-xs"></i>
+                    </span>
+                    <input type="text" id="searchStaf" oninput="searchStaffData()" class="glass-input block w-full pl-10 pr-4 py-3 rounded-lg text-sm" placeholder="Cari ID, Nama, Jawatan..." />
+                </div>
+                <button onclick="showAddStaffModal()" class="glass-button bg-blue-600 hover:bg-blue-700 px-5 py-3 rounded-lg text-xs font-semibold text-white flex items-center justify-center">
+                    <i class="fas fa-user-plus mr-2 opacity-70"></i>Tambah Staf
+                </button>
+            </div>
+
+            <!-- Filters Area -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <select id="filterUnit" onchange="applyStaffFilters()" class="glass-input rounded-xl px-4 py-3 text-xs font-bold text-white"><option value="">Unit: Semua</option></select>
+                <select id="filterLocation" onchange="applyStaffFilters()" class="glass-input rounded-xl px-4 py-3 text-xs font-bold text-white"><option value="">Lokasi: Semua</option></select>
+                <select id="filterInvitation" onchange="applyInvitationFilter()" class="glass-input rounded-xl px-4 py-3 text-xs font-bold text-white">
+                    <option value="">Status: Semua</option>
+                    <option value="JEMPUTAN">JEMPUTAN</option>
+                    <option value="WAKIL">WAKIL</option>
+                    <option value="TIADA JEMPUTAN">TIADA JEMPUTAN</option>
+                </select>
+                <button onclick="clearStaffFilters()" class="glass-card hover:bg-white/10 px-4 py-3 text-xs font-bold text-gray-300">
+                    <i class="fas fa-undo-alt mr-2"></i>RESET FILTER
+                </button>
+            </div>
+
+            <!-- Bulk Actions Bar -->
+            <div id="bulkActionsBar" class="hidden mb-6 scale-in">
+                <div class="glass-card p-4 flex flex-wrap items-center gap-4 border-2 border-blue-500/30">
+                    <span class="text-sm font-bold text-white bg-blue-600 px-3 py-1 rounded-lg">
+                        <span id="bulkSelectedCount">0</span> STAF DIPILIH
+                    </span>
+                    <div class="flex gap-2">
+                        <button onclick="bulkUpdateInvitation('JEMPUTAN')" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-[9px] font-bold text-white uppercase tracking-wider">Set Jemputan</button>
+                        <button onclick="bulkUpdateInvitation('WAKIL')" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 rounded-lg text-[9px] font-bold text-white uppercase tracking-wider">Set Wakil</button>
+                        <button onclick="bulkDeleteStaff()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-[9px] font-bold text-white uppercase tracking-wider">Hapus</button>
+                    </div>
+                    <button onclick="clearBulkSelection()" class="ml-auto text-xs text-gray-400 hover:text-white underline">BATAL PILIHAN</button>
+                </div>
+            </div>
+
+            <!-- Responsive Staff Container -->
+            <div class="mb-6">
+                <!-- Desktop Table View -->
+                <div id="staffTableContainer" class="staff-table-view glass-card overflow-hidden border border-white/10">
+                    <div class="overflow-x-auto max-h-[600px]">
+                        <table class="w-full high-contrast-table">
+                            <thead class="sticky top-0 z-20">
+                                <tr>
+                                    <th class="p-4 text-center w-12"><input type="checkbox" id="selectAllStaff" onchange="toggleSelectAll()" class="w-4 h-4 rounded cursor-pointer" /></th>
+                                    <th class="p-4 text-left text-xs cursor-pointer" onclick="sortStaffTable('id')">ID <i class="fas fa-sort ml-1 opacity-50"></i></th>
+                                    <th class="p-4 text-left text-xs cursor-pointer" onclick="sortStaffTable('name')">NAMA <i class="fas fa-sort ml-1 opacity-50"></i></th>
+                                    <th class="p-4 text-left text-xs">JAWATAN</th>
+                                    <th class="p-4 text-left text-xs">LOKASI</th>
+                                    <th class="p-4 text-left text-xs">UNIT</th>
+                                    <th class="p-4 text-center text-xs">STATUS</th>
+                                    <th class="p-4 text-center text-xs">AKSI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffTableBody" class="text-sm">
+                                <!-- JS dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div id="staffCardsContainer" class="staff-cards-view space-y-4">
+                    <div class="flex justify-between items-center mb-2 px-2">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="selectAllStaffMobile" onchange="toggleSelectAll()" class="w-5 h-5 rounded cursor-pointer" />
+                            <label for="selectAllStaffMobile" class="text-xs font-bold text-gray-400">PILIH SEMUA</label>
+                        </div>
+                    </div>
+                    <div id="staffCardsBody" class="grid grid-cols-1 gap-4">
+                        <!-- JS dynamic cards -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination Control Bar -->
+            <div id="paginationControls" class="glass-card p-4 flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+                <div class="flex items-center gap-4 text-xs font-bold text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <span>Papar</span>
+                        <select id="rowsPerPage" onchange="changeRowsPerPage()" class="bg-black/40 border border-white/10 rounded px-2 py-1 text-blue-400 focus:outline-none">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <div class="h-4 w-px bg-white/10 hidden md:block"></div>
+                    <div class="whitespace-nowrap">
+                        Menunjuk <span id="showingFrom" class="text-white">0</span> - <span id="showingTo" class="text-white">0</span> daripada <span id="totalRecords" class="text-white">0</span> rekod
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button id="prevPageBtn" onclick="previousPage()" class="glass-button px-4 py-2 text-[10px] font-black tracking-tighter disabled:opacity-30 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-left mr-2"></i>PREV
+                    </button>
+                    <div class="glass-card px-4 py-2 text-[10px] font-black text-blue-400">
+                        PAGE <span id="currentPage">1</span> / <span id="totalPages">1</span>
+                    </div>
+                    <button id="nextPageBtn" onclick="nextPage()" class="glass-button px-4 py-2 text-[10px] font-black tracking-tighter disabled:opacity-30 disabled:cursor-not-allowed">
+                        NEXT<i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="staffLoadingIndicator" class="hidden text-center py-24 glass-card mt-6">
+                <i class="fas fa-spinner fa-spin text-6xl text-blue-500 mb-6 block"></i>
+                <p class="text-xl font-bold text-gray-400">Memuat naik data staf...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="staffEmptyState" class="hidden text-center py-24 glass-card mt-6">
+                <i class="fas fa-users-slash text-6xl text-gray-600 mb-6 block"></i>
+                <p class="text-xl font-bold text-gray-400 mb-8">Pangkalan data staf kosong</p>
+                <button onclick="showAddStaffModal()" class="glass-button bg-blue-600 px-10 py-4 text-sm font-black text-white">MULA TAMBAH STAF</button>
+            </div>
+          </div>
+
+          <!-- Tab Content: Kehadiran -->
+          <div id="tabContentKehadiran" class="tab-content hidden">
+            <!-- Search & Filters -->
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fas fa-search text-xs"></i>
+                    </span>
+                    <input type="text" id="searchAttendAdmin" oninput="filterAttendanceAdmin()" class="glass-input block w-full pl-10 pr-4 py-3 rounded-lg text-sm" placeholder="Cari Nama, ID atau Acara..." />
+                </div>
+                <button onclick="loadAttendanceData()" class="glass-button bg-blue-600 px-5 py-3 rounded-lg text-xs font-semibold text-white">
+                    <i class="fas fa-sync-alt mr-2 opacity-70"></i>Refresh
+                </button>
+            </div>
+
+            <!-- Responsive Attendance List -->
+            <div id="adminAttendanceContainer">
+                <!-- Desktop View -->
+                <div class="staff-table-view glass-card overflow-hidden">
+                    <table class="w-full text-left high-contrast-table">
+                        <thead>
+                            <tr>
+                                <th class="p-4 text-xs uppercase">Staf</th>
+                                <th class="p-4 text-xs uppercase">Jawatan</th>
+                                <th class="p-4 text-xs uppercase">Lokasi</th>
+                                <th class="p-4 text-xs uppercase text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminAttendTableBody" class="text-sm"></tbody>
+                    </table>
+                </div>
+                <!-- Mobile View -->
+                <div id="adminAttendCardsBody" class="staff-cards-view space-y-4"></div>
+            </div>
+
+            <!-- Loading/Empty -->
+            <div id="attendLoadingIndicator" class="hidden text-center py-24 glass-card mt-6">
+                <i class="fas fa-spinner fa-spin text-6xl text-blue-500 mb-6 block"></i>
+                <p class="text-xl font-bold text-gray-400">Memuatkan data kehadiran...</p>
+            </div>
+            <div id="attendEmptyState" class="hidden text-center py-24 glass-card mt-6">
+                <i class="fas fa-clipboard-list text-6xl text-gray-600 mb-6 block"></i>
+                <p class="text-xl font-bold text-gray-400">Tiada rekod kehadiran</p>
+            </div>
+          </div>
+
+          <!-- Tab Content: Susunan Jawatan -->
+          <div id="tabContentJawatan" class="tab-content hidden">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+              <div>
+                <h2 class="text-xl font-bold text-white mb-1">Susunan Jawatan</h2>
+                <div class="flex items-center gap-2">
+                   <p class="text-xs text-blue-300">Tentukan urutan paparan jawatan.</p>
+                   <span id="savingStatus" class="ml-2 text-[10px] font-bold uppercase tracking-wider opacity-0 transition-opacity duration-300"></span>
+                </div>
+              </div>
+              <button onclick="syncPositions()" class="glass-button bg-green-600 hover:bg-green-700 px-5 py-3 rounded-lg text-xs font-semibold text-white shadow-lg">
+                <i class="fas fa-sync-alt mr-2"></i>SYNC DARI STAF
+              </button>
+            </div>
+
+            <div class="glass-card overflow-hidden">
+              <div class="overflow-x-auto max-h-[600px]">
+                <table class="w-full high-contrast-table text-left">
+                  <thead class="sticky top-0 z-20 bg-gray-900">
+                    <tr>
+                      <th class="p-4 w-24 text-center">RANK</th>
+                      <th class="p-4">JAWATAN</th>
+                      <th class="p-4 text-center w-32">AKSI</th>
+                    </tr>
+                  </thead>
+                  <tbody id="positionRankingBody" class="text-sm">
+                    <!-- Dynamic Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add/Edit Staf (Kept as modal but improved) -->
+    <div id="staffModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-black/80 backdrop-blur-md px-4">
+        <div class="glass-card w-full max-w-xl scale-in overflow-hidden">
+            <div class="p-5 border-b border-white/10 flex justify-between items-center bg-blue-700">
+                <h3 id="staffModalTitle" class="text-lg font-bold text-white uppercase tracking-tight">Tambah Staf Baru</h3>
+                <button onclick="closeStaffModal()" class="text-white/70 hover:text-white transition-all text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-8">
+                <div class="grid grid-cols-1 gap-6">
+                    <input type="hidden" id="staffRowIndex" />
+                    <div>
+                        <label for="modalStaffId" class="block text-[10px] font-black text-blue-400 mb-2 uppercase">ID STAF</label>
+                        <input type="text" id="modalStaffId" class="glass-input block w-full rounded-xl px-4 py-4 font-bold" placeholder="Masukkan ID Staf (contoh: 8011)" />
+                    </div>
+                    <div>
+                        <label for="modalStaffName" class="block text-[10px] font-black text-blue-400 mb-2 uppercase">Nama Penuh</label>
+                        <input type="text" id="modalStaffName" class="glass-input block w-full rounded-xl px-4 py-4 font-bold" placeholder="Nama Penuh Mengikut IC" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="modalStaffPosition" class="block text-[10px] font-black text-blue-400 mb-2 uppercase">Jawatan</label>
+                            <input type="text" id="modalStaffPosition" list="jawatanList" class="glass-input block w-full rounded-xl px-4 py-4 text-sm font-bold" />
+                        </div>
+                        <div>
+                            <label for="modalStaffLocation" class="block text-[10px] font-black text-blue-400 mb-2 uppercase">Lokasi</label>
+                            <input type="text" id="modalStaffLocation" list="lokasiList" class="glass-input block w-full rounded-xl px-4 py-4 text-sm font-bold" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="modalStaffUnit" class="block text-[10px] font-black text-blue-400 mb-2 uppercase">Unit</label>
+                            <input type="text" id="modalStaffUnit" class="glass-input block w-full rounded-xl px-4 py-4 text-sm font-bold" />
+                        </div>
+                        <div>
+                            <label for="modalStaffInvitation" class="block text-[10px] font-black text-blue-400 mb-2 uppercase">Status Jemputan</label>
+                            <select id="modalStaffInvitation" class="glass-input block w-full rounded-xl px-4 py-4 text-sm font-bold">
+                                <option value="">Pilih Status...</option>
+                                <option value="JEMPUTAN">JEMPUTAN</option>
+                                <option value="WAKIL">WAKIL</option>
+                                <option value="TIADA">TIADA</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 flex gap-3">
+                    <button onclick="closeStaffModal()" class="flex-1 py-3 glass-card text-sm font-medium text-gray-400">Batal</button>
+                    <button onclick="saveStaffData()" class="flex-1 py-3 glass-button bg-blue-600 text-white text-sm font-bold shadow-lg">Simpan Data</button>
+                </div>
+                <div id="staffSaveIndicator" class="hidden mt-4 text-center italic text-blue-400 text-xs animate-pulse">Menghubungi pangkalan data...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Attendance -->
+    <div id="attendModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-black/80 backdrop-blur-md px-4">
+        <div class="glass-card w-full max-w-lg scale-in overflow-hidden">
+            <div class="p-5 border-b border-white/10 flex justify-between items-center bg-blue-700">
+                <h3 class="text-lg font-bold text-white uppercase tracking-tight">Kemaskini Kehadiran</h3>
+                <button onclick="closeAttendModal()" class="text-white/70 hover:text-white transition-all text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-8">
+                <div class="space-y-6">
+                    <input type="hidden" id="modalAttendId" />
+                    <div>
+                        <label class="block text-[10px] font-bold text-blue-400 mb-2 uppercase">Nama Staf</label>
+                        <input type="text" id="modalAttendName" class="glass-input block w-full rounded-lg px-4 py-3 font-medium text-sm" />
+                    </div>
+                    <input type="hidden" id="modalAttendAcara" />
+                    <div>
+                        <label class="block text-[10px] font-bold text-blue-400 mb-2 uppercase">Status</label>
+                        <select id="modalAttendStatus" class="glass-input block w-full rounded-lg px-4 py-3 font-medium text-sm">
+                            <option value="HADIR">HADIR</option>
+                            <option value="WAKIL">WAKIL</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-8 flex gap-3">
+                    <button onclick="closeAttendModal()" class="flex-1 py-3 glass-card text-sm font-medium text-gray-400">Batal</button>
+                    <button onclick="saveAttendData()" class="flex-1 py-3 glass-button bg-blue-600 text-white text-sm font-bold">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Image Preview -->
+    <div id="imagePreviewModal" class="fixed inset-0 z-[110] flex items-center justify-center hidden bg-black/90 backdrop-blur-xl px-4" onclick="closeImagePreview()">
+        <div class="relative max-w-lg w-full group" onclick="event.stopPropagation()">
+            <button onclick="closeImagePreview()" class="absolute -top-12 right-0 text-white/70 hover:text-white transition-all text-2xl">
+                <i class="fas fa-times mr-2"></i>Tutup
+            </button>
+            <div class="glass-card overflow-hidden border-2 border-white/20 shadow-2xl">
+                <img id="previewImageContent" src="" alt="Pratonton" class="w-full h-auto max-h-[80vh] object-contain" />
+                <div class="p-4 bg-black/60 backdrop-blur-md border-t border-white/10 flex justify-between items-center">
+                    <p id="previewImageTitle" class="text-xs font-bold text-blue-300 uppercase tracking-widest"></p>
+                    <a id="previewImageDownload" href="#" download class="text-white/70 hover:text-white transition-all text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                        <i class="fas fa-download"></i> Muat Turun
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+      <option value="PENOLONG EKSEKUTIF PERLADANGAN"></option>
+      <option value="PENOLONG EKSEKUTIF PENTADBIRAN"></option>
+      <option value="PENOLONG EKSEKUTIF PEMBANGUNAN PESERTA"></option>
+      <option value="PEGAWAI TEKNOLOGI MAKLUMAT"></option>
+      <option value="PENOLONG PEGAWAI TEKNOLOGI MAKLUMAT"></option>
+    </datalist>
+
+    <datalist id="lokasiList">
+      <option value="IBU PEJABAT"></option>
+      <option value="PEJABAT PENGARAH NEGERI"></option>
+      <option value="KAWASAN BERANGAN MEK NAB"></option>
+      <option value="KAWASAN BUKIT TANDAK"></option>
+    </datalist>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script src="staff-management.js"></script>
+    <script>
+      // Global Data
+      let currentAdminTab = 'tetapan';
+
+      // Initialize
+      window.onload = () => {
+        updateClock();
+        setInterval(updateClock, 1000);
+        loadAdminSettings();
+        loadStaffData();
+        
+        flatpickr("#adminDate", {
+          dateFormat: "d/m/Y",
+          allowInput: true
+        });
+      };
+
+      function updateClock() {
+        const now = new Date();
+        document.getElementById('currentTime').innerHTML = `<i class="far fa-clock mr-2"></i>${now.toLocaleTimeString('ms-MY')}`;
+      }
+
+      function switchAdminTab(tab) {
+        currentAdminTab = tab;
+        document.getElementById('tabContentTetapan').classList.toggle('hidden', tab !== 'tetapan');
+        document.getElementById('tabContentDataStaf').classList.toggle('hidden', tab !== 'dataStaf');
+        document.getElementById('tabContentKehadiran').classList.toggle('hidden', tab !== 'kehadiran');
+        document.getElementById('tabContentJawatan').classList.toggle('hidden', tab !== 'jawatan');
+        
+        // Tab UI update
+        const getTabClass = (active) => `flex-1 md:flex-none px-6 py-4 text-xs font-bold transition-all border-b-2 ${active ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-white'}`;
+        
+        document.getElementById('tabTetapan').className = getTabClass(tab === 'tetapan');
+        document.getElementById('tabDataStaf').className = getTabClass(tab === 'dataStaf');
+        document.getElementById('tabKehadiran').className = getTabClass(tab === 'kehadiran');
+        document.getElementById('tabJawatan').className = getTabClass(tab === 'jawatan');
+
+        if (tab === 'dataStaf') loadStaffData();
+        if (tab === 'kehadiran') loadAttendanceData();
+        if (tab === 'jawatan') loadPositionRankings();
+      }
+
+
+      // --- Position Ranking Logic ---
+      async function loadPositionRankings() {
+        const tbody = document.getElementById('positionRankingBody');
+        tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Memuatkan...</td></tr>';
+        
+        try {
+          const res = await fetch('/api/positions/list');
+          const data = await res.json();
+          if (data.success) {
+            renderPositionRankings(data.positions);
+          } else {
+            alert('Gagal memuatkan senarai jawatan');
+          }
+        } catch (e) {
+          console.error(e);
+          tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-red-400">Ralat sambungan server</td></tr>';
+        }
+      }
+
+      function renderPositionRankings(positions) {
+        const tbody = document.getElementById('positionRankingBody');
+        tbody.innerHTML = '';
+        
+        if (positions.length === 0) {
+           tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-gray-400">Tiada jawatan dijumpai. Sila klik "Sync Dari Staf".</td></tr>';
+           return;
+        }
+
+        // Sort by ranking_order first just to be safe visually
+        positions.sort((a,b) => (a.ranking_order || 9999) - (b.ranking_order || 9999));
+
+          positions.forEach((pos, index) => {
+          tbody.innerHTML += `
+            <tr class="border-b border-white/5 hover:bg-white/5 transition cursor-move group" data-position="${pos.position_name}">
+              <td class="p-3 text-center w-24">
+                 <div class="flex items-center justify-center gap-2">
+                    <span class="text-gray-500 group-hover:text-white transition-colors cursor-grab handle"><i class="fas fa-grip-vertical"></i></span>
+                    <input type="number" min="1" max="${positions.length}"
+                        class="ranking-number bg-blue-600/20 text-blue-400 font-bold px-1 py-1 rounded text-xs w-12 text-center border border-blue-500/30 focus:outline-none focus:border-blue-400 focus:bg-blue-600/40"
+                        value="${index + 1}"
+                        onkeydown="if(event.key === 'Enter') moveRowToRank(this.closest('tr'), this.value)"
+                    />
+                 </div>
+              </td>
+              <td class="p-3 font-medium text-gray-300 font-mono text-xs uppercase tracking-wide select-none">${pos.position_name}</td>
+              <td class="p-3 text-center">
+                 <span class="text-[9px] bg-green-900/40 text-green-400 px-2 py-0.5 rounded border border-green-500/20">Active</span>
+              </td>
+            </tr>
+          `;
+        });
+
+        // Initialize Sortable
+        if (tbody._sortable) tbody._sortable.destroy(); // destroy old instance if exists
+        
+        tbody._sortable = new Sortable(tbody, {
+            animation: 150,
+            handle: '.handle', // drag handle
+            ghostClass: 'bg-blue-900/40',
+            onEnd: function (evt) {
+                recalculateAndSaveRankings();
+            },
+        });
+      }
+      
+      function moveRowToRank(row, targetRank) {
+          const tbody = document.getElementById('positionRankingBody');
+          const rows = Array.from(tbody.querySelectorAll('tr'));
+          let newIndex = parseInt(targetRank) - 1; // 0-based index
+
+          // Validation
+          if (isNaN(newIndex) || newIndex < 0) newIndex = 0;
+          if (newIndex >= rows.length) newIndex = rows.length - 1;
+
+          // Don't move if same position
+          const currentIndex = rows.indexOf(row);
+          if (currentIndex === newIndex) return;
+
+          // Move logic
+          if (newIndex >= rows.length - 1) {
+              tbody.appendChild(row); // Move to end
+          } else {
+              // If moving down, we need to insert before the item *after* the target slot
+              // If moving up, we insert before the item *at* the target slot
+              tbody.insertBefore(row, rows[newIndex + (newIndex > currentIndex ? 1 : 0)]);
+          }
+
+          // Trigger save
+          recalculateAndSaveRankings();
+          
+          // Refocus input to avoid losing context (optional, but good UX)
+          // row.querySelector('input').focus(); 
+      }
+
+      async function recalculateAndSaveRankings() {
+          const tbody = document.getElementById('positionRankingBody');
+          const rows = Array.from(tbody.querySelectorAll('tr'));
+          const updates = [];
+
+          // Visual Update & Batched Data
+          rows.forEach((row, index) => {
+              const rank = index + 1;
+              const input = row.querySelector('.ranking-number');
+              if(input) input.value = rank; // Update input value
+              
+              const positionName = row.getAttribute('data-position');
+              updates.push({ positionName: positionName, rankingOrder: rank });
+          });
+
+          // Show Saving Status
+          const statusEl = document.getElementById('savingStatus');
+          statusEl.textContent = 'Menyimpan...';
+          statusEl.className = 'ml-2 text-[10px] font-bold text-yellow-400 uppercase tracking-wider transition-opacity duration-300';
+          statusEl.style.opacity = '1';
+
+          // Send to API
+          try {
+              const res = await fetch('/api/positions/bulk-update', {
+                  method: 'POST',
+                  headers: {'Content-Type': 'application/json'},
+                  body: JSON.stringify({ rankings: updates })
+              });
+              const data = await res.json();
+              
+              if(data.success) {
+                  statusEl.innerHTML = '<i class="fas fa-check-circle mr-1"></i>Disimpan';
+                  statusEl.className = 'ml-2 text-[10px] font-bold text-green-400 uppercase tracking-wider transition-opacity duration-300';
+                  setTimeout(() => { statusEl.style.opacity = '0'; }, 3000);
+              } else {
+                  console.error('Failed to auto-save rankings');
+                  statusEl.textContent = 'Gagal Simpan';
+                  statusEl.className = 'ml-2 text-[10px] font-bold text-red-500 uppercase tracking-wider';
+              }
+          } catch(e) {
+              console.error('Error auto-saving rankings', e);
+              statusEl.textContent = 'Ralat Server';
+              statusEl.className = 'ml-2 text-[10px] font-bold text-red-500 uppercase tracking-wider';
+          }
+      }
+
+
+      async function syncPositions() {
+        if(!confirm('Adakah anda pasti? Ini akan menambah jawatan baru dari data staf.')) return;
+        
+        try {
+          const button = document.querySelector('button[onclick="syncPositions()"]');
+          const originalText = button.innerHTML;
+          button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+          button.disabled = true;
+
+          const res = await fetch('/api/positions/sync', { method: 'POST' });
+          const data = await res.json();
+          
+          if (data.success) {
+            loadPositionRankings();
+          } else {
+            alert('Sync gagal: ' + data.error);
+          }
+          
+          button.innerHTML = originalText;
+          button.disabled = false;
+        } catch (e) {
+          console.error(e);
+          alert('Ralat sambungan semasa sync');
+        }
+      }
+
+      // --- Admin Settings Logic ---
+      async function loadAdminSettings() {
+        try {
+          const res = await fetch('/api/admin-settings');
+          const data = await res.json();
+          if (data) {
+            document.getElementById('adminTitle').value = data.title || '';
+            document.getElementById('adminLocation').value = data.location || '';
+            document.getElementById('adminDate').value = data.date || '';
+            document.getElementById('adminStatus').checked = data.status === 'on';
+            document.getElementById('adminLogo').value = data.logo || '';
+            document.getElementById('adminBackgroundLight').value = data.backgroundLight || '';
+            document.getElementById('adminBackgroundDark').value = data.backgroundDark || '';
+
+            if (data.logo) document.getElementById('logoStatus').textContent = 'Logo sedia ada';
+            if (data.backgroundLight) document.getElementById('bgLightStatus').textContent = 'Background Light sedia ada';
+            if (data.backgroundDark) document.getElementById('bgDarkStatus').textContent = 'Background Dark sedia ada';
+          }
+        } catch (e) { console.error('Gagal load tetapan', e); }
+      }
+
+      function handleFileSelect(event, type) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          document.getElementById(`admin${type.charAt(0).toUpperCase() + type.slice(1)}`).value = e.target.result;
+          document.getElementById(`${type}Status`).textContent = 'Sedia untuk disimpan';
+          document.getElementById(`${type}Status`).classList.add('text-green-400');
+        };
+        reader.readAsDataURL(file);
+      }
+
+      async function saveAdminSettings() {
+        const settings = {
+          title: document.getElementById('adminTitle').value,
+          location: document.getElementById('adminLocation').value,
+          date: document.getElementById('adminDate').value,
+          status: document.getElementById('adminStatus').checked ? 'on' : 'off',
+          logo: document.getElementById('adminLogo').value,
+          backgroundLight: document.getElementById('adminBackgroundLight').value,
+          backgroundDark: document.getElementById('adminBackgroundDark').value
+        };
+
+        try {
+          const res = await fetch('/api/save-settings', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(settings)
+          });
+          const data = await res.json();
+          if (data.success) alert('Tetapan berjaya disimpan!');
+          else alert('Ralat: ' + data.error);
+        } catch (e) { alert('Gagal simpan tetapan'); }
+      }
+
+      // --- Image Preview Logic ---
+      function previewImage(id) {
+        const url = document.getElementById(id).value;
+        if (!url) {
+          alert('Tiada imej untuk dipaparkan.');
+          return;
+        }
+        
+        const previewModal = document.getElementById('imagePreviewModal');
+        const previewImg = document.getElementById('previewImageContent');
+        const previewTitle = document.getElementById('previewImageTitle');
+        const previewDownload = document.getElementById('previewImageDownload');
+        
+        let title = "Imej";
+        if (id === 'adminLogo') title = "Logo Acara";
+        else if (id === 'adminBackgroundLight') title = "Background Siang";
+        else if (id === 'adminBackgroundDark') title = "Background Malam";
+        
+        previewImg.src = url;
+        previewTitle.textContent = title;
+        previewDownload.href = url;
+        previewDownload.download = `${title.toLowerCase().replace(/\s+/g, '_')}_${new Date().getTime()}.png`;
+        
+        previewModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeImagePreview() {
+        const previewModal = document.getElementById('imagePreviewModal');
+        previewModal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+
+      // Note: Staff Management Logic is now handled in staff-management.js
+
+      // --- Attendance Management ---
+      let allAttendAdmin = [];
+      async function loadAttendanceData() {
+        const loading = document.getElementById('attendLoadingIndicator');
+        const empty = document.getElementById('attendEmptyState');
+        if (loading) loading.classList.remove('hidden');
+        if (empty) empty.classList.add('hidden');
+
+        try {
+          const res = await fetch('/api/attendance/list');
+          const data = await res.json();
+          allAttendAdmin = data.attendance || [];
+          renderAttendanceAdmin(allAttendAdmin);
+        } catch (e) { 
+          console.error('Error loading attendance:', e);
+        } finally { 
+          if (loading) loading.classList.add('hidden'); 
+        }
+      }
+
+      function renderAttendanceAdmin(data) {
+        const tbody = document.getElementById('adminAttendTableBody');
+        const cards = document.getElementById('adminAttendCardsBody');
+        if (!tbody || !cards) return;
+
+        tbody.innerHTML = '';
+        cards.innerHTML = '';
+
+        const empty = document.getElementById('attendEmptyState');
+        if (empty) empty.classList.toggle('hidden', data.length > 0);
+
+        data.forEach(item => {
+          const date = new Date(item.timestamp).toLocaleString('ms-MY');
+          const badge = getStatusBadge(item.status);
+
+          tbody.innerHTML += `
+            <tr class="border-b border-white/5">
+                <td class="p-4">
+                  <div class="font-bold text-white">${item.name}</div>
+                  <div class="text-[10px] text-blue-400 font-mono">${item.staff_id}</div>
+                </td>
+                <td class="p-4 text-xs font-medium text-gray-400">${item.position || '-'}</td>
+                <td class="p-4 text-xs font-medium text-gray-400">${item.location || '-'}</td>
+                <td class="p-4 text-center">
+                    <button onclick="showEditAttendModal('${item.id}')" class="p-2 text-blue-400 hover:text-white" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteAttendData('${item.id}')" class="p-2 text-red-400 hover:text-white" title="Padam"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+          `;
+
+          cards.innerHTML += `
+            <div class="glass-card p-4 border-l-4 border-blue-500">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                      <h4 class="font-bold text-white">${item.name}</h4>
+                      <span class="text-[9px] font-bold text-blue-400">${item.staff_id}</span>
+                    </div>
+                    <div class="text-[10px] font-bold text-blue-300 uppercase tracking-widest">${item.status}</div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div class="text-[10px] text-gray-400 font-medium"><i class="fas fa-briefcase mr-1 opacity-50"></i>${item.position || '-'}</div>
+                    <div class="text-[10px] text-gray-400 font-medium"><i class="fas fa-map-marker-alt mr-1 opacity-50"></i>${item.location || '-'}</div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="showEditAttendModal('${item.id}')" class="flex-1 py-1.5 rounded bg-blue-500/10 text-blue-400 text-[9px] font-bold uppercase tracking-wider border border-blue-500/20">Edit</button>
+                    <button onclick="deleteAttendData('${item.id}')" class="flex-1 py-1.5 rounded bg-red-500/10 text-red-400 text-[9px] font-bold uppercase tracking-wider border border-red-500/20">Padam</button>
+                </div>
+            </div>
+          `;
+        });
+      }
+
+      function filterAttendanceAdmin() {
+        const q = document.getElementById('searchAttendAdmin').value.toLowerCase();
+        renderAttendanceAdmin(allAttendAdmin.filter(a => 
+          a.name.toLowerCase().includes(q) || 
+          a.staff_id.toLowerCase().includes(q) ||
+          (a.position && a.position.toLowerCase().includes(q)) ||
+          (a.location && a.location.toLowerCase().includes(q))
+        ));
+      }
+
+      function showEditAttendModal(id) {
+        const item = allAttendAdmin.find(a => a.id == id);
+        if(!item) return;
+        document.getElementById('modalAttendId').value = item.id;
+        document.getElementById('modalAttendName').value = item.name;
+        document.getElementById('modalAttendAcara').value = item.acara || '';
+        document.getElementById('modalAttendStatus').value = item.status;
+        document.getElementById('attendModal').classList.remove('hidden');
+      }
+
+      function closeAttendModal() { document.getElementById('attendModal').classList.add('hidden'); }
+
+      async function saveAttendData() {
+        const id = document.getElementById('modalAttendId').value;
+        const name = document.getElementById('modalAttendName').value;
+        const acara = document.getElementById('modalAttendAcara').value;
+        const status = document.getElementById('modalAttendStatus').value;
+
+        try {
+          const res = await fetch('/api/attendance/update', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id, name, status, acara })
+          });
+          const data = await res.json();
+          if(data.success) { 
+            closeAttendModal(); 
+            loadAttendanceData(); 
+          }
+        } catch(e) { alert('Ralat kemaskini'); }
+      }
+
+      async function deleteAttendData(id) {
+        if(!confirm('Padam rekod kehadiran ini?')) return;
+        try {
+          const res = await fetch('/api/attendance/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id })
+          });
+          const data = await res.json();
+          if(data.success) loadAttendanceData();
+        } catch(e) { alert('Ralat padam'); }
+      }
+    </script>
+  </body>
+</html>
