@@ -605,6 +605,7 @@
             <div class="p-8">
                 <div class="space-y-6">
                     <input type="hidden" id="modalAttendId" />
+                    <input type="hidden" id="modalAttendStaffId" />
                     <div>
                         <label class="block text-[10px] font-bold text-blue-400 mb-2 uppercase">Nama Staf</label>
                         <input type="text" id="modalAttendName" class="glass-input block w-full rounded-lg px-4 py-3 font-medium text-sm" />
@@ -963,6 +964,7 @@
       // Note: Staff Management Logic is now handled in staff-management.js
 
       // --- Attendance Management ---
+      // --- Attendance Management ---
       let allAttendAdmin = [];
       async function loadAttendanceData() {
         const loading = document.getElementById('attendLoadingIndicator');
@@ -971,10 +973,62 @@
         if (empty) empty.classList.add('hidden');
 
         try {
-          const res = await fetch('/api/attendance/list');
-          const data = await res.json();
-          allAttendAdmin = data.attendance || [];
+          // Fetch BOTH Staff and Attendance Validation
+          const [staffRes, attendRes] = await Promise.all([
+            fetch('/api/get-staff'),
+            fetch('/api/attendance/list')
+          ]);
+
+          const staffData = await staffRes.json();
+          const attendData = await attendRes.json();
+
+          const staffList = staffData.staff || [];
+          const attendanceList = attendData.attendance || [];
+
+          // Map Attendance for quick lookup
+          const attendanceMap = new Map();
+          attendanceList.forEach(a => {
+            attendanceMap.set(a.staff_id.toString().toLowerCase(), a);
+          });
+
+          // Process & Filter Data (Same logic as kehadiran.html)
+          allAttendAdmin = [];
+          staffList.forEach(staff => {
+            const attendRecord = attendanceMap.get(staff.id.toString().toLowerCase());
+            const isInvited = (staff.status || '').toUpperCase() === 'JEMPUTAN';
+            // Show if Invited OR is a Wakil (even if not invited in staff db) OR has attended (just in case)
+            const isWakil = attendRecord && (attendRecord.status || '').toUpperCase() === 'WAKIL';
+            const hasAttended = !!attendRecord;
+
+            // Display Condition: JEMPUTAN or WAKIL or HAS ATTENDED with any status?
+            // User requested: "paparkan semua staf JEMPUTAN"
+            if (isInvited || isWakil || hasAttended) {
+              allAttendAdmin.push({
+                ...staff,
+                isPresent: !!attendRecord,
+                timestamp: attendRecord ? attendRecord.timestamp : null,
+                attendId: attendRecord ? attendRecord.id : null, // for delete/edit
+                attendStatus: attendRecord ? attendRecord.status : null
+              });
+            }
+          });
+
+          // Sorting: 1. Present First, 2. Ranking, 3. Name
+          allAttendAdmin.sort((a, b) => {
+            // Priority 1: Present (Top) vs Absent (Bottom)
+            if (a.isPresent !== b.isPresent) {
+              return a.isPresent ? -1 : 1;
+            }
+            // Priority 2: Ranking Order
+            if ((a.ranking_order || 9999) !== (b.ranking_order || 9999)) {
+              return (a.ranking_order || 9999) - (b.ranking_order || 9999);
+            }
+            // Priority 3: Name
+            return a.name.localeCompare(b.name);
+          });
+
           renderAttendanceAdmin(allAttendAdmin);
+
         } catch (e) { 
           console.error('Error loading attendance:', e);
         } finally { 
@@ -994,40 +1048,74 @@
         if (empty) empty.classList.toggle('hidden', data.length > 0);
 
         data.forEach(item => {
-          const date = new Date(item.timestamp).toLocaleString('ms-MY');
-          const badge = getStatusBadge(item.status);
+          const isPresent = item.isPresent;
+          const statusText = isPresent ? (item.attendStatus || 'HADIR') : 'BELUM';
+          
+          // Badge Styling
+          let badgeHtml = '';
+          if (isPresent) {
+             badgeHtml = `<span class="bg-green-500/20 text-green-400 text-[10px] font-bold px-2 py-1 rounded-full border border-green-500/30">${statusText}</span>`;
+          } else {
+             badgeHtml = `<span class="bg-gray-500/20 text-gray-400 text-[10px] font-bold px-2 py-1 rounded-full border border-gray-500/30">BELUM</span>`;
+          }
 
+          // Desktop Row
+          // Column Structure: Staf | Jawatan | Lokasi | Aksi (Edit/Delete) | Status (Badge)
+          // Wait, user asked to "Tambah kolum status". Badge IS the status column effectively.
+          // Let's make "Status" an explicit column and put "Aksi" at the end.
+          
           tbody.innerHTML += `
-            <tr class="border-b border-white/5">
+            <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
                 <td class="p-4">
-                  <div class="font-bold text-white">${item.name}</div>
-                  <div class="text-[10px] text-blue-400 font-mono">${item.staff_id}</div>
+                  <div class="font-bold text-white text-sm">${item.name}</div>
+                  <div class="text-[10px] text-blue-400 font-mono flex items-center gap-2">
+                    ${item.id}
+                    ${isPresent && item.attendStatus === 'WAKIL' ? '<span class="text-orange-400">(WAKIL)</span>' : ''}
+                  </div>
                 </td>
                 <td class="p-4 text-xs font-medium text-gray-400">${item.position || '-'}</td>
                 <td class="p-4 text-xs font-medium text-gray-400">${item.location || '-'}</td>
                 <td class="p-4 text-center">
-                    <button onclick="showEditAttendModal('${item.id}')" class="p-2 text-blue-400 hover:text-white" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteAttendData('${item.id}')" class="p-2 text-red-400 hover:text-white" title="Padam"><i class="fas fa-trash"></i></button>
+                    ${badgeHtml}
+                </td>
+                <td class="p-4 text-right">
+                    <button onclick="showEditAttendModal('${item.attendId || ''}', '${item.id}', '${item.name.replace(/'/g, "\\'")}', '${item.attendStatus || ''}')" class="p-2 text-blue-400 hover:text-white transition-colors" title="Kemaskini Status">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    ${isPresent ? `
+                    <button onclick="deleteAttendData('${item.attendId}')" class="p-2 text-red-400 hover:text-white transition-colors" title="Padam Rekod">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    ` : ''}
                 </td>
             </tr>
           `;
 
+          // Mobile Card
           cards.innerHTML += `
-            <div class="glass-card p-4 border-l-4 border-blue-500">
+            <div class="glass-card p-4 border-l-4 ${isPresent ? 'border-green-500' : 'border-gray-600'}">
                 <div class="flex justify-between items-start mb-3">
                     <div>
-                      <h4 class="font-bold text-white">${item.name}</h4>
-                      <span class="text-[9px] font-bold text-blue-400">${item.staff_id}</span>
+                      <h4 class="font-bold text-white text-sm">${item.name}</h4>
+                      <div class="flex items-center gap-2">
+                          <span class="text-[9px] font-bold text-blue-400">${item.id}</span>
+                      </div>
                     </div>
-                    <div class="text-[10px] font-bold text-blue-300 uppercase tracking-widest">${item.status}</div>
+                    <div>${badgeHtml}</div>
                 </div>
                 <div class="grid grid-cols-2 gap-2 mb-3">
-                    <div class="text-[10px] text-gray-400 font-medium"><i class="fas fa-briefcase mr-1 opacity-50"></i>${item.position || '-'}</div>
-                    <div class="text-[10px] text-gray-400 font-medium"><i class="fas fa-map-marker-alt mr-1 opacity-50"></i>${item.location || '-'}</div>
+                    <div class="text-[10px] text-gray-400 font-medium truncate"><i class="fas fa-briefcase mr-1 opacity-50"></i>${item.position || '-'}</div>
+                    <div class="text-[10px] text-gray-400 font-medium truncate"><i class="fas fa-map-marker-alt mr-1 opacity-50"></i>${item.location || '-'}</div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="showEditAttendModal('${item.id}')" class="flex-1 py-1.5 rounded bg-blue-500/10 text-blue-400 text-[9px] font-bold uppercase tracking-wider border border-blue-500/20">Edit</button>
-                    <button onclick="deleteAttendData('${item.id}')" class="flex-1 py-1.5 rounded bg-red-500/10 text-red-400 text-[9px] font-bold uppercase tracking-wider border border-red-500/20">Padam</button>
+                <div class="flex justify-end gap-2 pt-2 border-t border-white/5">
+                    <button onclick="showEditAttendModal('${item.attendId || ''}', '${item.id}', '${item.name.replace(/'/g, "\\'")}', '${item.attendStatus || ''}')" class="px-3 py-1.5 rounded bg-blue-500/10 text-blue-400 text-[9px] font-bold uppercase tracking-wider border border-blue-500/20 hover:bg-blue-500/20">
+                        <i class="fas fa-edit mr-1"></i>${isPresent ? 'Ubah' : 'Rekod'}
+                    </button>
+                    ${isPresent ? `
+                    <button onclick="deleteAttendData('${item.attendId}')" class="px-3 py-1.5 rounded bg-red-500/10 text-red-400 text-[9px] font-bold uppercase tracking-wider border border-red-500/20 hover:bg-red-500/20">
+                        <i class="fas fa-trash mr-1"></i>Hapus
+                    </button>
+                    ` : ''}
                 </div>
             </div>
           `;
@@ -1044,36 +1132,52 @@
         ));
       }
 
-      function showEditAttendModal(id) {
-        const item = allAttendAdmin.find(a => a.id == id);
-        if(!item) return;
-        document.getElementById('modalAttendId').value = item.id;
-        document.getElementById('modalAttendName').value = item.name;
-        document.getElementById('modalAttendAcara').value = item.acara || '';
-        document.getElementById('modalAttendStatus').value = item.status;
+      function showEditAttendModal(attendId, staffId, name, status) {
+        document.getElementById('modalAttendId').value = attendId || ''; // Empty if new
+        document.getElementById('modalAttendStaffId').value = staffId;
+        document.getElementById('modalAttendName').value = name;
+        document.getElementById('modalAttendAcara').value = ''; 
+        document.getElementById('modalAttendStatus').value = status || 'HADIR'; // Default to HADIR
+        
+        // Update Title based on context
+        const titleEl = document.querySelector('#attendModal h3');
+        if (titleEl) titleEl.textContent = attendId ? 'KEMASKINI KEHADIRAN' : 'REKOD KEHADIRAN MANUAL';
+
         document.getElementById('attendModal').classList.remove('hidden');
       }
 
       function closeAttendModal() { document.getElementById('attendModal').classList.add('hidden'); }
 
       async function saveAttendData() {
-        const id = document.getElementById('modalAttendId').value;
+        const attendId = document.getElementById('modalAttendId').value; // Optional
+        const staffId = document.getElementById('modalAttendStaffId').value;
         const name = document.getElementById('modalAttendName').value;
         const acara = document.getElementById('modalAttendAcara').value;
         const status = document.getElementById('modalAttendStatus').value;
 
+        // Visual loading
+        const saveBtn = document.querySelector('#attendModal button.bg-blue-600'); // Assuming save button
+        const originalText = saveBtn ? saveBtn.innerText : 'Simpan';
+        if(saveBtn) saveBtn.innerText = 'Menyimpan...';
+
         try {
-          const res = await fetch('/api/attendance/update', {
+          const res = await fetch('/api/attendance/admin-record', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ id, name, status, acara })
+            body: JSON.stringify({ attendId, staffId, name, status, acara })
           });
           const data = await res.json();
           if(data.success) { 
             closeAttendModal(); 
-            loadAttendanceData(); 
+            loadAttendanceData(); // Refresh list to show new status
+          } else {
+            alert('Gagal menyimpan: ' + (data.error || 'Ralat tidak diketahui'));
           }
-        } catch(e) { alert('Ralat kemaskini'); }
+        } catch(e) { 
+          alert('Ralat rangkaian'); 
+        } finally {
+          if(saveBtn) saveBtn.innerText = originalText;
+        }
       }
 
       async function deleteAttendData(id) {
