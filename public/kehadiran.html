@@ -285,19 +285,19 @@
 
       <!-- Stats Grid -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="glass-card p-4 border-l-4 border-blue-500 hover:scale-[1.02]">
+        <div id="statCardTotal" onclick="quickFilterAttendance('')" class="glass-card p-4 border-l-4 border-blue-500 hover:scale-[1.02] cursor-pointer transition-all" title="Papar semua">
           <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Jumlah Jemputan</p>
           <h3 id="statTotal" class="text-3xl font-black text-primary">0</h3>
         </div>
-        <div class="glass-card p-4 border-l-4 border-green-500 hover:scale-[1.02]">
+        <div id="statCardPresent" onclick="quickFilterAttendance('present')" class="glass-card p-4 border-l-4 border-green-500 hover:scale-[1.02] cursor-pointer transition-all" title="Filter: Hadir sahaja">
           <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Hadir (Daftar)</p>
           <h3 id="statPresent" class="text-3xl font-black text-green-600 dark:text-green-400">0</h3>
         </div>
-        <div class="glass-card p-4 border-l-4 border-gray-500 hover:scale-[1.02]">
+        <div id="statCardAbsent" onclick="quickFilterAttendance('absent')" class="glass-card p-4 border-l-4 border-gray-500 hover:scale-[1.02] cursor-pointer transition-all" title="Filter: Belum hadir sahaja">
           <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Belum Hadir</p>
           <h3 id="statAbsent" class="text-3xl font-black text-gray-400">0</h3>
         </div>
-        <div class="glass-card p-4 border-l-4 border-purple-500 hover:scale-[1.02]">
+        <div id="statCardRate" onclick="quickFilterAttendance('')" class="glass-card p-4 border-l-4 border-purple-500 hover:scale-[1.02] cursor-pointer transition-all" title="Papar semua">
           <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Peratus Kehadiran</p>
           <h3 id="statRate" class="text-3xl font-black text-purple-600 dark:text-purple-400">0%</h3>
         </div>
@@ -355,6 +355,7 @@
 
     <script>
       let mergedData = [];
+      let statusFilter = ''; // '' | 'present' | 'absent'
       let isLoading = true;
       let backgroundLight = "";
       let backgroundDark = "";
@@ -501,7 +502,7 @@
         });
 
         updateStats();
-        renderData(mergedData);
+        filterData();
       }
 
       function updateStats() {
@@ -609,10 +610,36 @@
 
       function filterData() {
         const q = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = mergedData.filter(item => 
-          item.name.toLowerCase().includes(q)
-        );
+        const filtered = mergedData.filter(item => {
+          const searchMatch = item.name.toLowerCase().includes(q);
+          const statusMatch =
+            !statusFilter ||
+            (statusFilter === 'present' ? item.isPresent : !item.isPresent);
+          return searchMatch && statusMatch;
+        });
         renderData(filtered);
+      }
+
+      function quickFilterAttendance(status) {
+        statusFilter = statusFilter === status ? '' : status;
+        updateStatCardActiveState();
+        filterData();
+      }
+
+      function updateStatCardActiveState() {
+        const cardIds = {
+          present: 'statCardPresent',
+          absent: 'statCardAbsent',
+        };
+        Object.values(cardIds).forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-400');
+        });
+        const activeId = cardIds[statusFilter];
+        if (activeId) {
+          const el = document.getElementById(activeId);
+          if (el) el.classList.add('ring-2', 'ring-offset-2', 'ring-blue-400');
+        }
       }
     </script>
   </body>
