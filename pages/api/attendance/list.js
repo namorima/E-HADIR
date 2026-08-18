@@ -1,5 +1,9 @@
 // pages/api/attendance/list.js
-import { getAllAttendance } from "../../../lib/db.js";
+import {
+  getAllAttendance,
+  getActiveEvent,
+  initEventsTable,
+} from "../../../lib/db.js";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -11,8 +15,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    const attendance = await getAllAttendance();
-    return res.status(200).json({ success: true, attendance });
+    await initEventsTable();
+
+    let eventId = req.query.event_id;
+    if (!eventId) {
+      const activeEvent = await getActiveEvent();
+      eventId = activeEvent ? activeEvent.id : null;
+    }
+
+    const attendance = await getAllAttendance(eventId);
+    return res.status(200).json({ success: true, attendance, eventId });
   } catch (error) {
     console.error("Error fetching attendance:", error);
     return res

@@ -6,7 +6,8 @@ import {
   recordAttendance,
   updateStaffStatus,
   getStaffById,
-  getAdminSettings,
+  getActiveEvent,
+  initEventsTable,
 } from "../../../lib/db.js";
 
 export default async function handler(req, res) {
@@ -30,9 +31,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "ID Staf and Nama are required" });
     }
 
-    // Get current admin settings for event title
-    const settings = await getAdminSettings();
-    const eventName = settings.title || "Default Event";
+    // Get active event for event title/id
+    await initEventsTable();
+    const activeEvent = await getActiveEvent();
+    if (!activeEvent) {
+      return res.status(400).json({ error: "Tiada acara aktif ditetapkan" });
+    }
+    const eventName = activeEvent.title || "Default Event";
 
     // Check if staff is in invitation list
     const isInvited = await checkInvitation(idStaf);
@@ -46,13 +51,14 @@ export default async function handler(req, res) {
       await updateStaffStatus(idStaf, statusJemputan);
     }
 
-    // Record attendance with event name
+    // Record attendance against the active event
     await recordAttendance({
       staffId: idStaf,
       name: nama,
       status: statusJemputan,
       timestamp: new Date(),
       acara: eventName,
+      eventId: activeEvent.id,
     });
 
     return res.status(200).json({

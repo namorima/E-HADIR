@@ -1,7 +1,7 @@
 // pages/api/settings/update.js
 // Update admin settings in Database
 
-import { updateAdminSettings } from '../../../lib/db';
+import { getActiveEvent, updateEvent, initEventsTable } from '../../../lib/db';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,16 +19,20 @@ export default async function handler(req, res) {
   try {
     const { title, date, location, logo, backgroundLight, backgroundDark, status } = req.body;
 
-    // Update settings in database
-    await updateAdminSettings({
-      title: title || "",
-      date: date || "",
-      location: location || "",
-      logo: logo || "",
-      status: status || "on",
-      backgroundLight: backgroundLight || "",
-      backgroundDark: backgroundDark || ""
-    });
+    // Update the active event's settings in database
+    await initEventsTable();
+    const active = await getActiveEvent();
+    if (active) {
+      await updateEvent(active.id, {
+        title: title || "",
+        date: date || "",
+        location: location || "",
+        logo: logo || "",
+        status: status || "on",
+        backgroundLight: backgroundLight || "",
+        backgroundDark: backgroundDark || ""
+      });
+    }
 
     return res.status(200).json({
       success: true,

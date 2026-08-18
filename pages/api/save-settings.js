@@ -1,5 +1,5 @@
 // pages/api/save-settings.js
-import { updateAdminSettings, initDatabase } from "../../lib/db";
+import { getActiveEvent, updateEvent, initEventsTable } from "../../lib/db";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -11,8 +11,11 @@ export default async function handler(req, res) {
   const settings = req.body;
 
   try {
-    await initDatabase();
-    await updateAdminSettings(settings);
+    await initEventsTable();
+    const active = await getActiveEvent();
+    if (active) {
+      await updateEvent(active.id, settings);
+    }
     return res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error saving admin settings:", error);

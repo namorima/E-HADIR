@@ -232,130 +232,97 @@
         <div class="p-6 md:p-8">
           <!-- Tab Content: Tetapan -->
           <div id="tabContentTetapan" class="tab-content">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="md:col-span-2">
-                <label for="adminTitle" class="block text-xs font-bold text-blue-300 mb-2 uppercase tracking-widest">Tajuk Acara / Mesyuarat</label>
-                <input type="text" id="adminTitle" class="glass-input block w-full rounded-xl px-4 py-2.5 text-sm font-medium" placeholder="Contoh: MESYUARAT AGUNG TAHUNAN" />
-              </div>
-
-              <div>
-                <label for="adminLocation" class="block text-xs font-bold text-blue-300 mb-2 uppercase tracking-widest">Lokasi</label>
-                <input type="text" id="adminLocation" class="glass-input block w-full rounded-xl px-4 py-2.5 text-sm font-medium" placeholder="Contoh: DEWAN SERBAGUNA" />
-              </div>
-
-              <div>
-                <label for="adminDate" class="block text-xs font-bold text-blue-300 mb-2 uppercase tracking-widest">Tarikh</label>
-                <input type="text" id="adminDate" class="glass-input block w-full rounded-xl px-4 py-2.5 text-sm font-medium" />
-              </div>
-
-              <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-blue-300 mb-4 uppercase tracking-widest">Muat Naik Media (Logo & Latar Belakang)</label>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <!-- LOGO -->
-                  <div class="glass-card p-4 text-center">
-                    <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'logo')" />
-                    <div class="flex gap-2 mb-3">
-                      <button onclick="document.getElementById('logoFileInput').click()" class="flex-1 py-2 px-2 glass-button text-white text-[9px] font-bold rounded-lg truncate">
-                          <i class="fas fa-upload mr-1 text-[8px]"></i>LOGO ACARA
-                      </button>
-                      <button onclick="previewImage('adminLogo')" class="px-3 py-2 glass-button bg-gray-600 hover:bg-gray-700 text-white text-[9px] font-bold rounded-lg" title="Lihat Logo">
-                          <i class="fas fa-eye"></i>
-                      </button>
-                    </div>
-                    <p class="text-[10px] text-gray-400 truncate" id="logoStatus">Belum dimuat naik</p>
-                  </div>
-                  <!-- BG LIGHT -->
-                  <div class="glass-card p-4 text-center">
-                    <input type="file" id="bgLightFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'bgLight')" />
-                    <div class="flex gap-2 mb-3">
-                      <button onclick="document.getElementById('bgLightFileInput').click()" class="flex-1 py-2 px-2 glass-button text-white text-[9px] font-bold rounded-lg truncate">
-                          <i class="fas fa-sun mr-1 text-[8px]"></i>BG SIANG
-                      </button>
-                      <button onclick="previewImage('adminBackgroundLight')" class="px-3 py-2 glass-button bg-gray-600 hover:bg-gray-700 text-white text-[9px] font-bold rounded-lg" title="Lihat Background Siang">
-                          <i class="fas fa-eye"></i>
-                      </button>
-                    </div>
-                    <p class="text-[10px] text-gray-400 truncate" id="bgLightStatus">Belum dimuat naik</p>
-                  </div>
-                  <!-- BG DARK -->
-                  <div class="glass-card p-4 text-center">
-                    <input type="file" id="bgDarkFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'bgDark')" />
-                    <div class="flex gap-2 mb-3">
-                      <button onclick="document.getElementById('bgDarkFileInput').click()" class="flex-1 py-2 px-2 glass-button text-white text-[9px] font-bold rounded-lg truncate">
-                          <i class="fas fa-moon mr-1 text-[8px]"></i>BG MALAM
-                      </button>
-                      <button onclick="previewImage('adminBackgroundDark')" class="px-3 py-2 glass-button bg-gray-600 hover:bg-gray-700 text-white text-[9px] font-bold rounded-lg" title="Lihat Background Malam">
-                          <i class="fas fa-eye"></i>
-                      </button>
-                    </div>
-                    <p class="text-[10px] text-gray-400 truncate" id="bgDarkStatus">Belum dimuat naik</p>
-                  </div>
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fas fa-search text-xs"></i>
+                    </span>
+                    <input type="text" id="searchEventAdmin" oninput="filterEventsAdmin()" class="glass-input block w-full pl-10 pr-4 py-3 rounded-lg text-sm" placeholder="Cari Tajuk Acara..." />
                 </div>
-                <!-- Hidden inputs -->
-                <input type="hidden" id="adminLogo" /><input type="hidden" id="adminBackgroundLight" /><input type="hidden" id="adminBackgroundDark" />
-              </div>
-
-              <div class="md:col-span-2 flex items-center p-4 glass-card bg-blue-500/10 border-blue-500/20">
-                <input type="checkbox" id="adminStatus" class="h-6 w-6 rounded border-white/20 text-blue-600 focus:ring-blue-500 cursor-pointer" />
-                <label for="adminStatus" class="ml-4 block text-sm font-bold text-white cursor-pointer select-none">
-                  AKTIFKAN BORANG KEHADIRAN (Sila tick untuk membolehkan staf mendaftar)
-                </label>
-              </div>
+                <button onclick="showAddEventModal()" class="glass-button bg-blue-600 px-5 py-3 rounded-lg text-xs font-semibold text-white whitespace-nowrap">
+                    <i class="fas fa-plus mr-2 opacity-70"></i>Tambah Event Baru
+                </button>
             </div>
 
-            <div class="mt-8">
-              <button onclick="saveAdminSettings()" class="w-full md:w-auto glass-button bg-blue-600 hover:bg-blue-700 rounded-lg px-6 py-2.5 text-xs font-semibold text-white shadow-xl">
-                <i class="fas fa-save mr-2 opacity-70"></i>Simpan Tetapan
-              </button>
+            <!-- Responsive Events List -->
+            <div id="adminEventsContainer">
+                <!-- Desktop View -->
+                <div class="staff-table-view glass-card overflow-hidden">
+                    <table class="w-full text-left high-contrast-table">
+                        <thead>
+                            <tr>
+                                <th class="p-4 text-xs uppercase">Tajuk Acara</th>
+                                <th class="p-4 text-xs uppercase">Tarikh</th>
+                                <th class="p-4 text-xs uppercase">Lokasi</th>
+                                <th class="p-4 text-xs uppercase text-center">Kehadiran</th>
+                                <th class="p-4 text-xs uppercase text-center">Status</th>
+                                <th class="p-4 text-xs uppercase text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody" class="text-sm"></tbody>
+                    </table>
+                </div>
+                <!-- Mobile View -->
+                <div id="eventsCardsBody" class="staff-cards-view space-y-4"></div>
+            </div>
+
+            <!-- Loading/Empty -->
+            <div id="eventsLoadingIndicator" class="hidden text-center py-24 glass-card mt-6">
+                <i class="fas fa-spinner fa-spin text-6xl text-blue-500 mb-6 block"></i>
+                <p class="text-xl font-bold text-gray-400">Memuatkan senarai event...</p>
+            </div>
+            <div id="eventsEmptyState" class="hidden text-center py-24 glass-card mt-6">
+                <i class="fas fa-calendar-times text-6xl text-gray-600 mb-6 block"></i>
+                <p class="text-xl font-bold text-gray-400">Tiada event dijumpai</p>
             </div>
           </div>
 
           <!-- Tab Content: Data Staf -->
           <div id="tabContentDataStaf" class="tab-content hidden">
             <!-- Stats Dashboard Area -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="glass-card p-4 border-l-4 border-blue-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('')">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Staf</p>
-                    <h3 id="totalStaffCount" class="text-2xl font-semibold text-white">0</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                <div class="glass-card p-2.5 border-l-4 border-blue-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('')">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Total Staf</p>
+                    <h3 id="totalStaffCount" class="text-lg font-semibold text-white">0</h3>
                 </div>
-                <div class="glass-card p-4 border-l-4 border-green-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('JEMPUTAN')">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Jemputan</p>
-                    <h3 id="invitedStaffCount" class="text-2xl font-semibold text-green-400">0</h3>
+                <div class="glass-card p-2.5 border-l-4 border-green-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('JEMPUTAN')">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Jemputan</p>
+                    <h3 id="invitedStaffCount" class="text-lg font-semibold text-green-400">0</h3>
                 </div>
-                <div class="glass-card p-4 border-l-4 border-orange-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('WAKIL')">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Wakil</p>
-                    <h3 id="proxyStaffCount" class="text-2xl font-semibold text-orange-400">0</h3>
+                <div class="glass-card p-2.5 border-l-4 border-orange-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('WAKIL')">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Wakil</p>
+                    <h3 id="proxyStaffCount" class="text-lg font-semibold text-orange-400">0</h3>
                 </div>
-                <div class="glass-card p-4 border-l-4 border-purple-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('TIADA JEMPUTAN')">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tiada Jemputan</p>
-                    <h3 id="noInvitationStaffCount" class="text-2xl font-semibold text-purple-400">0</h3>
+                <div class="glass-card p-2.5 border-l-4 border-purple-500 cursor-pointer hover:bg-white/5 transition-all" onclick="quickFilterStaff('TIADA JEMPUTAN')">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Tiada Jemputan</p>
+                    <h3 id="noInvitationStaffCount" class="text-lg font-semibold text-purple-400">0</h3>
                 </div>
             </div>
 
             <!-- Controls Area -->
-            <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <div class="flex flex-col md:flex-row gap-2 mb-3">
                 <div class="relative flex-1">
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                         <i class="fas fa-search text-xs"></i>
                     </span>
-                    <input type="text" id="searchStaf" oninput="searchStaffData()" class="glass-input block w-full pl-10 pr-4 py-3 rounded-lg text-sm" placeholder="Cari ID, Nama, Jawatan..." />
+                    <input type="text" id="searchStaf" oninput="searchStaffData()" class="glass-input block w-full pl-10 pr-4 py-2 rounded-lg text-xs" placeholder="Cari ID, Nama, Jawatan..." />
                 </div>
-                <button onclick="showAddStaffModal()" class="glass-button bg-blue-600 hover:bg-blue-700 px-5 py-3 rounded-lg text-xs font-semibold text-white flex items-center justify-center">
+                <button onclick="showAddStaffModal()" class="glass-button bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-xs font-semibold text-white flex items-center justify-center">
                     <i class="fas fa-user-plus mr-2 opacity-70"></i>Tambah Staf
                 </button>
             </div>
 
             <!-- Filters Area -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                <select id="filterUnit" onchange="applyStaffFilters()" class="glass-input rounded-xl px-4 py-3 text-xs font-bold text-white"><option value="">Unit: Semua</option></select>
-                <select id="filterLocation" onchange="applyStaffFilters()" class="glass-input rounded-xl px-4 py-3 text-xs font-bold text-white"><option value="">Lokasi: Semua</option></select>
-                <select id="filterInvitation" onchange="applyInvitationFilter()" class="glass-input rounded-xl px-4 py-3 text-xs font-bold text-white">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                <select id="filterUnit" onchange="applyUnitFilter()" class="glass-input rounded-lg px-3 py-2 text-[11px] font-bold text-white"><option value="">Unit: Semua</option></select>
+                <select id="filterLocation" onchange="applyLocationFilter()" class="glass-input rounded-lg px-3 py-2 text-[11px] font-bold text-white"><option value="">Lokasi: Semua</option></select>
+                <select id="filterInvitation" onchange="applyInvitationFilter()" class="glass-input rounded-lg px-3 py-2 text-[11px] font-bold text-white">
                     <option value="">Status: Semua</option>
                     <option value="JEMPUTAN">JEMPUTAN</option>
                     <option value="WAKIL">WAKIL</option>
                     <option value="TIADA JEMPUTAN">TIADA JEMPUTAN</option>
                 </select>
-                <button onclick="clearStaffFilters()" class="glass-card hover:bg-white/10 px-4 py-3 text-xs font-bold text-gray-300">
+                <button onclick="clearStaffFilters()" class="glass-card hover:bg-white/10 px-3 py-2 text-[11px] font-bold text-gray-300">
                     <i class="fas fa-undo-alt mr-2"></i>RESET FILTER
                 </button>
             </div>
@@ -461,6 +428,12 @@
 
           <!-- Tab Content: Kehadiran -->
           <div id="tabContentKehadiran" class="tab-content hidden">
+            <!-- Event Selector -->
+            <div class="mb-4">
+                <label for="attendEventFilter" class="block text-[10px] font-bold text-blue-300 mb-2 uppercase tracking-widest">Papar Kehadiran Untuk Event</label>
+                <select id="attendEventFilter" onchange="onAttendEventFilterChange()" class="glass-input block w-full rounded-lg px-4 py-3 text-sm font-semibold"></select>
+            </div>
+
             <!-- Search & Filters -->
             <div class="flex flex-col md:flex-row gap-4 mb-6">
                 <div class="relative flex-1">
@@ -540,6 +513,95 @@
 
         </div>
       </div>
+    </div>
+
+    <!-- Modal: Add/Edit Event -->
+    <div id="eventModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-black/80 backdrop-blur-md px-4 overflow-y-auto py-8">
+        <div class="glass-card w-full max-w-2xl scale-in overflow-hidden">
+            <div class="p-5 border-b border-white/10 flex justify-between items-center bg-blue-700">
+                <h3 id="eventModalTitle" class="text-lg font-bold text-white uppercase tracking-tight">Tambah Event Baru</h3>
+                <button onclick="closeEventModal()" class="text-white/70 hover:text-white transition-all text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-8">
+                <input type="hidden" id="eventModalId" />
+                <input type="hidden" id="eventModalMode" value="add" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="md:col-span-2">
+                    <label for="adminTitle" class="block text-xs font-bold text-blue-300 mb-2 uppercase tracking-widest">Tajuk Acara / Mesyuarat</label>
+                    <input type="text" id="adminTitle" class="glass-input block w-full rounded-xl px-4 py-2.5 text-sm font-medium" placeholder="Contoh: MESYUARAT AGUNG TAHUNAN" />
+                  </div>
+
+                  <div>
+                    <label for="adminLocation" class="block text-xs font-bold text-blue-300 mb-2 uppercase tracking-widest">Lokasi</label>
+                    <input type="text" id="adminLocation" class="glass-input block w-full rounded-xl px-4 py-2.5 text-sm font-medium" placeholder="Contoh: DEWAN SERBAGUNA" />
+                  </div>
+
+                  <div>
+                    <label for="adminDate" class="block text-xs font-bold text-blue-300 mb-2 uppercase tracking-widest">Tarikh</label>
+                    <input type="text" id="adminDate" class="glass-input block w-full rounded-xl px-4 py-2.5 text-sm font-medium" />
+                  </div>
+
+                  <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-blue-300 mb-4 uppercase tracking-widest">Muat Naik Media (Logo & Latar Belakang)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <!-- LOGO -->
+                      <div class="glass-card p-4 text-center">
+                        <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'logo')" />
+                        <div class="flex gap-2 mb-3">
+                          <button onclick="document.getElementById('logoFileInput').click()" class="flex-1 py-2 px-2 glass-button text-white text-[9px] font-bold rounded-lg truncate">
+                              <i class="fas fa-upload mr-1 text-[8px]"></i>LOGO ACARA
+                          </button>
+                          <button onclick="previewImage('adminLogo')" class="px-3 py-2 glass-button bg-gray-600 hover:bg-gray-700 text-white text-[9px] font-bold rounded-lg" title="Lihat Logo">
+                              <i class="fas fa-eye"></i>
+                          </button>
+                        </div>
+                        <p class="text-[10px] text-gray-400 truncate" id="logoStatus">Belum dimuat naik</p>
+                      </div>
+                      <!-- BG LIGHT -->
+                      <div class="glass-card p-4 text-center">
+                        <input type="file" id="bgLightFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'bgLight')" />
+                        <div class="flex gap-2 mb-3">
+                          <button onclick="document.getElementById('bgLightFileInput').click()" class="flex-1 py-2 px-2 glass-button text-white text-[9px] font-bold rounded-lg truncate">
+                              <i class="fas fa-sun mr-1 text-[8px]"></i>BG SIANG
+                          </button>
+                          <button onclick="previewImage('adminBackgroundLight')" class="px-3 py-2 glass-button bg-gray-600 hover:bg-gray-700 text-white text-[9px] font-bold rounded-lg" title="Lihat Background Siang">
+                              <i class="fas fa-eye"></i>
+                          </button>
+                        </div>
+                        <p class="text-[10px] text-gray-400 truncate" id="bgLightStatus">Belum dimuat naik</p>
+                      </div>
+                      <!-- BG DARK -->
+                      <div class="glass-card p-4 text-center">
+                        <input type="file" id="bgDarkFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'bgDark')" />
+                        <div class="flex gap-2 mb-3">
+                          <button onclick="document.getElementById('bgDarkFileInput').click()" class="flex-1 py-2 px-2 glass-button text-white text-[9px] font-bold rounded-lg truncate">
+                              <i class="fas fa-moon mr-1 text-[8px]"></i>BG MALAM
+                          </button>
+                          <button onclick="previewImage('adminBackgroundDark')" class="px-3 py-2 glass-button bg-gray-600 hover:bg-gray-700 text-white text-[9px] font-bold rounded-lg" title="Lihat Background Malam">
+                              <i class="fas fa-eye"></i>
+                          </button>
+                        </div>
+                        <p class="text-[10px] text-gray-400 truncate" id="bgDarkStatus">Belum dimuat naik</p>
+                      </div>
+                    </div>
+                    <!-- Hidden inputs -->
+                    <input type="hidden" id="adminLogo" /><input type="hidden" id="adminBackgroundLight" /><input type="hidden" id="adminBackgroundDark" />
+                  </div>
+
+                  <div class="md:col-span-2 flex items-center p-4 glass-card bg-blue-500/10 border-blue-500/20">
+                    <input type="checkbox" id="adminStatus" class="h-6 w-6 rounded border-white/20 text-blue-600 focus:ring-blue-500 cursor-pointer" />
+                    <label for="adminStatus" class="ml-4 block text-sm font-bold text-white cursor-pointer select-none">
+                      AKTIFKAN BORANG KEHADIRAN (Sila tick untuk membolehkan staf mendaftar)
+                    </label>
+                  </div>
+                </div>
+                <div class="mt-8 flex gap-3">
+                    <button onclick="closeEventModal()" class="flex-1 py-3 glass-card text-sm font-medium text-gray-400">Batal</button>
+                    <button onclick="saveEventData()" class="flex-1 py-3 glass-button bg-blue-600 text-white text-sm font-bold shadow-lg">Simpan Event</button>
+                </div>
+                <div id="eventSaveIndicator" class="hidden mt-4 text-center italic text-blue-400 text-xs animate-pulse">Menghubungi pangkalan data...</div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal: Add/Edit Staf (Kept as modal but improved) -->
@@ -670,9 +732,9 @@
       window.onload = () => {
         updateClock();
         setInterval(updateClock, 1000);
-        loadAdminSettings();
+        loadEvents();
         loadStaffData();
-        
+
         flatpickr("#adminDate", {
           dateFormat: "d/m/Y",
           allowInput: true
@@ -699,6 +761,7 @@
         document.getElementById('tabKehadiran').className = getTabClass(tab === 'kehadiran');
         document.getElementById('tabJawatan').className = getTabClass(tab === 'jawatan');
 
+        if (tab === 'tetapan') loadEvents();
         if (tab === 'dataStaf') loadStaffData();
         if (tab === 'kehadiran') loadAttendanceData();
         if (tab === 'jawatan') loadPositionRankings();
@@ -872,40 +935,153 @@
         }
       }
 
-      // --- Admin Settings Logic ---
-      async function loadAdminSettings() {
+      // --- Events Logic (TETAPAN SISTEM) ---
+      let allEvents = [];
+      let activeEventId = null;
+
+      async function loadEvents() {
+        const loading = document.getElementById('eventsLoadingIndicator');
+        const empty = document.getElementById('eventsEmptyState');
+        if (loading) loading.classList.remove('hidden');
+        if (empty) empty.classList.add('hidden');
+
         try {
-          const res = await fetch('/api/admin-settings');
+          const res = await fetch('/api/events/list');
           const data = await res.json();
-          if (data) {
-            document.getElementById('adminTitle').value = data.title || '';
-            document.getElementById('adminLocation').value = data.location || '';
-            document.getElementById('adminDate').value = data.date || '';
-            document.getElementById('adminStatus').checked = data.status === 'on';
-            document.getElementById('adminLogo').value = data.logo || '';
-            document.getElementById('adminBackgroundLight').value = data.backgroundLight || '';
-            document.getElementById('adminBackgroundDark').value = data.backgroundDark || '';
-
-            if (data.logo) document.getElementById('logoStatus').textContent = 'Logo sedia ada';
-            if (data.backgroundLight) document.getElementById('bgLightStatus').textContent = 'Background Light sedia ada';
-            if (data.backgroundDark) document.getElementById('bgDarkStatus').textContent = 'Background Dark sedia ada';
+          if (data.success) {
+            allEvents = data.events || [];
+            activeEventId = data.activeEventId;
+            renderEventsList(allEvents);
+            populateAttendEventFilter();
+          } else {
+            alert('Gagal memuatkan senarai event');
           }
-        } catch (e) { console.error('Gagal load tetapan', e); }
+        } catch (e) {
+          console.error('Gagal load senarai event', e);
+        } finally {
+          if (loading) loading.classList.add('hidden');
+        }
       }
 
-      function handleFileSelect(event, type) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          document.getElementById(`admin${type.charAt(0).toUpperCase() + type.slice(1)}`).value = e.target.result;
-          document.getElementById(`${type}Status`).textContent = 'Sedia untuk disimpan';
-          document.getElementById(`${type}Status`).classList.add('text-green-400');
-        };
-        reader.readAsDataURL(file);
+      function filterEventsAdmin() {
+        const q = document.getElementById('searchEventAdmin').value.toLowerCase();
+        const filtered = allEvents.filter(ev => (ev.title || '').toLowerCase().includes(q));
+        renderEventsList(filtered);
       }
 
-      async function saveAdminSettings() {
+      function renderEventsList(events) {
+        const tbody = document.getElementById('eventsTableBody');
+        const cards = document.getElementById('eventsCardsBody');
+        const empty = document.getElementById('eventsEmptyState');
+        tbody.innerHTML = '';
+        cards.innerHTML = '';
+
+        if (events.length === 0) {
+          empty.classList.remove('hidden');
+          return;
+        }
+        empty.classList.add('hidden');
+
+        events.forEach(ev => {
+          const isActive = ev.id === activeEventId;
+          const statusBadge = isActive
+            ? '<span class="status-badge bg-green-500 text-white">AKTIF</span>'
+            : '<span class="status-badge bg-gray-600 text-gray-300">SEJARAH</span>';
+          const activateBtn = isActive
+            ? ''
+            : `<button onclick="activateEvent('${ev.id}')" class="p-2 text-green-400/70 hover:text-green-400 transition-all" title="Jadikan Aktif"><i class="fas fa-check-circle"></i></button>`;
+
+          tbody.innerHTML += `
+            <tr class="border-b border-white/5 hover:bg-white/5 transition">
+              <td class="p-4 font-semibold">${ev.title || '-'}</td>
+              <td class="p-4">${ev.date || '-'}</td>
+              <td class="p-4">${ev.location || '-'}</td>
+              <td class="p-4 text-center">${ev.attendance_count || 0}</td>
+              <td class="p-4 text-center">${statusBadge}</td>
+              <td class="p-4 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <button onclick="showEditEventModal('${ev.id}')" class="p-2 text-blue-400/70 hover:text-blue-400 transition-all" title="Edit"><i class="fas fa-edit"></i></button>
+                  ${activateBtn}
+                </div>
+              </td>
+            </tr>
+          `;
+
+          cards.innerHTML += `
+            <div class="glass-card p-4 staff-card ${isActive ? 'selected' : ''}">
+              <div class="flex justify-between items-start mb-2">
+                <h4 class="font-bold text-white text-sm">${ev.title || '-'}</h4>
+                ${statusBadge}
+              </div>
+              <p class="text-xs text-gray-400 mb-1"><i class="fas fa-calendar mr-1 opacity-60"></i>${ev.date || '-'}</p>
+              <p class="text-xs text-gray-400 mb-3"><i class="fas fa-map-marker-alt mr-1 opacity-60"></i>${ev.location || '-'}</p>
+              <p class="text-xs text-gray-400 mb-3"><i class="fas fa-clipboard-check mr-1 opacity-60"></i>${ev.attendance_count || 0} kehadiran</p>
+              <div class="flex gap-2">
+                <button onclick="showEditEventModal('${ev.id}')" class="flex-1 py-1.5 rounded-md bg-blue-500/10 text-blue-400 text-[9px] font-bold uppercase tracking-wider border border-blue-500/20"><i class="fas fa-edit mr-1 opacity-70"></i> Edit</button>
+                ${!isActive ? `<button onclick="activateEvent('${ev.id}')" class="flex-1 py-1.5 rounded-md bg-green-500/10 text-green-400 text-[9px] font-bold uppercase tracking-wider border border-green-500/20"><i class="fas fa-check-circle mr-1 opacity-70"></i> Jadikan Aktif</button>` : ''}
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      function populateAttendEventFilter() {
+        const select = document.getElementById('attendEventFilter');
+        if (!select) return;
+        const current = select.value || activeEventId;
+        select.innerHTML = allEvents.map(ev =>
+          `<option value="${ev.id}">${ev.title || '(Tiada tajuk)'}${ev.id === activeEventId ? ' (AKTIF)' : ''} - ${ev.date || ''}</option>`
+        ).join('');
+        select.value = allEvents.some(ev => ev.id === current) ? current : activeEventId;
+      }
+
+      function onAttendEventFilterChange() {
+        loadAttendanceData();
+      }
+
+      function showAddEventModal() {
+        document.getElementById('eventModalTitle').textContent = 'Tambah Event Baru';
+        document.getElementById('eventModalMode').value = 'add';
+        document.getElementById('eventModalId').value = '';
+        document.getElementById('adminTitle').value = '';
+        document.getElementById('adminLocation').value = '';
+        document.getElementById('adminDate').value = '';
+        document.getElementById('adminStatus').checked = true;
+        document.getElementById('adminLogo').value = '';
+        document.getElementById('adminBackgroundLight').value = '';
+        document.getElementById('adminBackgroundDark').value = '';
+        document.getElementById('logoStatus').textContent = 'Belum dimuat naik';
+        document.getElementById('bgLightStatus').textContent = 'Belum dimuat naik';
+        document.getElementById('bgDarkStatus').textContent = 'Belum dimuat naik';
+        document.getElementById('eventModal').classList.remove('hidden');
+      }
+
+      function showEditEventModal(id) {
+        const ev = allEvents.find(e => e.id === id);
+        if (!ev) return;
+        document.getElementById('eventModalTitle').textContent = 'Kemaskini Event';
+        document.getElementById('eventModalMode').value = 'edit';
+        document.getElementById('eventModalId').value = ev.id;
+        document.getElementById('adminTitle').value = ev.title || '';
+        document.getElementById('adminLocation').value = ev.location || '';
+        document.getElementById('adminDate').value = ev.date || '';
+        document.getElementById('adminStatus').checked = ev.status === 'on';
+        document.getElementById('adminLogo').value = ev.logo_url || '';
+        document.getElementById('adminBackgroundLight').value = ev.background_light_url || '';
+        document.getElementById('adminBackgroundDark').value = ev.background_dark_url || '';
+        document.getElementById('logoStatus').textContent = ev.logo_url ? 'Logo sedia ada' : 'Belum dimuat naik';
+        document.getElementById('bgLightStatus').textContent = ev.background_light_url ? 'Background Light sedia ada' : 'Belum dimuat naik';
+        document.getElementById('bgDarkStatus').textContent = ev.background_dark_url ? 'Background Dark sedia ada' : 'Belum dimuat naik';
+        document.getElementById('eventModal').classList.remove('hidden');
+      }
+
+      function closeEventModal() {
+        document.getElementById('eventModal').classList.add('hidden');
+      }
+
+      async function saveEventData() {
+        const mode = document.getElementById('eventModalMode').value;
+        const id = document.getElementById('eventModalId').value;
         const settings = {
           title: document.getElementById('adminTitle').value,
           location: document.getElementById('adminLocation').value,
@@ -916,16 +1092,120 @@
           backgroundDark: document.getElementById('adminBackgroundDark').value
         };
 
+        if (!settings.title.trim()) {
+          alert('Sila isi Tajuk Acara.');
+          return;
+        }
+
+        const indicator = document.getElementById('eventSaveIndicator');
+        if (indicator) indicator.classList.remove('hidden');
+
         try {
-          const res = await fetch('/api/save-settings', {
+          const url = mode === 'edit' ? '/api/events/update' : '/api/events/create';
+          const body = mode === 'edit' ? { id, ...settings } : settings;
+          const res = await fetch(url, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(settings)
+            body: JSON.stringify(body)
           });
           const data = await res.json();
-          if (data.success) alert('Tetapan berjaya disimpan!');
-          else alert('Ralat: ' + data.error);
-        } catch (e) { alert('Gagal simpan tetapan'); }
+          if (data.success) {
+            closeEventModal();
+            await loadEvents();
+            if (mode === 'add') {
+              // New event is now active -> attendance view should reset to it
+              const select = document.getElementById('attendEventFilter');
+              if (select) select.value = activeEventId;
+              loadAttendanceData();
+            }
+          } else {
+            alert('Ralat: ' + data.error);
+          }
+        } catch (e) {
+          alert('Gagal simpan event');
+        } finally {
+          if (indicator) indicator.classList.add('hidden');
+        }
+      }
+
+      async function activateEvent(id) {
+        if (!confirm('Jadikan event ini sebagai event AKTIF? Senarai kehadiran akan bertukar mengikut event ini.')) return;
+        try {
+          const res = await fetch('/api/events/activate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id })
+          });
+          const data = await res.json();
+          if (data.success) {
+            await loadEvents();
+            const select = document.getElementById('attendEventFilter');
+            if (select) select.value = activeEventId;
+            loadAttendanceData();
+          } else {
+            alert('Ralat: ' + data.error);
+          }
+        } catch (e) {
+          alert('Gagal menukar event aktif');
+        }
+      }
+
+      async function handleFileSelect(event, type) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const inputEl = document.getElementById(
+          type === 'logo' ? 'adminLogo' : type === 'bgLight' ? 'adminBackgroundLight' : 'adminBackgroundDark'
+        );
+        const statusEl = document.getElementById(`${type}Status`);
+
+        if (!file.type.startsWith('image/')) {
+          alert('Sila pilih fail gambar sahaja!');
+          event.target.value = '';
+          return;
+        }
+
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          alert('Saiz fail terlalu besar! Maksimum 5MB.');
+          event.target.value = '';
+          return;
+        }
+
+        statusEl.textContent = 'Memuat naik...';
+        statusEl.classList.remove('text-green-400', 'text-red-400');
+        statusEl.classList.add('text-blue-400', 'animate-pulse');
+
+        try {
+          const base64Image = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error('Gagal membaca fail'));
+            reader.readAsDataURL(file);
+          });
+
+          const response = await fetch('/api/upload/image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64Image, type, folder: `ehadir/${type}` })
+          });
+          const data = await response.json();
+
+          if (!data.success) throw new Error(data.message || 'Upload gagal');
+
+          inputEl.value = data.url;
+          statusEl.textContent = `Berjaya dimuat naik (${(file.size / 1024).toFixed(1)} KB)`;
+          statusEl.classList.remove('text-blue-400', 'animate-pulse');
+          statusEl.classList.add('text-green-400');
+        } catch (error) {
+          console.error('Upload error:', error);
+          inputEl.value = '';
+          statusEl.textContent = `Gagal muat naik: ${error.message}`;
+          statusEl.classList.remove('text-blue-400', 'animate-pulse');
+          statusEl.classList.add('text-red-400');
+        } finally {
+          event.target.value = '';
+        }
       }
 
       // --- Image Preview Logic ---
@@ -973,10 +1253,16 @@
         if (empty) empty.classList.add('hidden');
 
         try {
+          const select = document.getElementById('attendEventFilter');
+          const eventId = (select && select.value) || activeEventId || '';
+          const attendUrl = eventId
+            ? `/api/attendance/list?event_id=${encodeURIComponent(eventId)}`
+            : '/api/attendance/list';
+
           // Fetch BOTH Staff and Attendance Validation
           const [staffRes, attendRes] = await Promise.all([
             fetch('/api/get-staff'),
-            fetch('/api/attendance/list')
+            fetch(attendUrl)
           ]);
 
           const staffData = await staffRes.json();

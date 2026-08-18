@@ -109,12 +109,14 @@ function populateFilterDropdowns() {
 // UPDATE STATS DASHBOARD
 // ============================================
 function updateStaffStats() {
-  const totalStaff = allStaffData.length;
-  const invitedStaff = allStaffData.filter(
+  const totalStaff = filteredStaffData.length;
+  const invitedStaff = filteredStaffData.filter(
     (s) => s.status === "JEMPUTAN",
   ).length;
-  const proxyStaff = allStaffData.filter((s) => s.status === "WAKIL").length;
-  const noInvitationStaff = allStaffData.filter(
+  const proxyStaff = filteredStaffData.filter(
+    (s) => s.status === "WAKIL",
+  ).length;
+  const noInvitationStaff = filteredStaffData.filter(
     (s) =>
       !s.status ||
       s.status === "TIADA" ||
@@ -185,6 +187,7 @@ function applyStaffFilters() {
   });
 
   currentPage = 1;
+  updateStaffStats();
   renderPaginatedStaff();
 }
 
@@ -227,6 +230,22 @@ function applyInvitationFilter() {
   const elInv = document.getElementById("filterInvitation");
   if (elInv) {
     staffFilters.invitation = elInv.value;
+    applyStaffFilters();
+  }
+}
+
+function applyUnitFilter() {
+  const elUnit = document.getElementById("filterUnit");
+  if (elUnit) {
+    staffFilters.unit = elUnit.value;
+    applyStaffFilters();
+  }
+}
+
+function applyLocationFilter() {
+  const elLoc = document.getElementById("filterLocation");
+  if (elLoc) {
+    staffFilters.location = elLoc.value;
     applyStaffFilters();
   }
 }

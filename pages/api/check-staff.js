@@ -5,6 +5,8 @@ import {
   getStaffById,
   checkInvitation,
   getLastAttendance,
+  getActiveEvent,
+  initEventsTable,
 } from "../../lib/db.js";
 
 export default async function handler(req, res) {
@@ -28,8 +30,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "ID Staf is required" });
     }
 
-    // Check if staff already has attendance record
-    const lastRecord = await getLastAttendance(idStaf);
+    // Check if staff already has attendance record for the active event
+    await initEventsTable();
+    const activeEvent = await getActiveEvent();
+    const lastRecord = activeEvent
+      ? await getLastAttendance(idStaf, activeEvent.id)
+      : null;
 
     if (lastRecord) {
       // Format timestamp for display

@@ -1,7 +1,7 @@
 // pages/api/meeting-info.js
 // API route untuk fetch meeting info dari Database
 
-import { getAdminSettings, initDatabase } from "../../lib/db";
+import { getActiveEvent, initEventsTable } from "../../lib/db";
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -19,10 +19,10 @@ export default async function handler(req, res) {
 
   try {
     // Initialize database if needed
-    await initDatabase();
+    await initEventsTable();
 
-    // Get settings from database
-    const settings = await getAdminSettings();
+    // Get settings from the active event
+    const settings = (await getActiveEvent()) || {};
 
     // Default values
     const defaultLogo =
