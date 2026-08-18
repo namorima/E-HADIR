@@ -24,6 +24,21 @@
         transition: all 0.5s ease;
       }
 
+      /* Custom Background Image Support */
+      body.custom-bg::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -3;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+      }
+
       /* Animated Golf Field Background (Default) */
       body::before {
         content: "";
@@ -52,14 +67,8 @@
         background: linear-gradient(135deg, #1b3a1b 0%, #2d4a2d 100%);
       }
 
-      /* Custom Background Support */
-      body.custom-bg::before {
-        background: none !important;
-        animation: none !important;
-      }
-
-      /* Grass Texture Overlay (Only visible on default bg) */
-      body:not(.custom-bg)::after {
+      /* Grass Texture Overlay */
+      body::after {
         content: "";
         position: fixed;
         top: 0;
@@ -67,25 +76,63 @@
         width: 100%;
         height: 100%;
         z-index: -1;
-        background-image: 
+        background-image:
           repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(85,139,47,0.03) 2px, rgba(85,139,47,0.03) 4px),
           radial-gradient(circle at 50% 50%, rgba(104,159,56,0.08) 0%, transparent 60%);
       }
 
+      body.dark-mode::after {
+        background-image:
+          repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(124,179,66,0.05) 2px, rgba(124,179,66,0.05) 4px),
+          radial-gradient(circle at 50% 50%, rgba(139,195,74,0.06) 0%, transparent 60%);
+      }
+
+      /* Dimming/blur overlay when a custom background image is active */
+      body.custom-bg::after {
+        background: rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+      }
+
+      body.dark-mode.custom-bg::after {
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+      }
+
       /* Glass Card Style */
       .glass-card {
-        background: rgba(255, 255, 255, 0.45);
+        background: rgba(255, 255, 255, 0.35);
         backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-        border-radius: 20px;
-        transition: all 0.3s ease;
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 32px 0 rgba(124, 179, 66, 0.15),
+          inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+          0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        border-radius: 24px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .glass-card:hover {
+        background: rgba(255, 255, 255, 0.45);
+        box-shadow: 0 12px 40px 0 rgba(124, 179, 66, 0.2),
+          inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
+          0 2px 4px 0 rgba(0, 0, 0, 0.08);
       }
 
       body.dark-mode .glass-card {
-        background: rgba(30, 30, 30, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        background: rgba(30, 30, 30, 0.4);
+        border: 1px solid rgba(139, 195, 74, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 0 rgba(139, 195, 74, 0.1),
+          0 1px 2px 0 rgba(139, 195, 74, 0.05);
+      }
+
+      body.dark-mode .glass-card:hover {
+        background: rgba(30, 30, 30, 0.5);
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 0 rgba(139, 195, 74, 0.15),
+          0 2px 4px 0 rgba(139, 195, 74, 0.08);
       }
       
       /* Typography Colors */
@@ -107,6 +154,53 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
+      }
+
+      /* Row/Card tint for attendance status.
+         NOTE: uses body.dark-mode (not Tailwind's dark: which follows the
+         OS color scheme) so it reacts to the site's own theme toggle.
+         Backgrounds stay translucent so the glass-card blur underneath
+         still shows through instead of a flat opaque color. */
+      .row-present {
+        background: rgba(34, 197, 94, 0.08);
+      }
+      .row-present:hover {
+        background: rgba(34, 197, 94, 0.14);
+      }
+      body.dark-mode .row-present {
+        background: rgba(74, 222, 128, 0.14);
+      }
+      body.dark-mode .row-present:hover {
+        background: rgba(74, 222, 128, 0.2);
+      }
+      .row-pending:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+      body.dark-mode .row-pending:hover {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .badge-pending {
+        background: rgba(0, 0, 0, 0.08);
+        color: #6b7280;
+      }
+      body.dark-mode .badge-pending {
+        background: rgba(255, 255, 255, 0.1);
+        color: #d1d5db;
+      }
+
+      .card-present {
+        border-left-color: #22c55e !important;
+        background: rgba(34, 197, 94, 0.06);
+      }
+      body.dark-mode .card-present {
+        background: rgba(74, 222, 128, 0.12);
+      }
+      .card-pending {
+        border-left-color: #9ca3af !important;
+      }
+      body.dark-mode .card-pending {
+        border-left-color: #6b7280 !important;
       }
 
       .scale-in {
@@ -312,8 +406,9 @@
               background-image: url('${backgroundUrl}') !important;
               background-size: cover !important;
               background-position: center !important;
-              background-attachment: fixed !important; 
+              background-attachment: fixed !important;
               filter: blur(8px) !important;
+              -webkit-filter: blur(8px) !important;
               transform: scale(1.1) !important;
             }
           `;
@@ -460,13 +555,13 @@
         data.forEach(item => {
           const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit'}) : '-';
           
-          const statusBadge = item.isPresent 
+          const statusBadge = item.isPresent
             ? `<span class="status-badge bg-green-500 text-white shadow-md"><i class="fas fa-check-circle"></i> HADIR</span>`
-            : `<span class="status-badge bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"><i class="far fa-clock"></i> BELUM</span>`;
-            
-          const rowClass = item.isPresent 
-            ? 'bg-green-50 dark:bg-green-900/10' 
-            : 'hover:bg-black/5 dark:hover:bg-white/5';
+            : `<span class="status-badge badge-pending"><i class="far fa-clock"></i> BELUM</span>`;
+
+          const rowClass = item.isPresent
+            ? 'row-present'
+            : 'row-pending';
 
           // Table Row - HIDDEN ID, ADDED LOCATION
           tbody.innerHTML += `
@@ -485,7 +580,7 @@
 
           // Card - HIDDEN ID, ADDED LOCATION
           cards.innerHTML += `
-            <div class="glass-card p-4 border-l-4 ${item.isPresent ? 'border-green-500 bg-green-50/50 dark:bg-green-900/20' : 'border-gray-400 dark:border-gray-600'}">
+            <div class="glass-card p-4 border-l-4 ${item.isPresent ? 'card-present' : 'card-pending'}">
               <div class="flex justify-between items-start mb-3">
                 <div class="pr-2">
                   <h4 class="font-bold text-primary text-sm leading-tight mb-1">${item.name}</h4>
