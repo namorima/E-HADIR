@@ -1,171 +1,159 @@
-# 🎯 E-HADIR Majikan - Digital Attendance System
+# E-HADIR — Digital Attendance System (FELCRA Berhad Kelantan)
 
-Sistem kehadiran digital untuk Majikan menggunakan Google Sheets API dan Service Account.
+Digital check-in kiosk for meetings/events. Staff enter their ID to record
+attendance; admins manage events, staff, attendance records, and position
+ordering from a password-gated admin panel. A separate live dashboard page
+can be projected during the event.
 
-## 🚀 Features
+For how the system is actually built (pages, data model, API surface, and
+known rough edges), see **[DESIGN.md](./DESIGN.md)**. For AI-agent-oriented
+quick orientation, see **[CLAUDE.md](./CLAUDE.md)**.
 
-- ✅ Real-time attendance tracking
-- ✅ Google Sheets integration via Service Account
-- ✅ Staff registration for new users
-- ✅ Admin panel for settings
-- ✅ Light/Dark mode theme
-- ✅ Custom background support
-- ✅ Responsive glassmorphism UI
-- ✅ No Apps Script needed!
+## Features
 
-## 📋 Prerequisites
+- Real-time attendance check-in, scoped per event
+- Multi-event support — create events, switch which one is "active" without
+  losing history
+- New-staff self-registration at check-in time
+- Admin panel: event settings, staff CRUD (search/filter/bulk actions),
+  attendance record management, position ranking
+- Logo & background image upload (Cloudinary), per event, per light/dark
+  theme
+- Light/dark theme with custom background images
+- Responsive glassmorphism UI (desktop table + mobile card views)
+
+## Prerequisites
 
 - Node.js 18+
 - npm 9+
-- Google Service Account credentials
-- Google Spreadsheet ID
+- A [Neon](https://neon.tech) Postgres database
+- A [Cloudinary](https://cloudinary.com) account (for image uploads)
 
-## 🔧 Installation
-
-### 1. Clone repository
+## Installation
 
 ```bash
 git clone <your-repo-url>
-cd e-hadir-Majikan
-```
-
-### 2. Install dependencies
-
-```bash
+cd e-hadir
 npm install
 ```
 
-### 3. Setup environment variables
+### Environment variables
 
-Create `.env.local` file:
+Copy `.env.example` to `.env.local` and fill in:
 
 ```env
-# Google Service Account
+# Neon PostgreSQL connection string (required)
+DATABASE_URL=postgresql://user:password@host/database?sslmode=require
+
+# Admin panel password (see DESIGN.md §7 — not currently enforced server-side)
+NEXT_PUBLIC_ADMIN_PASSWORD=your-admin-password
+
+# Cloudinary credentials for image uploads (required)
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
+# Optional — only needed for a one-time Google Sheets import (see MIGRATION-GUIDE.md)
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-GOOGLE_CLIENT_EMAIL=
-GOOGLE_SHEET_ID=
-
-# Admin
-NEXT_PUBLIC_ADMIN_PASSWORD=
+GOOGLE_CLIENT_EMAIL=your-service-account@project.iam.gserviceaccount.com
+GOOGLE_SHEET_ID=your-spreadsheet-id
 ```
 
-### 4. Share Google Spreadsheet
-
-Share your spreadsheet with the service account email:
-
-```
-dotdotdot@dotdotdot.iam.gserviceaccount.com
-```
-
-Give it **Editor** permission!
-
-### 5. Run development server
+### Initialize the database
 
 ```bash
 npm run dev
+curl http://localhost:3000/api/db/init
 ```
+
+This creates all tables (`events`, `staff`, `invitations`, `attendance`,
+`position_ranking`, plus the legacy `admin_settings`) if they don't exist
+yet — safe to run more than once.
 
 Open http://localhost:3000
 
-## 📦 Deployment
+## Pages
 
-### Deploy to Vercel (Recommended)
+| URL | Purpose |
+|---|---|
+| `/` (`public/index.html`) | Public check-in kiosk |
+| `/kehadiran.html` | Live, read-only attendance dashboard (for projecting during the event) |
+| `/setup.html` | Admin panel — reached by entering ID `0000` on the kiosk and the admin password |
+
+## Commands
+
+```bash
+npm run dev     # Start development server on http://localhost:3000
+npm run build   # Build production application
+npm start       # Start production server
+npm run lint    # Run ESLint
+```
+
+## File structure
+
+```
+e-hadir/
+├── public/
+│   ├── index.html            # Check-in kiosk (/)
+│   ├── kehadiran.html        # Live attendance dashboard
+│   ├── setup.html            # Admin panel
+│   ├── staff-management.js   # Staff CRUD logic used by setup.html
+│   └── setup.json            # Static logo/background config (legacy)
+├── pages/api/
+│   ├── meeting-info.js, check-staff.js, attendance/record.js, staff/add.js
+│   ├── events/                 # list, create, update, activate
+│   ├── attendance/             # list, admin-record, delete, record
+│   ├── positions/               # list, sync, bulk-update
+│   ├── get-staff.js, add-staff.js, update-staff.js, delete-staff.js
+│   ├── bulk-update-staff.js, bulk-delete-staff.js
+│   ├── upload/image.js         # Cloudinary upload
+│   └── db/init.js, db/migrate.js
+├── lib/db.js                  # All Neon Postgres queries live here
+├── DESIGN.md                  # Full architecture + known issues
+├── CLAUDE.md                  # Quick orientation for AI coding agents
+├── MIGRATION-GUIDE.md         # Google Sheets → Neon migration steps
+├── CLOUDINARY-SETUP.md        # Cloudinary setup + upload flow details
+├── .env.local                 # Environment variables (gitignored)
+└── package.json
+```
+
+## Deployment
+
+### Vercel (recommended)
 
 1. Push code to GitHub
 2. Import project in Vercel
-3. Add environment variables
-4. Deploy!
+3. Add the environment variables above
+4. Deploy, then run `curl https://your-site.vercel.app/api/db/init` once
 
-### Deploy to Netlify
+### Netlify
 
 1. Push code to GitHub
-2. New site from Git
-3. Build command: `npm run build`
-4. Publish directory: `.next`
-5. Add environment variables
-6. Deploy!
+2. New site from Git — build command `npm run build`, publish directory `.next`
+3. Add environment variables
+4. Deploy, then run the same `db/init` call against the deployed URL
 
-## 📁 File Structure
+## Data model
 
-```
-e-hadir-Majikan/
-├── public/
-│   └── index.html                 # Main HTML file
-├── pages/
-│   └── api/
-│       ├── meeting-info.js        # GET meeting info
-│       ├── check-staff.js         # POST check staff
-│       ├── attendance/
-│       │   └── record.js          # POST record attendance
-│       ├── staff/
-│       │   └── add.js             # POST add new staff
-│       └── settings/
-│           └── update.js          # POST update settings
-├── .env.local                     # Environment variables (gitignored)
-├── .gitignore
-├── next.config.js
-├── package.json
-└── README.md
-```
+See [DESIGN.md §5](./DESIGN.md#5-data-model-neon-postgres) for the full
+schema and how events/staff/attendance relate.
 
-## 🔑 Environment Variables
+## Troubleshooting
 
-| Variable                     | Description                 | Required |
-| ---------------------------- | --------------------------- | -------- |
-| `GOOGLE_PRIVATE_KEY`         | Service Account private key | ✅ Yes   |
-| `GOOGLE_CLIENT_EMAIL`        | Service Account email       | ✅ Yes   |
-| `GOOGLE_SHEET_ID`            | Google Spreadsheet ID       | ✅ Yes   |
-| `NEXT_PUBLIC_ADMIN_PASSWORD` | Admin panel password        | ✅ Yes   |
+### "DATABASE_URL environment variable is required"
 
-## 📊 Google Sheets Structure
+Set `DATABASE_URL` in `.env.local` to a valid Neon connection string
+(Neon Console → Connection Details).
 
-### Sheet: DATA STAF
+### Image upload fails / logo or background doesn't show up
 
-| A (ID) | B (Nama) | C (Jawatan) | D (Lokasi)  | E   | F (Status) |
-| ------ | -------- | ----------- | ----------- | --- | ---------- |
-| 1234   | AHMAD    | PEGAWAI     | IBU PEJABAT |     | WAKIL      |
+Check Cloudinary credentials in `.env.local`, and see
+[CLOUDINARY-SETUP.md](./CLOUDINARY-SETUP.md#troubleshooting).
 
-### Sheet: KEHADIRAN
+### Migrating existing Google Sheets data
 
-| A (Timestamp) | B (ID) | C (Nama) | D (Status) |
-| ------------- | ------ | -------- | ---------- |
-| 20/11/2025... | 1234   | AHMAD    | HADIR      |
+See [MIGRATION-GUIDE.md](./MIGRATION-GUIDE.md).
 
-### Sheet: FX (Settings)
+## License
 
-| K1 (Title) | K2 (Date)  | K3 (Location)   | K4 (Logo)   | K5 (Status) | K6 (Background) |
-| ---------- | ---------- | --------------- | ----------- | ----------- | --------------- |
-| MESYUARAT  | 20/11/2025 | BILIK MESYUARAT | https://... | on          | https://...     |
-
-## 🔐 Security
-
-- Private key stored in environment variables (server-side only)
-- Service Account authentication
-- No credentials exposed to client
-- HTTPS enforced by Vercel/Netlify
-
-## 🐛 Troubleshooting
-
-### Error: "invalid_grant"
-
-**Solution:** Check if GOOGLE_PRIVATE_KEY includes `\n` for newlines
-
-### Error: "The caller does not have permission"
-
-**Solution:** Share spreadsheet with service account email (Editor access)
-
-### Error: "Sheet not found"
-
-**Solution:** Check sheet names match exactly: "DATA STAF", "KEHADIRAN", "FX"
-
-## 📞 Support
-
-For issues or questions, contact Majikan IT Department.
-
-## 📄 License
-
-ISC License - Majikan
-
----
-
-**Made with ❤️ by Majikan IT Team**
+ISC License — FELCRA Berhad Kelantan
