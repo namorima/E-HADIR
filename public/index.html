@@ -285,6 +285,25 @@
           inset 0 1px 0 rgba(255, 255, 255, 0.5);
       }
 
+      /* Attract attention to the attend button */
+      .attend-button-pulse {
+        animation: attendButtonPulse 1.6s ease-in-out infinite;
+      }
+
+      .attend-button-pulse:hover:not(:disabled) {
+        animation-play-state: paused;
+      }
+
+      @keyframes attendButtonPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.06);
+        }
+      }
+
       .glass-button-red {
         background: rgba(239, 68, 68, 0.85);
         box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35),
@@ -853,6 +872,10 @@
         color: #6b7280 !important;
       }
 
+      .attend-hint {
+        color: #000000;
+      }
+
       /* Dark mode */
       body.dark-mode {
         color: #f3f4f6;
@@ -866,6 +889,10 @@
       body.dark-mode .text-gray-600,
       body.dark-mode .text-gray-500 {
         color: #d1d5db !important;
+      }
+
+      body.dark-mode .attend-hint {
+        color: #d1d5db;
       }
 
       body.dark-mode .text-green-600 {
@@ -1239,12 +1266,11 @@
 
             <button
               onclick="handleAttend()"
-              class="glass-button glass-button-green w-full rounded-xl px-4 py-3 text-sm font-semibold text-white mt-5"
+              class="glass-button glass-button-green attend-button-pulse w-full rounded-xl px-4 py-3 text-sm font-semibold text-white mt-5"
             >
-              <i class="fas fa-check-circle mr-2"></i>
-              Hadir
+              Sahkan Kehadiran
             </button>
-            <p class="text-center text-xs text-gray-500 mt-2" style="opacity: 0.5">
+            <p class="text-center text-xs attend-hint mt-2" style="opacity: 0.5">
               Tekan disini untuk hantar kehadiran
             </p>
           </div>
