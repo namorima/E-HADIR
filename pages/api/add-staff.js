@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { id, name, position, location, unit, status } = req.body;
+    const { id, name, position, location, unit, status, jantina } = req.body;
 
     if (!id || !name) {
       return res.status(400).json({
@@ -43,6 +43,7 @@ export default async function handler(req, res) {
       location: location || "",
       unit: unit || "",
       status: status || "",
+      jantina: jantina || "",
     });
 
     return res.status(200).json({

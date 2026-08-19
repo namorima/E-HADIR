@@ -8,7 +8,15 @@ import {
   getStaffById,
   getActiveEvent,
   initEventsTable,
+  detectGender,
 } from "../../../lib/db.js";
+
+// ENCIK for lelaki (BIN), PUAN for perempuan (BINTI)
+function panggilanFor(jantina) {
+  if (jantina === "L") return "ENCIK";
+  if (jantina === "P") return "PUAN";
+  return "";
+}
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -61,11 +69,15 @@ export default async function handler(req, res) {
       eventId: activeEvent.id,
     });
 
+    const jantina = staff?.jantina || detectGender(nama);
+
     return res.status(200).json({
       success: true,
       status: "success",
       message: "Rekod berjaya disimpan!",
       nama: nama,
+      jantina: jantina,
+      panggilan: panggilanFor(jantina),
     });
   } catch (error) {
     console.error("Error recording attendance:", error);

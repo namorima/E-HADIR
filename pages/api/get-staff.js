@@ -26,6 +26,7 @@ export default async function handler(req, res) {
       position: row.position || "",
       location: row.location || "",
       unit: row.unit || "",
+      jantina: row.jantina || "",
       invitation: row.status || "",
       status: row.status || "",
       ranking_order: row.ranking_order || 9999,

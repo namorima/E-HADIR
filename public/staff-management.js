@@ -20,6 +20,33 @@ const staffFilters = {
   invitation: "",
 };
 
+// Tracks whether the user manually picked a jantina in the currently open
+// modal, so name-based auto-detection doesn't clobber a manual choice.
+let jantinaManuallySet = false;
+
+// ============================================
+// GENDER (JANTINA) HELPERS
+// ============================================
+// Mirrors the server-side detection in lib/db.js: BINTI -> perempuan,
+// BIN -> lelaki (checked in that order since "BINTI" also contains "BIN").
+function detectGenderFromName(name) {
+  if (!name) return "";
+  const upper = name.toUpperCase();
+  if (/\bBINTI\b/.test(upper)) return "P";
+  if (/\bBIN\b/.test(upper)) return "L";
+  return "";
+}
+
+function getGenderIcon(jantina) {
+  if (jantina === "L") {
+    return '<i class="fas fa-mars text-blue-400" title="Lelaki"></i>';
+  }
+  if (jantina === "P") {
+    return '<i class="fas fa-venus text-pink-400" title="Perempuan"></i>';
+  }
+  return '<i class="fas fa-genderless text-gray-600" title="Tidak diketahui"></i>';
+}
+
 // ============================================
 // LOAD STAFF DATA FROM API
 // ============================================
@@ -347,6 +374,7 @@ function renderStaffTable() {
       <td class="p-4 text-[11px] font-medium text-gray-400">${staff.position || "-"}</td>
       <td class="p-4 text-[11px] font-medium text-gray-400">${staff.location || "-"}</td>
       <td class="p-4 text-[11px] font-medium text-gray-400">${staff.unit || "-"}</td>
+      <td class="p-4 text-center text-base">${getGenderIcon(staff.jantina)}</td>
       <td class="p-4 text-center">${getStatusBadge(staff.status)}</td>
       <td class="p-4 text-center whitespace-nowrap">
         <button onclick="showEditStaffModal('${staff.id}')" class="p-2 text-blue-400/70 hover:text-blue-400 transition-all"><i class="fas fa-edit"></i></button>
@@ -387,7 +415,7 @@ function renderStaffCards() {
           <input type="checkbox" ${isSelected ? "checked" : ""} class="w-5 h-5 rounded cursor-pointer" onclick="event.stopPropagation(); toggleStaffSelection('${staff.id}')" />
           <div>
             <span class="text-[9px] font-bold text-blue-400/80 block uppercase tracking-wider">${staff.id}</span>
-            <h4 class="font-bold text-white text-sm leading-tight">${staff.name}</h4>
+            <h4 class="font-bold text-white text-sm leading-tight">${getGenderIcon(staff.jantina)} ${staff.name}</h4>
           </div>
         </div>
         <div>${getStatusBadge(staff.status)}</div>
@@ -587,6 +615,8 @@ function showAddStaffModal() {
   if (elLoc) elLoc.value = "";
   if (elUnit) elUnit.value = "";
   if (elInv) elInv.value = "";
+  jantinaManuallySet = false;
+  setModalJantina("");
   if (elModal) elModal.classList.remove("hidden");
 }
 
@@ -613,12 +643,64 @@ function showEditStaffModal(staffId) {
   if (elLoc) elLoc.value = staff.location || "";
   if (elUnit) elUnit.value = staff.unit || "";
   if (elInv) elInv.value = staff.status || "";
+  jantinaManuallySet = true;
+  setModalJantina(staff.jantina || "");
   if (elModal) elModal.classList.remove("hidden");
 }
 
 function closeStaffModal() {
   const elModal = document.getElementById("staffModal");
   if (elModal) elModal.classList.add("hidden");
+}
+
+// ============================================
+// JANTINA TOGGLE (MODAL)
+// ============================================
+// Called from the Lelaki/Perempuan buttons — a user click always counts as
+// a manual override so auto-detection stops touching the field.
+function selectModalJantina(value) {
+  jantinaManuallySet = true;
+  setModalJantina(value);
+}
+
+function setModalJantina(value) {
+  const elHidden = document.getElementById("modalStaffJantina");
+  const elBtnL = document.getElementById("jantinaBtnL");
+  const elBtnP = document.getElementById("jantinaBtnP");
+
+  if (elHidden) elHidden.value = value;
+
+  // Inline styles are used (rather than Tailwind utility classes) because
+  // this modal's .glass-input dark-mode rule outranks single-class Tailwind
+  // utilities in specificity and would otherwise silently win the cascade.
+  if (elBtnL) {
+    if (value === "L") {
+      elBtnL.style.borderColor = "#3b82f6";
+      elBtnL.style.color = "#60a5fa";
+    } else {
+      elBtnL.style.borderColor = "";
+      elBtnL.style.color = "";
+    }
+  }
+  if (elBtnP) {
+    if (value === "P") {
+      elBtnP.style.borderColor = "#ec4899";
+      elBtnP.style.color = "#f472b6";
+    } else {
+      elBtnP.style.borderColor = "";
+      elBtnP.style.color = "";
+    }
+  }
+}
+
+// Auto-suggests jantina from the name (BIN/BINTI) while the user is typing
+// in the Add modal, unless they've already picked one manually.
+function autoDetectModalJantina() {
+  if (jantinaManuallySet) return;
+  const elName = document.getElementById("modalStaffName");
+  if (!elName) return;
+  const detected = detectGenderFromName(elName.value);
+  if (detected) setModalJantina(detected);
 }
 
 async function saveStaffData() {
@@ -628,6 +710,7 @@ async function saveStaffData() {
   const location = document.getElementById("modalStaffLocation").value.trim();
   const unit = document.getElementById("modalStaffUnit").value.trim();
   const status = document.getElementById("modalStaffInvitation").value;
+  const jantina = document.getElementById("modalStaffJantina").value;
   const isEdit = document.getElementById("modalStaffId").disabled;
 
   if (!id || !name) {
@@ -643,7 +726,15 @@ async function saveStaffData() {
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, name, position, location, unit, status }),
+      body: JSON.stringify({
+        id,
+        name,
+        position,
+        location,
+        unit,
+        status,
+        jantina,
+      }),
     });
 
     const data = await response.json();

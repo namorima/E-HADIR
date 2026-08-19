@@ -1,7 +1,19 @@
 // pages/api/staff/add.js
 // Add new staff and record attendance - MIGRATED TO NEON DB
 
-import { addStaff, getStaffById, recordAttendance } from "../../../lib/db.js";
+import {
+  addStaff,
+  getStaffById,
+  recordAttendance,
+  detectGender,
+} from "../../../lib/db.js";
+
+// ENCIK for lelaki (BIN), PUAN for perempuan (BINTI)
+function panggilanFor(jantina) {
+  if (jantina === "L") return "ENCIK";
+  if (jantina === "P") return "PUAN";
+  return "";
+}
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -53,11 +65,15 @@ export default async function handler(req, res) {
       timestamp: now,
     });
 
+    const jantina = detectGender(nama);
+
     return res.status(200).json({
       success: true,
       status: "success",
       message: "Staf baru berjaya didaftarkan dan kehadiran direkod!",
       nama: nama,
+      jantina: jantina,
+      panggilan: panggilanFor(jantina),
     });
   } catch (error) {
     console.error("Error adding staff:", error);

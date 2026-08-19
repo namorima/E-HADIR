@@ -2010,9 +2010,10 @@
 
         const nama =
           response && response.nama ? response.nama : currentStaffName;
+        const panggilan = response && response.panggilan ? response.panggilan + " " : "";
         document.getElementById(
           "successText"
-        ).innerHTML = `Terima kasih <strong>${nama}</strong> kerana hadir dan memberikan komitmen yang tinggi.`;
+        ).innerHTML = `Terima kasih ${panggilan}<strong>${nama}</strong> kerana hadir dan memberikan komitmen yang tinggi.`;
 
         document.getElementById("successMessage").classList.remove("hidden");
         updateJemputanLink("success");
