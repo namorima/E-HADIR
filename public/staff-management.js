@@ -375,6 +375,7 @@ function renderStaffTable() {
       <td class="p-4 text-[11px] font-medium text-gray-400">${staff.location || "-"}</td>
       <td class="p-4 text-[11px] font-medium text-gray-400">${staff.unit || "-"}</td>
       <td class="p-4 text-center text-base">${getGenderIcon(staff.jantina)}</td>
+      <td class="p-4 text-center">${getInvitationToggle(staff)}</td>
       <td class="p-4 text-center">${getStatusBadge(staff.status)}</td>
       <td class="p-4 text-center whitespace-nowrap">
         <button onclick="showEditStaffModal('${staff.id}')" class="p-2 text-blue-400/70 hover:text-blue-400 transition-all"><i class="fas fa-edit"></i></button>
@@ -418,7 +419,7 @@ function renderStaffCards() {
             <h4 class="font-bold text-white text-sm leading-tight">${getGenderIcon(staff.jantina)} ${staff.name}</h4>
           </div>
         </div>
-        <div>${getStatusBadge(staff.status)}</div>
+        <div class="flex items-center gap-2">${getStatusBadge(staff.status)}${getInvitationToggle(staff)}</div>
       </div>
       <div class="grid grid-cols-1 gap-1.5 mb-4 text-[10px] text-gray-400 font-medium">
         <div class="flex items-center gap-2"><i class="fas fa-briefcase w-3 opacity-40"></i> ${staff.position || "-"}</div>
@@ -453,6 +454,50 @@ function getStatusBadge(status) {
     return '<span class="status-badge bg-purple-500/20 text-purple-400">TIADA JEMPUTAN</span>';
   }
   return '<span class="status-badge bg-gray-500/20 text-gray-400">PILIH...</span>';
+}
+
+// ============================================
+// QUICK INVITATION TOGGLE (TICK / UNTICK)
+// ============================================
+// One-click alternative to opening the edit modal: ticked = JEMPUTAN,
+// unticked = TIADA.
+function getInvitationToggle(staff) {
+  const invited = staff.status === "JEMPUTAN";
+  const title = invited ? "Buang jemputan" : "Tandakan sebagai jemputan";
+  const cls = invited
+    ? "bg-green-500 border-green-500 text-white"
+    : "bg-transparent border-gray-500 text-transparent hover:border-green-400";
+  return `<button type="button" title="${title}" onclick="event.stopPropagation(); toggleInvitation('${staff.id}')" class="inline-flex items-center justify-center w-6 h-6 rounded-md border-2 transition-all ${cls}"><i class="fas fa-check text-[11px]"></i></button>`;
+}
+
+async function toggleInvitation(staffId) {
+  const staff = allStaffData.find((s) => s.id === staffId);
+  if (!staff) return;
+
+  const previous = staff.status;
+  const next = previous === "JEMPUTAN" ? "TIADA" : "JEMPUTAN";
+
+  // Optimistic update: re-render in place so the current page/filter stays put.
+  staff.status = next;
+  updateStaffStats();
+  renderStaffTable();
+  renderStaffCards();
+
+  try {
+    const response = await fetch("/api/bulk-update-staff", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: [staffId], field: "status", value: next }),
+    });
+    const data = await response.json();
+    if (!data.success) throw new Error(data.error);
+  } catch (error) {
+    staff.status = previous;
+    updateStaffStats();
+    renderStaffTable();
+    renderStaffCards();
+    showToast("Gagal kemaskini jemputan: " + error.message, "error");
+  }
 }
 
 // ============================================
@@ -505,6 +550,12 @@ function updateSelectAllCheckbox() {
   if (elMob) elMob.checked = allInPage;
 }
 
+// Selects every staff matching the current filters, across all pages.
+function selectAllFiltered() {
+  filteredStaffData.forEach((s) => selectedStaffIds.add(s.id));
+  toggleStaffSelection(); // Refresh UI
+}
+
 function clearBulkSelection() {
   selectedStaffIds.clear();
   toggleStaffSelection();
@@ -539,6 +590,39 @@ async function bulkUpdateInvitation(status) {
     }
   } catch (error) {
     showToast("Gagal kemaskini pukal: " + error.message, "error");
+  }
+}
+
+// Removes the invitation from every JEMPUTAN staff matching the current
+// filters (all staff when no filter is set), no selection needed.
+async function removeAllInvitations() {
+  const ids = filteredStaffData
+    .filter((s) => s.status === "JEMPUTAN")
+    .map((s) => s.id);
+
+  if (ids.length === 0) {
+    showToast("Tiada staf berstatus JEMPUTAN untuk dibuang", "info");
+    return;
+  }
+  if (!confirm(`Buang jemputan bagi ${ids.length} staf?`)) return;
+
+  try {
+    const response = await fetch("/api/bulk-update-staff", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids, field: "status", value: "TIADA" }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      showToast(`Jemputan dibuang bagi ${ids.length} staf`, "success");
+      clearBulkSelection();
+      loadStaffData();
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (error) {
+    showToast("Gagal buang jemputan: " + error.message, "error");
   }
 }
 

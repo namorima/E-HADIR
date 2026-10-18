@@ -310,6 +310,9 @@
                 <button onclick="showAddStaffModal()" class="glass-button bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-xs font-semibold text-white flex items-center justify-center">
                     <i class="fas fa-user-plus mr-2 opacity-70"></i>Tambah Staf
                 </button>
+                <button onclick="removeAllInvitations()" title="Buang jemputan bagi semua staf dalam tapisan semasa" class="glass-button bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-xs font-semibold text-white flex items-center justify-center">
+                    <i class="fas fa-user-slash mr-2 opacity-70"></i>Buang Semua Jemputan
+                </button>
             </div>
 
             <!-- Filters Area -->
@@ -333,8 +336,10 @@
                     <span class="text-sm font-bold text-white bg-blue-600 px-3 py-1 rounded-lg">
                         <span id="bulkSelectedCount">0</span> STAF DIPILIH
                     </span>
-                    <div class="flex gap-2">
+                    <button onclick="selectAllFiltered()" class="text-xs text-blue-300 hover:text-white underline">PILIH SEMUA HASIL TAPISAN</button>
+                    <div class="flex flex-wrap gap-2">
                         <button onclick="bulkUpdateInvitation('JEMPUTAN')" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-[9px] font-bold text-white uppercase tracking-wider">Set Jemputan</button>
+                        <button onclick="bulkUpdateInvitation('TIADA')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 rounded-lg text-[9px] font-bold text-white uppercase tracking-wider">Buang Jemputan</button>
                         <button onclick="bulkUpdateInvitation('WAKIL')" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 rounded-lg text-[9px] font-bold text-white uppercase tracking-wider">Set Wakil</button>
                         <button onclick="bulkDeleteStaff()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-[9px] font-bold text-white uppercase tracking-wider">Hapus</button>
                     </div>
@@ -357,6 +362,7 @@
                                     <th class="p-4 text-left text-xs">LOKASI</th>
                                     <th class="p-4 text-left text-xs">UNIT</th>
                                     <th class="p-4 text-center text-xs" title="Jantina"><i class="fas fa-venus-mars"></i></th>
+                                    <th class="p-4 text-center text-xs" title="Tick untuk jemput, untick untuk buang jemputan">JEMPUT</th>
                                     <th class="p-4 text-center text-xs">STATUS</th>
                                     <th class="p-4 text-center text-xs">AKSI</th>
                                 </tr>
@@ -445,6 +451,9 @@
                 </div>
                 <button onclick="loadAttendanceData()" class="glass-button bg-blue-600 px-5 py-3 rounded-lg text-xs font-semibold text-white">
                     <i class="fas fa-sync-alt mr-2 opacity-70"></i>Refresh
+                </button>
+                <button onclick="downloadAttendancePdf()" class="glass-button bg-red-600 hover:bg-red-700 px-5 py-3 rounded-lg text-xs font-semibold text-white">
+                    <i class="fas fa-file-pdf mr-2 opacity-70"></i>Muat Turun PDF
                 </button>
             </div>
 
@@ -737,6 +746,8 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="staff-management.js"></script>
     <script>
       // Global Data
@@ -1430,6 +1441,104 @@
           (a.position && a.position.toLowerCase().includes(q)) ||
           (a.location && a.location.toLowerCase().includes(q))
         ));
+      }
+
+      // A4 landscape PDF for the selected event: present staff first, then
+      // invited-but-absent staff in a separate "LAIN-LAIN" table. Both keep the
+      // same ranking order as allAttendAdmin (position ranking, then name).
+      function downloadAttendancePdf() {
+        if (!window.jspdf) {
+          alert('Pustaka PDF gagal dimuatkan. Semak sambungan internet dan cuba lagi.');
+          return;
+        }
+
+        const select = document.getElementById('attendEventFilter');
+        const eventId = (select && select.value) || activeEventId;
+        const ev = allEvents.find(e => e.id == eventId) || {};
+
+        const present = allAttendAdmin.filter(a => a.isPresent);
+        const absent = allAttendAdmin.filter(a => !a.isPresent);
+        if (present.length === 0 && absent.length === 0) {
+          alert('Tiada data kehadiran untuk dimuat turun.');
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 14;
+
+        // Header: program name, location, date
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(15);
+        const titleLines = doc.splitTextToSize((ev.title || 'SENARAI KEHADIRAN').toUpperCase(), pageWidth - margin * 2);
+        doc.text(titleLines, pageWidth / 2, 16, { align: 'center' });
+        let y = 16 + titleLines.length * 6.5;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text(`Lokasi: ${ev.location || '-'}`, pageWidth / 2, y, { align: 'center' });
+        y += 5.5;
+        doc.text(`Tarikh: ${ev.date || '-'}`, pageWidth / 2, y, { align: 'center' });
+        y += 4;
+
+        const toRows = list => list.map((a, i) => [
+          i + 1,
+          a.name || '-',
+          a.position || '-',
+          a.location || '-'
+        ]);
+
+        const tableOptions = {
+          theme: 'grid',
+          margin: { left: margin, right: margin },
+          styles: { fontSize: 9, cellPadding: 2, valign: 'middle' },
+          columnStyles: {
+            0: { cellWidth: 12, halign: 'center' },
+            1: { cellWidth: 100 },
+            2: { cellWidth: 85 }
+          }
+        };
+
+        const drawSection = (heading, list, color) => {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.text(`${heading} (${list.length})`, margin, y + 6);
+          doc.autoTable({
+            ...tableOptions,
+            startY: y + 8,
+            head: [['BIL.', 'NAMA', 'JAWATAN', 'LOKASI']],
+            body: list.length ? toRows(list) : [[{ content: 'Tiada', colSpan: 4, styles: { halign: 'center' } }]],
+            headStyles: { fillColor: color, textColor: 255, fontStyle: 'bold' }
+          });
+          y = doc.lastAutoTable.finalY + 4;
+        };
+
+        drawSection('SENARAI KEHADIRAN', present, [37, 99, 235]);
+
+        if (absent.length) {
+          // Keep the LAIN-LAIN heading on the same page as its first rows
+          if (y > doc.internal.pageSize.getHeight() - 40) {
+            doc.addPage();
+            y = 10;
+          }
+          drawSection('LAIN-LAIN (TIDAK HADIR)', absent, [107, 114, 128]);
+        }
+
+        // Footer: page numbers + generated timestamp
+        const pageCount = doc.getNumberOfPages();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const generated = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Kuala_Lumpur' });
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.text(`Dijana: ${generated}`, margin, pageHeight - 7);
+          doc.text(`Muka ${i} / ${pageCount}`, pageWidth - margin, pageHeight - 7, { align: 'right' });
+        }
+
+        const safeName = (ev.title || 'kehadiran').replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
+        doc.save(`Kehadiran_${safeName}.pdf`);
       }
 
       function showEditAttendModal(attendId, staffId, name, status) {
