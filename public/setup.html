@@ -1421,6 +1421,7 @@
               <td class="center">${statusBadge}</td>
               <td class="right">
                 <div class="row-actions">
+                  <button onclick="downloadEventPdf('${ev.id}', this)" class="btn btn-plain btn-xs btn-icon" title="Muat turun PDF senarai nama" aria-label="Muat turun PDF senarai nama"><i class="ri-file-pdf-2-line"></i></button>
                   <button onclick="showEditEventModal('${ev.id}')" class="btn btn-plain btn-xs btn-icon" title="Edit" aria-label="Edit"><i class="ri-pencil-line"></i></button>
                   ${activateBtn}
                 </div>
@@ -1442,6 +1443,7 @@
                 <span><i class="ri-team-line"></i>${ev.attendance_count || 0} hadir</span>
               </div>
               <div class="item-actions">
+                <button onclick="downloadEventPdf('${ev.id}', this)" class="btn btn-secondary btn-xs"><i class="ri-file-pdf-2-line"></i>PDF</button>
                 <button onclick="showEditEventModal('${ev.id}')" class="btn btn-secondary btn-xs"><i class="ri-pencil-line"></i>Edit</button>
                 ${!isActive ? `<button onclick="activateEvent('${ev.id}')" class="btn btn-ghost btn-xs"><i class="ri-checkbox-circle-line"></i>Jadikan aktif</button>` : ''}
               </div>
@@ -1673,6 +1675,44 @@
 
       // --- Attendance Management ---
       let allAttendAdmin = [];
+
+      // Joins staff with one event's attendance records. Keeps staff who are
+      // invited (JEMPUTAN), checked in as WAKIL, or have any record, sorted
+      // present first, then position ranking, then name. Shared by the
+      // Kehadiran tab and the per-event PDF in the event list.
+      function mergeAttendance(staffList, attendanceList) {
+        const attendanceMap = new Map();
+        attendanceList.forEach(a => {
+          attendanceMap.set(a.staff_id.toString().toLowerCase(), a);
+        });
+
+        const merged = [];
+        staffList.forEach(staff => {
+          const attendRecord = attendanceMap.get(staff.id.toString().toLowerCase());
+          const isInvited = (staff.status || '').toUpperCase() === 'JEMPUTAN';
+          const isWakil = attendRecord && (attendRecord.status || '').toUpperCase() === 'WAKIL';
+          const hasAttended = !!attendRecord;
+
+          if (isInvited || isWakil || hasAttended) {
+            merged.push({
+              ...staff,
+              isPresent: hasAttended,
+              timestamp: attendRecord ? attendRecord.timestamp : null,
+              attendId: attendRecord ? attendRecord.id : null, // for delete/edit
+              attendStatus: attendRecord ? attendRecord.status : null
+            });
+          }
+        });
+
+        merged.sort((a, b) => {
+          if (a.isPresent !== b.isPresent) return a.isPresent ? -1 : 1;
+          if ((a.ranking_order || 9999) !== (b.ranking_order || 9999)) {
+            return (a.ranking_order || 9999) - (b.ranking_order || 9999);
+          }
+          return a.name.localeCompare(b.name);
+        });
+        return merged;
+      }
       async function loadAttendanceData() {
         const loading = document.getElementById('attendLoadingIndicator');
         const empty = document.getElementById('attendEmptyState');
@@ -1698,42 +1738,7 @@
           const staffList = staffData.staff || [];
           const attendanceList = attendData.attendance || [];
 
-          // Map Attendance for quick lookup
-          const attendanceMap = new Map();
-          attendanceList.forEach(a => {
-            attendanceMap.set(a.staff_id.toString().toLowerCase(), a);
-          });
-
-          // Process & Filter Data (Same logic as kehadiran.html)
-          allAttendAdmin = [];
-          staffList.forEach(staff => {
-            const attendRecord = attendanceMap.get(staff.id.toString().toLowerCase());
-            const isInvited = (staff.status || '').toUpperCase() === 'JEMPUTAN';
-            // Show if Invited OR is a Wakil (even if not invited in staff db) OR has attended (just in case)
-            const isWakil = attendRecord && (attendRecord.status || '').toUpperCase() === 'WAKIL';
-            const hasAttended = !!attendRecord;
-
-            if (isInvited || isWakil || hasAttended) {
-              allAttendAdmin.push({
-                ...staff,
-                isPresent: !!attendRecord,
-                timestamp: attendRecord ? attendRecord.timestamp : null,
-                attendId: attendRecord ? attendRecord.id : null, // for delete/edit
-                attendStatus: attendRecord ? attendRecord.status : null
-              });
-            }
-          });
-
-          // Sorting: 1. Present First, 2. Ranking, 3. Name
-          allAttendAdmin.sort((a, b) => {
-            if (a.isPresent !== b.isPresent) {
-              return a.isPresent ? -1 : 1;
-            }
-            if ((a.ranking_order || 9999) !== (b.ranking_order || 9999)) {
-              return (a.ranking_order || 9999) - (b.ranking_order || 9999);
-            }
-            return a.name.localeCompare(b.name);
-          });
+          allAttendAdmin = mergeAttendance(staffList, attendanceList);
 
           renderAttendanceAdmin(allAttendAdmin);
 
@@ -1814,21 +1819,57 @@
         ));
       }
 
-      // A4 landscape PDF for the selected event: present staff first, then
-      // invited-but-absent staff in a separate "LAIN-LAIN" table. Both keep the
-      // same ranking order as allAttendAdmin (position ranking, then name).
+      // Kehadiran tab: PDF for the event picked in its selector.
       function downloadAttendancePdf() {
+        const select = document.getElementById('attendEventFilter');
+        const eventId = (select && select.value) || activeEventId;
+        const ev = allEvents.find(e => e.id == eventId) || {};
+        buildAttendancePdf(ev, allAttendAdmin);
+      }
+
+      // Event list: PDF for one event, fetched on demand so it doesn't depend
+      // on what the Kehadiran tab currently shows.
+      async function downloadEventPdf(eventId, btn) {
+        if (!window.jspdf) {
+          alert('Pustaka PDF gagal dimuatkan. Semak sambungan internet dan cuba lagi.');
+          return;
+        }
+        const ev = allEvents.find(e => e.id == eventId) || {};
+        const original = btn ? btn.innerHTML : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = btn.classList.contains('btn-icon')
+            ? '<i class="ri-loader-4-line spin"></i>'
+            : '<i class="ri-loader-4-line spin"></i>PDF';
+        }
+        try {
+          const [staffRes, attendRes] = await Promise.all([
+            fetch('/api/get-staff'),
+            fetch(`/api/attendance/list?event_id=${encodeURIComponent(eventId)}`)
+          ]);
+          const staffData = await staffRes.json();
+          const attendData = await attendRes.json();
+          if (!staffData.success || !attendData.success) throw new Error('API');
+          buildAttendancePdf(ev, mergeAttendance(staffData.staff || [], attendData.attendance || []));
+        } catch (e) {
+          console.error('Error building event PDF:', e);
+          alert('Gagal memuatkan data kehadiran untuk PDF.');
+        } finally {
+          if (btn) { btn.disabled = false; btn.innerHTML = original; }
+        }
+      }
+
+      // A4 landscape PDF: present staff first, then invited-but-absent staff in
+      // a separate "LAIN-LAIN" table. `list` comes from mergeAttendance(), so
+      // both tables keep its ranking order (position ranking, then name).
+      function buildAttendancePdf(ev, list) {
         if (!window.jspdf) {
           alert('Pustaka PDF gagal dimuatkan. Semak sambungan internet dan cuba lagi.');
           return;
         }
 
-        const select = document.getElementById('attendEventFilter');
-        const eventId = (select && select.value) || activeEventId;
-        const ev = allEvents.find(e => e.id == eventId) || {};
-
-        const present = allAttendAdmin.filter(a => a.isPresent);
-        const absent = allAttendAdmin.filter(a => !a.isPresent);
+        const present = list.filter(a => a.isPresent);
+        const absent = list.filter(a => !a.isPresent);
         if (present.length === 0 && absent.length === 0) {
           alert('Tiada data kehadiran untuk dimuat turun.');
           return;
