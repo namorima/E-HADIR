@@ -9,6 +9,7 @@ import {
   getActiveEvent,
   initEventsTable,
   detectGender,
+  ensureEventInvitations,
 } from "../../../lib/db.js";
 
 // ENCIK for lelaki (BIN), PUAN for perempuan (BINTI)
@@ -47,8 +48,9 @@ export default async function handler(req, res) {
     }
     const eventName = activeEvent.title || "Default Event";
 
-    // Check if staff is in invitation list
-    const isInvited = await checkInvitation(idStaf);
+    // HADIR if invited to the active event, otherwise WAKIL
+    await ensureEventInvitations(activeEvent.id);
+    const isInvited = await checkInvitation(idStaf, activeEvent.id);
     const statusJemputan = isInvited ? "HADIR" : "WAKIL";
 
     // Get current staff to check if status needs updating

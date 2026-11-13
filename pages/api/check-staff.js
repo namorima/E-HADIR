@@ -7,6 +7,8 @@ import {
   getLastAttendance,
   getActiveEvent,
   initEventsTable,
+  ABSENT_STATUS,
+  ensureEventInvitations,
 } from "../../lib/db.js";
 
 export default async function handler(req, res) {
@@ -37,7 +39,9 @@ export default async function handler(req, res) {
       ? await getLastAttendance(idStaf, activeEvent.id)
       : null;
 
-    if (lastRecord) {
+    // An auto-marked TIDAK HADIR row doesn't block a late check-in;
+    // recordAttendance() converts it to HADIR/WAKIL.
+    if (lastRecord && lastRecord.status !== ABSENT_STATUS) {
       // Format timestamp for display
       const lastDate = formatDateTime(new Date(lastRecord.timestamp));
       const staffName = lastRecord.name;
@@ -54,7 +58,12 @@ export default async function handler(req, res) {
 
     if (staff) {
       // Check if staff is in invitation list
-      const dalamJemputan = await checkInvitation(idStaf);
+      // Invited to the active event specifically.
+      let dalamJemputan = false;
+      if (activeEvent) {
+        await ensureEventInvitations(activeEvent.id);
+        dalamJemputan = await checkInvitation(idStaf, activeEvent.id);
+      }
 
       return res.status(200).json({
         status: "success",

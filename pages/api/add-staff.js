@@ -1,7 +1,12 @@
 // pages/api/add-staff.js
 // Add new staff - MIGRATED TO NEON DB
 
-import { addStaff, getStaffById } from "../../lib/db";
+import {
+  addStaff,
+  getStaffById,
+  initEventsTable,
+  syncActiveEventInvitations,
+} from "../../lib/db";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -45,6 +50,11 @@ export default async function handler(req, res) {
       status: status || "",
       jantina: jantina || "",
     });
+
+    if (status) {
+      await initEventsTable();
+      await syncActiveEventInvitations([id], status);
+    }
 
     return res.status(200).json({
       success: true,

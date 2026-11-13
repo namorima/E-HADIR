@@ -97,7 +97,9 @@
 
       /* ===== Base ========================================================= */
       *, *::before, *::after { box-sizing: border-box; }
-      html { -webkit-text-size-adjust: 100%; background: var(--bg-page); }
+      /* clip (not hidden) so nothing can widen the page sideways on iOS
+         Safari, without making body a scroll container (keeps sticky working). */
+      html { -webkit-text-size-adjust: 100%; background: var(--bg-page); overflow-x: clip; }
       body {
         margin: 0;
         min-height: 100vh;
@@ -107,7 +109,7 @@
         color: var(--text-primary);
         background: var(--bg-page);
         -webkit-font-smoothing: antialiased;
-        overflow-x: hidden;
+        overflow-x: clip;
       }
       button, input { font: inherit; color: inherit; }
       h1, h2, h3, h4, p { margin: 0; }
@@ -320,8 +322,12 @@
       .item-main { flex: 1 1 auto; min-width: 0; }
       .item-title { font-size: 14px; line-height: 20px; font-weight: 600; word-break: break-word; }
       .item-meta { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 4px; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
-      .item-meta span { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
-      .item-meta i { font-size: 13px; color: var(--icon-tertiary); }
+      /* Long positions/locations wrap instead of forcing one wide line. */
+      .item-meta span {
+        display: inline-flex; align-items: flex-start; gap: 4px; min-width: 0; max-width: 100%;
+        white-space: normal; overflow-wrap: anywhere;
+      }
+      .item-meta i { flex: none; font-size: 13px; line-height: 16px; color: var(--icon-tertiary); }
       .item-side { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 
       /* ===== States ======================================================= */
@@ -558,9 +564,13 @@
 
           // Show if Invited OR is a Wakil (even if not invited)
           if (isInvited || isWakil) {
+            // An auto-marked TIDAK HADIR row (event date passed, never
+            // checked in) is a record, but not attendance.
+            const isAbsent = !!attendRecord && (attendRecord.status || '').toUpperCase() === 'TIDAK HADIR';
             mergedData.push({
               ...staff,
-              isPresent: !!attendRecord,
+              isPresent: !!attendRecord && !isAbsent,
+              isAbsent,
               attendStatus: attendRecord ? attendRecord.status : null,
               timestamp: attendRecord ? attendRecord.timestamp : null
             });
@@ -637,7 +647,9 @@
 
           const statusBadge = item.isPresent
             ? `<span class="badge tone-green"><i class="ri-checkbox-circle-fill"></i>${isWakil ? 'WAKIL' : 'HADIR'}</span>`
-            : `<span class="badge tone-neutral"><i class="ri-time-line"></i>BELUM</span>`;
+            : item.isAbsent
+              ? `<span class="badge tone-red"><i class="ri-close-circle-fill"></i>TIDAK HADIR</span>`
+              : `<span class="badge tone-neutral"><i class="ri-time-line"></i>BELUM</span>`;
 
           tbody.innerHTML += `
             <tr class="${item.isPresent ? 'is-present' : ''}">

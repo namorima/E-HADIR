@@ -121,7 +121,9 @@
 
       /* ===== Base ========================================================= */
       *, *::before, *::after { box-sizing: border-box; }
-      html { -webkit-text-size-adjust: 100%; background: var(--bg-page); }
+      /* clip (not hidden) so nothing can widen the page sideways on iOS
+         Safari, without making body a scroll container (keeps sticky working). */
+      html { -webkit-text-size-adjust: 100%; background: var(--bg-page); overflow-x: clip; }
       body {
         margin: 0;
         min-height: 100vh;
@@ -131,7 +133,7 @@
         color: var(--text-primary);
         background: var(--bg-page);
         -webkit-font-smoothing: antialiased;
-        overflow-x: hidden;
+        overflow-x: clip;
       }
       button, input, select { font: inherit; color: inherit; }
       h1, h2, h3, h4, p { margin: 0; }
@@ -467,10 +469,14 @@
         display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 6px;
         font-size: 12px; line-height: 16px; color: var(--text-secondary);
       }
-      .item-meta span { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
-      .item-meta i { font-size: 13px; color: var(--icon-tertiary); }
+      /* Long positions/locations wrap instead of forcing one wide line. */
+      .item-meta span {
+        display: inline-flex; align-items: flex-start; gap: 4px; min-width: 0; max-width: 100%;
+        white-space: normal; overflow-wrap: anywhere;
+      }
+      .item-meta i { flex: none; font-size: 13px; line-height: 16px; color: var(--icon-tertiary); }
       .item-actions {
-        display: flex; justify-content: flex-end; gap: 6px;
+        display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px;
         margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
       }
 
@@ -724,6 +730,7 @@
 
         <!-- ============ Tab: Data Staf ============ -->
         <section id="tabContentDataStaf" class="tab-content hidden">
+          <p id="staffInviteContext" class="hint" style="margin-bottom:8px"></p>
           <div class="stats">
             <button type="button" class="stat" onclick="quickFilterStaff('')">
               <span class="stat-icon tone-blue"><i class="ri-team-line"></i></span>
@@ -1083,6 +1090,7 @@
             <select id="modalAttendStatus" class="select input-md">
               <option value="HADIR">HADIR</option>
               <option value="WAKIL">WAKIL</option>
+              <option value="TIDAK HADIR">TIDAK HADIR</option>
             </select>
           </div>
         </div>
@@ -1139,6 +1147,7 @@
         syncThemeIcon();
         updateClock();
         setInterval(updateClock, 1000);
+        markAbsentIfEventPassed();
         loadEvents();
         loadStaffData();
 
@@ -1161,6 +1170,23 @@
         document.documentElement.classList.toggle('dark-mode', dark);
         try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
         syncThemeIcon();
+      }
+
+      // Once the active event's date has passed, the server records TIDAK
+      // HADIR for invited staff who never checked in. Runs on every open; it
+      // only inserts rows that don't exist yet.
+      async function markAbsentIfEventPassed() {
+        try {
+          const res = await fetch('/api/attendance/mark-absent', { method: 'POST' });
+          const data = await res.json();
+          if (data.success && data.marked > 0) {
+            showToast(`${data.marked} staf jemputan ditanda TIDAK HADIR untuk "${data.eventTitle || 'event aktif'}"`, 'info');
+            loadEvents();
+            if (currentAdminTab === 'kehadiran') loadAttendanceData();
+          }
+        } catch (e) {
+          console.error('Gagal menanda TIDAK HADIR', e);
+        }
       }
 
       function updateClock() {
@@ -1372,6 +1398,7 @@
           if (data.success) {
             allEvents = data.events || [];
             activeEventId = data.activeEventId;
+            updateStaffInviteContext();
             renderEventsList(allEvents);
             populateAttendEventFilter();
           } else {
@@ -1382,6 +1409,16 @@
         } finally {
           if (loading) loading.classList.add('hidden');
         }
+      }
+
+      // Tab Staf's Jemput ticks and JEMPUTAN status are for the active event.
+      function updateStaffInviteContext() {
+        const el = document.getElementById('staffInviteContext');
+        if (!el) return;
+        const ev = allEvents.find(e => e.id === activeEventId);
+        el.innerHTML = ev
+          ? `<i class="ri-information-line"></i> Jemputan untuk event aktif: <strong>${ev.title || '-'}</strong>${ev.date ? ' · ' + ev.date : ''}`
+          : 'Tiada event aktif — jemputan tidak dapat disimpan.';
       }
 
       function filterEventsAdmin() {
@@ -1421,6 +1458,8 @@
               <td class="center">${statusBadge}</td>
               <td class="right">
                 <div class="row-actions">
+                  <button onclick="openEventAttendance('${ev.id}')" class="btn btn-plain btn-xs btn-icon" title="Edit kehadiran" aria-label="Edit kehadiran"><i class="ri-clipboard-line"></i></button>
+                  <button onclick="downloadEventPdf('${ev.id}', this)" class="btn btn-plain btn-xs btn-icon" title="Muat turun PDF senarai nama" aria-label="Muat turun PDF senarai nama"><i class="ri-file-pdf-2-line"></i></button>
                   <button onclick="showEditEventModal('${ev.id}')" class="btn btn-plain btn-xs btn-icon" title="Edit" aria-label="Edit"><i class="ri-pencil-line"></i></button>
                   ${activateBtn}
                 </div>
@@ -1442,6 +1481,8 @@
                 <span><i class="ri-team-line"></i>${ev.attendance_count || 0} hadir</span>
               </div>
               <div class="item-actions">
+                <button onclick="openEventAttendance('${ev.id}')" class="btn btn-secondary btn-xs"><i class="ri-clipboard-line"></i>Kehadiran</button>
+                <button onclick="downloadEventPdf('${ev.id}', this)" class="btn btn-secondary btn-xs"><i class="ri-file-pdf-2-line"></i>PDF</button>
                 <button onclick="showEditEventModal('${ev.id}')" class="btn btn-secondary btn-xs"><i class="ri-pencil-line"></i>Edit</button>
                 ${!isActive ? `<button onclick="activateEvent('${ev.id}')" class="btn btn-ghost btn-xs"><i class="ri-checkbox-circle-line"></i>Jadikan aktif</button>` : ''}
               </div>
@@ -1458,6 +1499,16 @@
           `<option value="${ev.id}">${ev.title || '(Tiada tajuk)'}${ev.id === activeEventId ? ' (AKTIF)' : ''} - ${ev.date || ''}</option>`
         ).join('');
         select.value = allEvents.some(ev => ev.id === current) ? current : activeEventId;
+      }
+
+      // Event list → Kehadiran tab, already showing this event's attendance.
+      function openEventAttendance(eventId) {
+        const select = document.getElementById('attendEventFilter');
+        if (select) select.value = eventId;
+        const search = document.getElementById('searchAttendAdmin');
+        if (search) search.value = '';
+        switchAdminTab('kehadiran');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
       function onAttendEventFilterChange() {
@@ -1528,6 +1579,13 @@
           return;
         }
 
+        // A new event becomes active and ends the current one.
+        const current = allEvents.find(e => e.id === activeEventId);
+        if (mode === 'add' && current && !confirm(
+          `Event baharu akan dijadikan AKTIF dan event "${current.title || '-'}" akan ditamatkan.\n\n` +
+          'Staf jemputan event itu yang belum daftar akan ditanda TIDAK HADIR (boleh diubah di tab Kehadiran). Teruskan?'
+        )) return;
+
         const indicator = document.getElementById('eventSaveIndicator');
         if (indicator) indicator.classList.remove('hidden');
 
@@ -1542,6 +1600,7 @@
           const data = await res.json();
           if (data.success) {
             closeEventModal();
+            notifyMarkedAbsent(data);
             await loadEvents();
             if (mode === 'add') {
               // New event is now active -> attendance view should reset to it
@@ -1559,8 +1618,20 @@
         }
       }
 
+      // After create/activate: how many of the ended event's invitees were
+      // marked TIDAK HADIR.
+      function notifyMarkedAbsent(data) {
+        if (data && data.markedAbsent > 0) {
+          showToast(`${data.markedAbsent} staf jemputan "${data.previousEventTitle || 'event sebelum'}" ditanda TIDAK HADIR`, 'info');
+        }
+      }
+
       async function activateEvent(id) {
-        if (!confirm('Jadikan event ini sebagai event AKTIF? Senarai kehadiran akan bertukar mengikut event ini.')) return;
+        const current = allEvents.find(e => e.id === activeEventId);
+        if (!confirm(
+          'Jadikan event ini sebagai event AKTIF? Senarai kehadiran akan bertukar mengikut event ini.' +
+          (current ? `\n\nEvent "${current.title || '-'}" akan ditamatkan: staf jemputannya yang belum daftar akan ditanda TIDAK HADIR (boleh diubah di tab Kehadiran).` : '')
+        )) return;
         try {
           const res = await fetch('/api/events/activate', {
             method: 'POST',
@@ -1569,6 +1640,7 @@
           });
           const data = await res.json();
           if (data.success) {
+            notifyMarkedAbsent(data);
             await loadEvents();
             const select = document.getElementById('attendEventFilter');
             if (select) select.value = activeEventId;
@@ -1672,7 +1744,50 @@
       // Note: Staff Management Logic is now handled in staff-management.js
 
       // --- Attendance Management ---
+      // Status written by /api/attendance/mark-absent once the active event's
+      // date has passed; such rows exist but never count as present.
+      const ABSENT_STATUS = 'TIDAK HADIR';
       let allAttendAdmin = [];
+
+      // Joins staff with one event's attendance records. Keeps staff who are
+      // invited (JEMPUTAN), checked in as WAKIL, or have any record, sorted
+      // present first, then position ranking, then name. Shared by the
+      // Kehadiran tab and the per-event PDF in the event list.
+      function mergeAttendance(staffList, attendanceList) {
+        const attendanceMap = new Map();
+        attendanceList.forEach(a => {
+          attendanceMap.set(a.staff_id.toString().toLowerCase(), a);
+        });
+
+        const merged = [];
+        staffList.forEach(staff => {
+          const attendRecord = attendanceMap.get(staff.id.toString().toLowerCase());
+          const isInvited = (staff.status || '').toUpperCase() === 'JEMPUTAN';
+          const isWakil = attendRecord && (attendRecord.status || '').toUpperCase() === 'WAKIL';
+          const hasRecord = !!attendRecord;
+          const isAbsent = hasRecord && (attendRecord.status || '').toUpperCase() === ABSENT_STATUS;
+
+          if (isInvited || isWakil || hasRecord) {
+            merged.push({
+              ...staff,
+              isPresent: hasRecord && !isAbsent,
+              isAbsent,
+              timestamp: attendRecord ? attendRecord.timestamp : null,
+              attendId: attendRecord ? attendRecord.id : null, // for delete/edit
+              attendStatus: attendRecord ? attendRecord.status : null
+            });
+          }
+        });
+
+        merged.sort((a, b) => {
+          if (a.isPresent !== b.isPresent) return a.isPresent ? -1 : 1;
+          if ((a.ranking_order || 9999) !== (b.ranking_order || 9999)) {
+            return (a.ranking_order || 9999) - (b.ranking_order || 9999);
+          }
+          return a.name.localeCompare(b.name);
+        });
+        return merged;
+      }
       async function loadAttendanceData() {
         const loading = document.getElementById('attendLoadingIndicator');
         const empty = document.getElementById('attendEmptyState');
@@ -1687,8 +1802,9 @@
             : '/api/attendance/list';
 
           // Fetch BOTH Staff and Attendance Validation
+          // Invitation status (JEMPUTAN) is per event, so ask for this one's.
           const [staffRes, attendRes] = await Promise.all([
-            fetch('/api/get-staff'),
+            fetch(eventId ? `/api/get-staff?event_id=${encodeURIComponent(eventId)}` : '/api/get-staff'),
             fetch(attendUrl)
           ]);
 
@@ -1698,42 +1814,7 @@
           const staffList = staffData.staff || [];
           const attendanceList = attendData.attendance || [];
 
-          // Map Attendance for quick lookup
-          const attendanceMap = new Map();
-          attendanceList.forEach(a => {
-            attendanceMap.set(a.staff_id.toString().toLowerCase(), a);
-          });
-
-          // Process & Filter Data (Same logic as kehadiran.html)
-          allAttendAdmin = [];
-          staffList.forEach(staff => {
-            const attendRecord = attendanceMap.get(staff.id.toString().toLowerCase());
-            const isInvited = (staff.status || '').toUpperCase() === 'JEMPUTAN';
-            // Show if Invited OR is a Wakil (even if not invited in staff db) OR has attended (just in case)
-            const isWakil = attendRecord && (attendRecord.status || '').toUpperCase() === 'WAKIL';
-            const hasAttended = !!attendRecord;
-
-            if (isInvited || isWakil || hasAttended) {
-              allAttendAdmin.push({
-                ...staff,
-                isPresent: !!attendRecord,
-                timestamp: attendRecord ? attendRecord.timestamp : null,
-                attendId: attendRecord ? attendRecord.id : null, // for delete/edit
-                attendStatus: attendRecord ? attendRecord.status : null
-              });
-            }
-          });
-
-          // Sorting: 1. Present First, 2. Ranking, 3. Name
-          allAttendAdmin.sort((a, b) => {
-            if (a.isPresent !== b.isPresent) {
-              return a.isPresent ? -1 : 1;
-            }
-            if ((a.ranking_order || 9999) !== (b.ranking_order || 9999)) {
-              return (a.ranking_order || 9999) - (b.ranking_order || 9999);
-            }
-            return a.name.localeCompare(b.name);
-          });
+          allAttendAdmin = mergeAttendance(staffList, attendanceList);
 
           renderAttendanceAdmin(allAttendAdmin);
 
@@ -1757,10 +1838,13 @@
 
         data.forEach(item => {
           const isPresent = item.isPresent;
+          const hasRecord = !!item.attendId;
           const statusText = isPresent ? (item.attendStatus || 'HADIR') : 'BELUM';
           const badgeHtml = isPresent
             ? `<span class="badge badge-dot ${statusText === 'WAKIL' ? 'tone-orange' : 'tone-green'}">${statusText}</span>`
-            : '<span class="badge tone-neutral">BELUM</span>';
+            : item.isAbsent
+              ? `<span class="badge badge-dot tone-red">${ABSENT_STATUS}</span>`
+              : '<span class="badge tone-neutral">BELUM</span>';
           const safeName = item.name.replace(/'/g, "\\'");
           const editArgs = `'${item.attendId || ''}', '${item.id}', '${safeName}', '${item.attendStatus || ''}'`;
 
@@ -1775,8 +1859,8 @@
               <td class="center">${badgeHtml}</td>
               <td class="right">
                 <div class="row-actions">
-                  <button onclick="showEditAttendModal(${editArgs})" class="btn btn-plain btn-xs btn-icon" title="${isPresent ? 'Kemaskini status' : 'Rekod kehadiran'}" aria-label="${isPresent ? 'Kemaskini status' : 'Rekod kehadiran'}"><i class="ri-pencil-line"></i></button>
-                  ${isPresent ? `<button onclick="deleteAttendData('${item.attendId}')" class="btn btn-plain is-danger btn-xs btn-icon" title="Padam rekod" aria-label="Padam rekod"><i class="ri-delete-bin-line"></i></button>` : ''}
+                  <button onclick="showEditAttendModal(${editArgs})" class="btn btn-plain btn-xs btn-icon" title="${hasRecord ? 'Kemaskini status' : 'Rekod kehadiran'}" aria-label="${hasRecord ? 'Kemaskini status' : 'Rekod kehadiran'}"><i class="ri-pencil-line"></i></button>
+                  ${hasRecord ? `<button onclick="deleteAttendData('${item.attendId}')" class="btn btn-plain is-danger btn-xs btn-icon" title="Padam rekod" aria-label="Padam rekod"><i class="ri-delete-bin-line"></i></button>` : ''}
                 </div>
               </td>
             </tr>
@@ -1796,8 +1880,8 @@
                 <span class="truncate"><i class="ri-map-pin-line"></i>${item.location || '-'}</span>
               </div>
               <div class="item-actions">
-                <button onclick="showEditAttendModal(${editArgs})" class="btn btn-secondary btn-xs"><i class="ri-pencil-line"></i>${isPresent ? 'Ubah' : 'Rekod'}</button>
-                ${isPresent ? `<button onclick="deleteAttendData('${item.attendId}')" class="btn btn-soft-red btn-xs"><i class="ri-delete-bin-line"></i>Hapus</button>` : ''}
+                <button onclick="showEditAttendModal(${editArgs})" class="btn btn-secondary btn-icon" title="${hasRecord ? 'Ubah' : 'Rekod kehadiran'}" aria-label="${hasRecord ? 'Ubah' : 'Rekod kehadiran'}"><i class="${hasRecord ? 'ri-pencil-line' : 'ri-add-line'}"></i></button>
+                ${hasRecord ? `<button onclick="deleteAttendData('${item.attendId}')" class="btn btn-soft-red btn-icon" title="Hapus" aria-label="Hapus"><i class="ri-delete-bin-line"></i></button>` : ''}
               </div>
             </div>
           `;
@@ -1814,21 +1898,57 @@
         ));
       }
 
-      // A4 landscape PDF for the selected event: present staff first, then
-      // invited-but-absent staff in a separate "LAIN-LAIN" table. Both keep the
-      // same ranking order as allAttendAdmin (position ranking, then name).
+      // Kehadiran tab: PDF for the event picked in its selector.
       function downloadAttendancePdf() {
+        const select = document.getElementById('attendEventFilter');
+        const eventId = (select && select.value) || activeEventId;
+        const ev = allEvents.find(e => e.id == eventId) || {};
+        buildAttendancePdf(ev, allAttendAdmin);
+      }
+
+      // Event list: PDF for one event, fetched on demand so it doesn't depend
+      // on what the Kehadiran tab currently shows.
+      async function downloadEventPdf(eventId, btn) {
+        if (!window.jspdf) {
+          alert('Pustaka PDF gagal dimuatkan. Semak sambungan internet dan cuba lagi.');
+          return;
+        }
+        const ev = allEvents.find(e => e.id == eventId) || {};
+        const original = btn ? btn.innerHTML : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = btn.classList.contains('btn-icon')
+            ? '<i class="ri-loader-4-line spin"></i>'
+            : '<i class="ri-loader-4-line spin"></i>PDF';
+        }
+        try {
+          const [staffRes, attendRes] = await Promise.all([
+            fetch(`/api/get-staff?event_id=${encodeURIComponent(eventId)}`),
+            fetch(`/api/attendance/list?event_id=${encodeURIComponent(eventId)}`)
+          ]);
+          const staffData = await staffRes.json();
+          const attendData = await attendRes.json();
+          if (!staffData.success || !attendData.success) throw new Error('API');
+          buildAttendancePdf(ev, mergeAttendance(staffData.staff || [], attendData.attendance || []));
+        } catch (e) {
+          console.error('Error building event PDF:', e);
+          alert('Gagal memuatkan data kehadiran untuk PDF.');
+        } finally {
+          if (btn) { btn.disabled = false; btn.innerHTML = original; }
+        }
+      }
+
+      // A4 landscape PDF: present staff first, then invited-but-absent staff in
+      // a separate "LAIN-LAIN" table. `list` comes from mergeAttendance(), so
+      // both tables keep its ranking order (position ranking, then name).
+      function buildAttendancePdf(ev, list) {
         if (!window.jspdf) {
           alert('Pustaka PDF gagal dimuatkan. Semak sambungan internet dan cuba lagi.');
           return;
         }
 
-        const select = document.getElementById('attendEventFilter');
-        const eventId = (select && select.value) || activeEventId;
-        const ev = allEvents.find(e => e.id == eventId) || {};
-
-        const present = allAttendAdmin.filter(a => a.isPresent);
-        const absent = allAttendAdmin.filter(a => !a.isPresent);
+        const present = list.filter(a => a.isPresent);
+        const absent = list.filter(a => !a.isPresent);
         if (present.length === 0 && absent.length === 0) {
           alert('Tiada data kehadiran untuk dimuat turun.');
           return;
@@ -1926,6 +2046,12 @@
         document.getElementById('attendModal').classList.remove('hidden');
       }
 
+      // The event the Kehadiran tab is showing (manual records are saved to it).
+      function currentAttendEventId() {
+        const select = document.getElementById('attendEventFilter');
+        return (select && select.value) || activeEventId || '';
+      }
+
       function closeAttendModal() { document.getElementById('attendModal').classList.add('hidden'); }
 
       async function saveAttendData() {
@@ -1943,7 +2069,7 @@
           const res = await fetch('/api/attendance/admin-record', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ attendId, staffId, name, status, acara })
+            body: JSON.stringify({ attendId, staffId, name, status, acara, eventId: currentAttendEventId() })
           });
           const data = await res.json();
           if(data.success) {
