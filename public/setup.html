@@ -1840,8 +1840,8 @@
                 <span class="truncate"><i class="ri-map-pin-line"></i>${item.location || '-'}</span>
               </div>
               <div class="item-actions">
-                <button onclick="showEditAttendModal(${editArgs})" class="btn btn-secondary btn-xs"><i class="ri-pencil-line"></i>${hasRecord ? 'Ubah' : 'Rekod'}</button>
-                ${hasRecord ? `<button onclick="deleteAttendData('${item.attendId}')" class="btn btn-soft-red btn-xs"><i class="ri-delete-bin-line"></i>Hapus</button>` : ''}
+                <button onclick="showEditAttendModal(${editArgs})" class="btn btn-secondary btn-icon" title="${hasRecord ? 'Ubah' : 'Rekod kehadiran'}" aria-label="${hasRecord ? 'Ubah' : 'Rekod kehadiran'}"><i class="${hasRecord ? 'ri-pencil-line' : 'ri-add-line'}"></i></button>
+                ${hasRecord ? `<button onclick="deleteAttendData('${item.attendId}')" class="btn btn-soft-red btn-icon" title="Hapus" aria-label="Hapus"><i class="ri-delete-bin-line"></i></button>` : ''}
               </div>
             </div>
           `;
