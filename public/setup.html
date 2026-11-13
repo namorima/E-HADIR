@@ -1137,6 +1137,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/compressorjs@1.4.0/dist/compressor.min.js"></script>
     <script src="staff-management.js"></script>
     <script>
       // Global Data
@@ -1653,6 +1654,47 @@
         }
       }
 
+      // --- Image upload (compressed in the browser first) ---
+      // Originals are accepted up to MAX_ORIGINAL; what's sent must be at most
+      // MAX_UPLOAD, because it travels as base64 (+~33%) in a JSON body and
+      // Netlify functions reject request bodies over ~6 MB.
+      const MAX_ORIGINAL = 25 * 1024 * 1024;
+      const MAX_UPLOAD = 4 * 1024 * 1024;
+
+      // Compressor.js options per upload type. Logos keep their format (so a
+      // PNG keeps its transparency); backgrounds are full-screen photos, so
+      // big PNG/WebP files are converted to JPEG.
+      const COMPRESS_OPTIONS = {
+        logo: { maxWidth: 1024, maxHeight: 1024, quality: 0.85, convertSize: Infinity },
+        bgLight: { maxWidth: 1920, maxHeight: 1920, quality: 0.8, convertTypes: ['image/png', 'image/webp'], convertSize: 500 * 1024 },
+        bgDark: { maxWidth: 1920, maxHeight: 1920, quality: 0.8, convertTypes: ['image/png', 'image/webp'], convertSize: 500 * 1024 },
+      };
+
+      function formatBytes(n) {
+        return n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
+      }
+
+      // Resolves to a Blob ready to upload. SVG (vector) and GIF (may be
+      // animated) are sent as-is, as is anything Compressor.js can't decode.
+      // If the result isn't smaller, the original is sent: Compressor.js's
+      // strict mode doesn't cover resized images, and re-encoding a small,
+      // simple PNG at a lower resolution can still make it bigger.
+      function compressImage(file, type) {
+        if (!window.Compressor || /^image\/(svg\+xml|gif)$/.test(file.type)) {
+          return Promise.resolve(file);
+        }
+        return new Promise(resolve => {
+          new Compressor(file, {
+            ...(COMPRESS_OPTIONS[type] || COMPRESS_OPTIONS.logo),
+            success: result => resolve(result.size < file.size ? result : file),
+            error(err) {
+              console.warn('Compression failed, uploading original:', err);
+              resolve(file);
+            },
+          });
+        });
+      }
+
       async function handleFileSelect(event, type) {
         const file = event.target.files[0];
         if (!file) return;
@@ -1668,22 +1710,27 @@
           return;
         }
 
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        if (file.size > maxSize) {
-          alert('Saiz fail terlalu besar! Maksimum 5MB.');
+        if (file.size > MAX_ORIGINAL) {
+          alert(`Saiz fail terlalu besar! Maksimum ${formatBytes(MAX_ORIGINAL)}.`);
           event.target.value = '';
           return;
         }
 
-        statusEl.textContent = 'Memuat naik...';
-        statusEl.className = 'media-status truncate text-blue pulse';
-
         try {
+          statusEl.textContent = 'Memampatkan gambar...';
+          statusEl.className = 'media-status truncate text-blue pulse';
+          const blob = await compressImage(file, type);
+
+          if (blob.size > MAX_UPLOAD) {
+            throw new Error(`gambar masih ${formatBytes(blob.size)} selepas dimampatkan (maksimum ${formatBytes(MAX_UPLOAD)})`);
+          }
+
+          statusEl.textContent = 'Memuat naik...';
           const base64Image = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
             reader.onerror = () => reject(new Error('Gagal membaca fail'));
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(blob);
           });
 
           const response = await fetch('/api/upload/image', {
@@ -1696,7 +1743,9 @@
           if (!data.success) throw new Error(data.message || 'Upload gagal');
 
           inputEl.value = data.url;
-          statusEl.textContent = `Berjaya dimuat naik (${(file.size / 1024).toFixed(1)} KB)`;
+          statusEl.textContent = blob.size < file.size
+            ? `Berjaya dimuat naik (${formatBytes(file.size)} → ${formatBytes(blob.size)})`
+            : `Berjaya dimuat naik (${formatBytes(blob.size)})`;
           statusEl.className = 'media-status truncate text-green';
         } catch (error) {
           console.error('Upload error:', error);
