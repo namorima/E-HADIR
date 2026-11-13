@@ -3,6 +3,8 @@ import {
   initEventsTable,
   createEvent,
   ensureEventInvitations,
+  getActiveEvent,
+  markAbsentForEvent,
 } from "../../../lib/db";
 
 export default async function handler(req, res) {
@@ -23,11 +25,28 @@ export default async function handler(req, res) {
     }
 
     await initEventsTable();
+
+    // Creating an event ends the current one. Make sure its invitation list
+    // exists while it is still active (only the active event is seeded).
+    const previous = await getActiveEvent();
+    if (previous) await ensureEventInvitations(previous.id);
+
     const id = await createEvent(req.body);
     // New events start with the current invitation list (copied forward).
     await ensureEventInvitations(id);
 
-    return res.status(200).json({ success: true, id });
+    // Invitees of the event that just ended who never checked in become
+    // TIDAK HADIR (still editable in the Kehadiran tab).
+    const markedAbsent = previous
+      ? await markAbsentForEvent(previous.id, previous.title)
+      : 0;
+
+    return res.status(200).json({
+      success: true,
+      id,
+      markedAbsent,
+      previousEventTitle: previous ? previous.title : null,
+    });
   } catch (error) {
     console.error("Error creating event:", error);
     return res.status(500).json({ success: false, error: error.message });

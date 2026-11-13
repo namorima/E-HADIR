@@ -1579,6 +1579,13 @@
           return;
         }
 
+        // A new event becomes active and ends the current one.
+        const current = allEvents.find(e => e.id === activeEventId);
+        if (mode === 'add' && current && !confirm(
+          `Event baharu akan dijadikan AKTIF dan event "${current.title || '-'}" akan ditamatkan.\n\n` +
+          'Staf jemputan event itu yang belum daftar akan ditanda TIDAK HADIR (boleh diubah di tab Kehadiran). Teruskan?'
+        )) return;
+
         const indicator = document.getElementById('eventSaveIndicator');
         if (indicator) indicator.classList.remove('hidden');
 
@@ -1593,6 +1600,7 @@
           const data = await res.json();
           if (data.success) {
             closeEventModal();
+            notifyMarkedAbsent(data);
             await loadEvents();
             if (mode === 'add') {
               // New event is now active -> attendance view should reset to it
@@ -1610,8 +1618,20 @@
         }
       }
 
+      // After create/activate: how many of the ended event's invitees were
+      // marked TIDAK HADIR.
+      function notifyMarkedAbsent(data) {
+        if (data && data.markedAbsent > 0) {
+          showToast(`${data.markedAbsent} staf jemputan "${data.previousEventTitle || 'event sebelum'}" ditanda TIDAK HADIR`, 'info');
+        }
+      }
+
       async function activateEvent(id) {
-        if (!confirm('Jadikan event ini sebagai event AKTIF? Senarai kehadiran akan bertukar mengikut event ini.')) return;
+        const current = allEvents.find(e => e.id === activeEventId);
+        if (!confirm(
+          'Jadikan event ini sebagai event AKTIF? Senarai kehadiran akan bertukar mengikut event ini.' +
+          (current ? `\n\nEvent "${current.title || '-'}" akan ditamatkan: staf jemputannya yang belum daftar akan ditanda TIDAK HADIR (boleh diubah di tab Kehadiran).` : '')
+        )) return;
         try {
           const res = await fetch('/api/events/activate', {
             method: 'POST',
@@ -1620,6 +1640,7 @@
           });
           const data = await res.json();
           if (data.success) {
+            notifyMarkedAbsent(data);
             await loadEvents();
             const select = document.getElementById('attendEventFilter');
             if (select) select.value = activeEventId;
