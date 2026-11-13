@@ -2,355 +2,426 @@
 <html lang="ms">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>E-HADIR | Senarai Kehadiran</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Apply the saved theme before first paint (same "theme" key as index.html / setup.html). -->
+    <script>
+      (function () {
+        var saved = null;
+        try { saved = localStorage.getItem('theme'); } catch (e) {}
+        var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark-mode', dark);
+      })();
+    </script>
 
     <style>
-      /* ============================================
-       LIQUID GLASS THEME & ANIMATIONS
-       ============================================ */
+      /* =====================================================================
+       * Design tokens — follows BoardUI's semantic token set
+       * (github.com/BoardUI/boardui, styles/theme.css, MIT). Kept in sync by
+       * hand with setup.html: these pages share no CSS file.
+       * ===================================================================== */
+      :root {
+        --accent-300: #93c5fd; --accent-400: #3392ff; --accent-500: #3b82f6;
+        --accent-600: #2563eb; --accent-700: #1d4ed8;
+
+        --bg-page: #f7f7f7;
+        --bg-surface: #ffffff;
+        --bg-tile: #f7f7f7;
+        --bg-hover: #f7f7f7;
+        --bg-input: #ebebeb;
+        --bg-input-hover: #e3e3e3;
+        --seg-bg: #ebebeb;
+        --seg-selected: #ffffff;
+        --row-present: rgb(22 163 74 / 0.06);
+        --row-present-hover: rgb(22 163 74 / 0.1);
+
+        --text-primary: #0a0a0a;
+        --text-secondary: #737373;
+        --text-tertiary: #a3a3a3;
+        --text-placeholder: #a3a3a3;
+        --icon-tertiary: #a3a3a3;
+
+        --border: #ebebeb;
+        --border-btn: #ebebeb;
+        --border-btn-hover: #d4d4d4;
+
+        --green-bg: #dcfce7; --green-fg: #15803d; --green-solid: #16a34a;
+        --purple-bg: #f3e8ff; --purple-fg: #7e22ce; --purple-solid: #9333ea;
+        --blue-bg: #dbeafe; --blue-fg: #1d4ed8;
+        --red-bg: #fee2e2; --red-fg: #dc2626;
+        --neutral-bg: #ebebeb; --neutral-fg: #525252;
+
+        --shadow-2xs: 0 1px 1px 0 rgb(0 0 0 / 0.06);
+        --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.08);
+        --page-veil: rgb(247 247 247 / 0.84);
+      }
+
+      .dark-mode {
+        --bg-page: #121212;
+        --bg-surface: #171717;
+        --bg-tile: #1f1f1f;
+        --bg-hover: #1f1f1f;
+        --bg-input: #262626;
+        --bg-input-hover: #2e2e2e;
+        --seg-bg: #1f1f1f;
+        --seg-selected: #2e2e2e;
+        --row-present: rgb(74 222 128 / 0.07);
+        --row-present-hover: rgb(74 222 128 / 0.12);
+
+        --text-primary: #fafafa;
+        --text-secondary: #a3a3a3;
+        --text-tertiary: #737373;
+        --text-placeholder: #737373;
+        --icon-tertiary: #737373;
+
+        --border: #262626;
+        --border-btn: #404040;
+        --border-btn-hover: #525252;
+
+        --green-bg: rgb(22 163 74 / 0.16); --green-fg: #4ade80; --green-solid: #16a34a;
+        --purple-bg: rgb(147 51 234 / 0.18); --purple-fg: #c084fc; --purple-solid: #a855f7;
+        --blue-bg: rgb(59 130 246 / 0.18); --blue-fg: #60a5fa;
+        --red-bg: rgb(220 38 38 / 0.16); --red-fg: #f87171;
+        --neutral-bg: #262626; --neutral-fg: #a3a3a3;
+
+        --shadow-2xs: 0 1px 1px 0 rgb(0 0 0 / 0.3);
+        --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.35);
+        --page-veil: rgb(18 18 18 / 0.86);
+        color-scheme: dark;
+      }
+
+      /* ===== Base ========================================================= */
+      *, *::before, *::after { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; background: var(--bg-page); }
       body {
         margin: 0;
-        padding: 0;
         min-height: 100vh;
-        font-family: 'Inter', sans-serif;
-        position: relative;
+        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--text-primary);
+        background: var(--bg-page);
+        -webkit-font-smoothing: antialiased;
         overflow-x: hidden;
-        transition: all 0.5s ease;
       }
+      button, input { font: inherit; color: inherit; }
+      h1, h2, h3, h4, p { margin: 0; }
+      .hidden { display: none !important; }
+      .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .center { text-align: center; }
+      .right { text-align: right; }
+      .spin { display: inline-block; animation: spin 0.9s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
 
-      /* Custom Background Image Support */
-      body.custom-bg::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -3;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-      }
-
-      /* Animated Golf Field Background (Default) */
-      body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -2;
-        background: linear-gradient(
-          135deg,
-          #7cb342 0%, #8bc34a 10%, #9ccc65 20%, #689f38 30%, #7cb342 40%,
-          #558b2f 50%, #8bc34a 60%, #7cb342 70%, #689f38 80%, #9ccc65 90%, #7cb342 100%
-        );
-        background-size: 400% 400%;
-        animation: golfFieldFlow 25s ease infinite;
-      }
-
-      @keyframes golfFieldFlow {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
-
-      body.dark-mode::before {
-        background: linear-gradient(135deg, #1b3a1b 0%, #2d4a2d 100%);
-      }
-
-      /* Grass Texture Overlay */
-      body::after {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        background-image:
-          repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(85,139,47,0.03) 2px, rgba(85,139,47,0.03) 4px),
-          radial-gradient(circle at 50% 50%, rgba(104,159,56,0.08) 0%, transparent 60%);
-      }
-
-      body.dark-mode::after {
-        background-image:
-          repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(124,179,66,0.05) 2px, rgba(124,179,66,0.05) 4px),
-          radial-gradient(circle at 50% 50%, rgba(139,195,74,0.06) 0%, transparent 60%);
-      }
-
-      /* Dimming/blur overlay when a custom background image is active */
-      body.custom-bg::after {
-        background: rgba(0, 0, 0, 0.25);
-        backdrop-filter: blur(2px);
-        -webkit-backdrop-filter: blur(2px);
-      }
-
-      body.dark-mode.custom-bg::after {
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(2px);
-        -webkit-backdrop-filter: blur(2px);
-      }
-
-      /* Glass Card Style */
-      .glass-card {
-        background: rgba(255, 255, 255, 0.35);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 32px 0 rgba(124, 179, 66, 0.15),
-          inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
-          0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        border-radius: 24px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .glass-card:hover {
-        background: rgba(255, 255, 255, 0.45);
-        box-shadow: 0 12px 40px 0 rgba(124, 179, 66, 0.2),
-          inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
-          0 2px 4px 0 rgba(0, 0, 0, 0.08);
-      }
-
-      body.dark-mode .glass-card {
-        background: rgba(30, 30, 30, 0.4);
-        border: 1px solid rgba(139, 195, 74, 0.15);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3),
-          inset 0 1px 0 0 rgba(139, 195, 74, 0.1),
-          0 1px 2px 0 rgba(139, 195, 74, 0.05);
-      }
-
-      body.dark-mode .glass-card:hover {
-        background: rgba(30, 30, 30, 0.5);
-        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4),
-          inset 0 1px 0 0 rgba(139, 195, 74, 0.15),
-          0 2px 4px 0 rgba(139, 195, 74, 0.08);
-      }
-      
-      /* Typography Colors */
-      .text-primary { color: #1a202c; }
-      .text-secondary { color: #4a5568; }
-      .text-accent { color: #2f855a; }
-      
-      body.dark-mode .text-primary { color: #f7fafc; }
-      body.dark-mode .text-secondary { color: #a0aec0; }
-      body.dark-mode .text-accent { color: #68d391; }
-
-      .status-badge {
-        padding: 6px 12px;
-        border-radius: 99px;
-        font-size: 11px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      /* Row/Card tint for attendance status.
-         NOTE: uses body.dark-mode (not Tailwind's dark: which follows the
-         OS color scheme) so it reacts to the site's own theme toggle.
-         Backgrounds stay translucent so the glass-card blur underneath
-         still shows through instead of a flat opaque color. */
-      .row-present {
-        background: rgba(34, 197, 94, 0.08);
-      }
-      .row-present:hover {
-        background: rgba(34, 197, 94, 0.14);
-      }
-      body.dark-mode .row-present {
-        background: rgba(74, 222, 128, 0.14);
-      }
-      body.dark-mode .row-present:hover {
-        background: rgba(74, 222, 128, 0.2);
-      }
-      .row-pending:hover {
-        background: rgba(0, 0, 0, 0.05);
-      }
-      body.dark-mode .row-pending:hover {
-        background: rgba(255, 255, 255, 0.06);
-      }
-
-      .badge-pending {
-        background: rgba(0, 0, 0, 0.08);
-        color: #6b7280;
-      }
-      body.dark-mode .badge-pending {
-        background: rgba(255, 255, 255, 0.1);
-        color: #d1d5db;
-      }
-
-      .card-present {
-        border-left-color: #22c55e !important;
-        background: rgba(34, 197, 94, 0.06);
-      }
-      body.dark-mode .card-present {
-        background: rgba(74, 222, 128, 0.12);
-      }
-      .card-pending {
-        border-left-color: #9ca3af !important;
-      }
-      body.dark-mode .card-pending {
-        border-left-color: #6b7280 !important;
-      }
-
-      .scale-in {
-        animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-      }
-      @keyframes scaleIn {
-        from { transform: scale(0.95); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
-      }
-
-
-      /* Glass Input (Ported from Index) */
-      .glass-input {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06),
-          0 1px 2px rgba(139, 195, 74, 0.1);
-        transition: all 0.3s ease;
-        color: #1f2937;
-      }
-
-      .glass-input:focus {
-        background: rgba(255, 255, 255, 0.9);
-        border-color: rgba(124, 179, 66, 0.6);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06),
-          0 0 0 3px rgba(124, 179, 66, 0.15);
-        outline: none;
-      }
-
-      .glass-input::placeholder {
-        color: rgba(107, 114, 128, 0.7);
-      }
-
-      body.dark-mode .glass-input {
-        background: rgba(30, 30, 30, 0.5);
-        border: 1px solid rgba(139, 195, 74, 0.2);
-        color: #f3f4f6;
-      }
-
-      body.dark-mode .glass-input:focus {
-        background: rgba(30, 30, 30, 0.6);
-        border-color: rgba(124, 179, 66, 0.5);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06),
-          0 0 0 3px rgba(124, 179, 66, 0.15);
-      }
-
-      body.dark-mode .glass-input::placeholder {
-        color: rgba(209, 213, 219, 0.6);
-      }
-
-      /* Responsive View */
-      .staff-table-view { display: none; }
-      @media (min-width: 1024px) {
-        .staff-table-view { display: block; }
-        .staff-cards-view { display: none; }
-      }
-      
-      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-thumb { background: var(--border-btn); border-radius: 8px; }
       ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
-      body.dark-mode ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+
+      /* Per-event background image (set from the active event), blurred and
+         veiled with the page colour so the flat surfaces stay readable. */
+      .page-bg, .page-veil { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+      .page-bg {
+        background-size: cover; background-position: center;
+        filter: blur(10px); transform: scale(1.08);
+      }
+      .page-veil { inset: -48px; background: var(--page-veil); }
+
+      /* ===== App shell ==================================================== */
+      .app {
+        position: relative; z-index: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 12px 12px calc(24px + env(safe-area-inset-bottom));
+      }
+      @media (min-width: 768px) { .app { padding: 24px 24px 48px; } }
+
+      .topbar { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+      .topbar-title { flex: 1 1 auto; min-width: 0; }
+      .topbar-title h1 { font-size: 16px; line-height: 22px; font-weight: 600; word-break: break-word; }
+      .topbar-sub { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+      .topbar-actions { flex: none; display: flex; align-items: center; gap: 6px; }
+      .clock {
+        display: inline-flex; align-items: center; gap: 4px;
+        height: 32px; padding: 0 10px; border-radius: 8px;
+        background: var(--bg-surface); border: 1px solid var(--border);
+        font-size: 12px; font-weight: 500; color: var(--text-secondary);
+        font-variant-numeric: tabular-nums; white-space: nowrap;
+      }
+      .clock i { font-size: 14px; }
+      @media (max-width: 419px) { .clock { display: none; } }
+      @media (min-width: 768px) {
+        .topbar { align-items: center; margin-bottom: 16px; }
+        .topbar-title h1 { font-size: 20px; line-height: 28px; }
+      }
+
+      /* ===== Buttons ====================================================== */
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+        height: 32px; padding: 0 10px;
+        border: 1px solid transparent; border-radius: 8px;
+        font-size: 13px; font-weight: 500; line-height: 18px;
+        white-space: nowrap; text-decoration: none; cursor: pointer; user-select: none;
+        transition: background .15s ease, border-color .15s ease, transform .08s ease;
+      }
+      .btn i { font-size: 16px; line-height: 1; }
+      .btn:active { transform: scale(0.97); }
+      .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--accent-500); }
+      .btn-icon { width: 32px; padding: 0; }
+      .btn-secondary {
+        color: var(--text-primary); background: var(--bg-surface);
+        border-color: var(--border-btn); box-shadow: var(--shadow-xs);
+      }
+      .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-btn-hover); }
+
+      /* ===== Badges ======================================================= */
+      .badge {
+        display: inline-flex; align-items: center; gap: 4px;
+        height: 20px; padding: 0 6px; border-radius: 6px;
+        font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: .15px;
+        white-space: nowrap;
+      }
+      .badge i { font-size: 12px; }
+      .badge-dot::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+      .badge-live::before { animation: livePulse 1.6s ease-in-out infinite; }
+      @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+      .tone-blue { background: var(--blue-bg); color: var(--blue-fg); }
+      .tone-green { background: var(--green-bg); color: var(--green-fg); }
+      .tone-purple { background: var(--purple-bg); color: var(--purple-fg); }
+      .tone-red { background: var(--red-bg); color: var(--red-fg); }
+      .tone-neutral { background: var(--neutral-bg); color: var(--neutral-fg); }
+
+      /* ===== Stat tiles =================================================== */
+      .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+      @media (min-width: 768px) { .stats { gap: 12px; margin-bottom: 16px; } }
+      .stat {
+        display: flex; flex-direction: column; gap: 8px; width: 100%;
+        padding: 12px; border-radius: 16px;
+        background: var(--bg-surface); border: 1px solid var(--border);
+        text-align: left; cursor: pointer;
+        transition: border-color .15s ease, box-shadow .15s ease;
+      }
+      .stat:hover { border-color: var(--border-btn-hover); }
+      .stat:focus-visible { outline: none; border-color: var(--accent-500); }
+      .stat.is-active { border-color: var(--accent-500); box-shadow: 0 0 0 3px rgb(59 130 246 / 0.15); }
+      .stat-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+      .stat-icon {
+        flex: none; display: grid; place-items: center;
+        width: 28px; height: 28px; border-radius: 8px; font-size: 16px;
+      }
+      .stat-label { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text-secondary); }
+      .stat-value { font-size: 24px; line-height: 30px; font-weight: 600; font-variant-numeric: tabular-nums; }
+      .stat-value.is-green { color: var(--green-fg); }
+      .stat-value.is-purple { color: var(--purple-fg); }
+      .progress { height: 4px; border-radius: 4px; background: var(--bg-input); overflow: hidden; }
+      .progress > span { display: block; height: 100%; width: 0; border-radius: 4px; background: var(--purple-solid); transition: width .6s ease; }
+      @media (min-width: 768px) {
+        .stat { padding: 16px; }
+        .stat-value { font-size: 32px; line-height: 40px; }
+      }
+      /* Mobile: one row of four compact tiles — icon + number only. The label
+         stays in the DOM (visually hidden) so screen readers still name each tile. */
+      @media (max-width: 767px) {
+        .stat { position: relative; align-items: center; gap: 4px; padding: 8px 4px; border-radius: 12px; text-align: center; }
+        .stat-top { justify-content: center; }
+        .stat-label {
+          position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+          overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+        }
+        .stat-value { font-size: 18px; line-height: 24px; }
+        .progress { width: calc(100% - 8px); height: 3px; }
+      }
+
+      /* ===== Toolbar ====================================================== */
+      .panel {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 12px;
+      }
+      @media (min-width: 768px) { .panel { border-radius: 24px; padding: 16px; } }
+      .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+      .input-icon { position: relative; flex: 1 1 100%; min-width: 0; }
+      @media (min-width: 640px) { .input-icon { flex: 1 1 240px; } }
+      .input-icon > i {
+        position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+        font-size: 15px; color: var(--icon-tertiary); pointer-events: none;
+      }
+      .input {
+        width: 100%; height: 32px; padding: 0 10px 0 32px;
+        border: 1px solid transparent; border-radius: 8px;
+        background: var(--bg-input); color: var(--text-primary);
+        font-size: 13px; line-height: 18px; outline: none;
+        transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+      }
+      .input::placeholder { color: var(--text-placeholder); }
+      .input:hover { background: var(--bg-input-hover); }
+      .input:focus { background: var(--bg-surface); border-color: var(--accent-500); box-shadow: 0 0 0 3px rgb(59 130 246 / 0.18); }
+      /* iOS Safari zooms into any field whose text is under 16px. Use 16px
+         on touch-sized screens so tapping search/inputs doesn't zoom. */
+      @media (max-width: 767px) {
+        .input { font-size: 16px !important; }
+      }
+
+      .seg { display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--seg-bg); flex: 1 1 100%; }
+      @media (min-width: 640px) { .seg { flex: 0 0 auto; } }
+      .seg-item {
+        flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+        height: 26px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent;
+        color: var(--text-secondary); font-size: 12px; font-weight: 500; white-space: nowrap; cursor: pointer;
+        transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+      }
+      .seg-item:hover { color: var(--text-primary); }
+      .seg-item.is-active { background: var(--seg-selected); color: var(--text-primary); box-shadow: var(--shadow-2xs); }
+      .seg-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent-500); }
+      .seg-count { font-size: 11px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+
+      /* ===== Table (desktop) vs list (mobile) ============================ */
+      .view-desktop { display: none; }
+      .view-mobile { display: flex; }
+      @media (min-width: 1024px) {
+        .view-desktop { display: block; }
+        .view-mobile { display: none !important; }
+      }
+      .table-wrap { border: 1px solid var(--border); border-radius: 16px; overflow: auto; }
+      .table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; line-height: 18px; }
+      .table th {
+        position: sticky; top: 0; z-index: 2;
+        padding: 8px 12px; text-align: left; white-space: nowrap;
+        font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text-secondary);
+        background: var(--bg-tile); border-bottom: 1px solid var(--border);
+      }
+      .table th.center { text-align: center; }
+      .table th.right { text-align: right; }
+      .table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+      .table tbody tr:last-child td { border-bottom: 0; }
+      .table tbody tr { transition: background-color .12s ease; }
+      .table tbody tr:hover { background: var(--bg-hover); }
+      .table tbody tr.is-present { background: var(--row-present); }
+      .table tbody tr.is-present:hover { background: var(--row-present-hover); }
+      .cell-title { font-weight: 600; }
+      .cell-muted { font-size: 12px; color: var(--text-secondary); }
+      .cell-sub { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 11px; line-height: 16px; color: var(--text-tertiary); }
+      .cell-time { font-size: 12px; font-weight: 500; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+      .list { flex-direction: column; gap: 8px; }
+      .item {
+        display: flex; align-items: flex-start; gap: 10px;
+        padding: 10px 12px; border-radius: 14px;
+        background: var(--bg-surface); border: 1px solid var(--border);
+      }
+      .item.is-present { background: var(--row-present); border-color: transparent; }
+      .item-dot { flex: none; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--border-btn-hover); }
+      .item.is-present .item-dot { background: var(--green-solid); }
+      .item-main { flex: 1 1 auto; min-width: 0; }
+      .item-title { font-size: 14px; line-height: 20px; font-weight: 600; word-break: break-word; }
+      .item-meta { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 4px; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+      .item-meta span { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+      .item-meta i { font-size: 13px; color: var(--icon-tertiary); }
+      .item-side { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+      /* ===== States ======================================================= */
+      .state {
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        padding: 40px 16px; text-align: center;
+        border: 1px dashed var(--border-btn); border-radius: 16px;
+        color: var(--text-secondary); font-size: 13px;
+      }
+      .state > i { font-size: 28px; color: var(--icon-tertiary); }
+      .state-title { font-weight: 600; color: var(--text-primary); }
     </style>
   </head>
-  <body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
-      <!-- Header -->
-      <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div class="flex items-center gap-4">
-          <a href="index.html" class="glass-card p-3 rounded-full hover:bg-white/40 transition-all text-primary" title="Kembali ke Utama">
-            <i class="fas fa-home"></i>
-          </a>
-          <div>
-            <!-- Dynamic Event Title will be loaded here -->
-            <h1 id="eventTitle" class="text-lg font-bold text-primary tracking-tight drop-shadow-sm">Senarai Kehadiran</h1>
-            <p class="text-secondary/80 text-xs font-bold uppercase tracking-wider mt-1">Status: <span id="onlineStatus" class="bg-green-500/20 px-2 py-0.5 rounded text-green-700 dark:text-green-400">Live Update</span></p>
+  <body>
+    <div id="pageBg" class="page-bg hidden"></div>
+    <div id="pageVeil" class="page-veil hidden"></div>
+
+    <div class="app">
+      <!-- Top bar -->
+      <header class="topbar">
+        <a href="index.html" class="btn btn-secondary btn-icon" title="Kembali ke Utama" aria-label="Kembali ke Utama">
+          <i class="ri-home-5-line"></i>
+        </a>
+        <div class="topbar-title">
+          <h1 id="eventTitle">Senarai Kehadiran</h1>
+          <div class="topbar-sub">
+            <span id="onlineStatus" class="badge badge-dot badge-live tone-green">Live</span>
+            <span id="eventMeta" class="truncate"></span>
           </div>
         </div>
-        <div id="currentTime" class="glass-card px-6 py-3 text-sm font-mono text-primary font-bold tracking-wider shadow-lg"></div>
+        <div class="topbar-actions">
+          <span id="currentTime" class="clock"></span>
+          <button id="themeToggle" type="button" onclick="toggleTheme()" class="btn btn-secondary btn-icon" title="Tukar tema" aria-label="Tukar tema">
+            <i class="ri-moon-line"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Stats -->
+      <div class="stats">
+        <button type="button" id="statCardTotal" onclick="quickFilterAttendance('')" class="stat" title="Jumlah Jemputan — papar semua">
+          <span class="stat-top"><span class="stat-icon tone-blue"><i class="ri-team-line"></i></span><span class="stat-label truncate">Jumlah Jemputan</span></span>
+          <span id="statTotal" class="stat-value">0</span>
+        </button>
+        <button type="button" id="statCardPresent" onclick="quickFilterAttendance('present')" class="stat" title="Hadir — tapis hadir sahaja" aria-pressed="false">
+          <span class="stat-top"><span class="stat-icon tone-green"><i class="ri-user-follow-line"></i></span><span class="stat-label truncate">Hadir</span></span>
+          <span id="statPresent" class="stat-value is-green">0</span>
+        </button>
+        <button type="button" id="statCardAbsent" onclick="quickFilterAttendance('absent')" class="stat" title="Belum Hadir — tapis belum hadir sahaja" aria-pressed="false">
+          <span class="stat-top"><span class="stat-icon tone-neutral"><i class="ri-time-line"></i></span><span class="stat-label truncate">Belum Hadir</span></span>
+          <span id="statAbsent" class="stat-value">0</span>
+        </button>
+        <button type="button" id="statCardRate" onclick="quickFilterAttendance('')" class="stat" title="Peratus Kehadiran — papar semua">
+          <span class="stat-top"><span class="stat-icon tone-purple"><i class="ri-pie-chart-2-line"></i></span><span class="stat-label truncate">Peratus Kehadiran</span></span>
+          <span id="statRate" class="stat-value is-purple">0%</span>
+          <span class="progress" aria-hidden="true"><span id="statRateBar"></span></span>
+        </button>
       </div>
 
-      <!-- Stats Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div id="statCardTotal" onclick="quickFilterAttendance('')" class="glass-card p-4 border-l-4 border-blue-500 hover:scale-[1.02] cursor-pointer transition-all" title="Papar semua">
-          <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Jumlah Jemputan</p>
-          <h3 id="statTotal" class="text-3xl font-black text-primary">0</h3>
+      <main class="panel">
+        <div class="toolbar">
+          <div class="input-icon">
+            <i class="ri-search-line"></i>
+            <input type="text" id="searchInput" oninput="filterData()" class="input" placeholder="Cari nama staf..." />
+          </div>
+          <div class="seg" role="group" aria-label="Tapis status">
+            <button type="button" id="segAll" class="seg-item is-active" onclick="setStatusFilter('')">Semua <span id="segAllCount" class="seg-count"></span></button>
+            <button type="button" id="segPresent" class="seg-item" onclick="setStatusFilter('present')">Hadir <span id="segPresentCount" class="seg-count"></span></button>
+            <button type="button" id="segAbsent" class="seg-item" onclick="setStatusFilter('absent')">Belum <span id="segAbsentCount" class="seg-count"></span></button>
+          </div>
         </div>
-        <div id="statCardPresent" onclick="quickFilterAttendance('present')" class="glass-card p-4 border-l-4 border-green-500 hover:scale-[1.02] cursor-pointer transition-all" title="Filter: Hadir sahaja">
-          <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Hadir (Daftar)</p>
-          <h3 id="statPresent" class="text-3xl font-black text-green-600 dark:text-green-400">0</h3>
-        </div>
-        <div id="statCardAbsent" onclick="quickFilterAttendance('absent')" class="glass-card p-4 border-l-4 border-gray-500 hover:scale-[1.02] cursor-pointer transition-all" title="Filter: Belum hadir sahaja">
-          <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Belum Hadir</p>
-          <h3 id="statAbsent" class="text-3xl font-black text-gray-400">0</h3>
-        </div>
-        <div id="statCardRate" onclick="quickFilterAttendance('')" class="glass-card p-4 border-l-4 border-purple-500 hover:scale-[1.02] cursor-pointer transition-all" title="Papar semua">
-          <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">Peratus Kehadiran</p>
-          <h3 id="statRate" class="text-3xl font-black text-purple-600 dark:text-purple-400">0%</h3>
-        </div>
-      </div>
 
-      <!-- Search -->
-      <div class="glass-card p-6 mb-6">
-        <div class="relative">
-          <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-secondary">
-            <i class="fas fa-search"></i>
-          </span>
-          <input type="text" id="searchInput" oninput="filterData()" class="glass-input block w-full pl-11 pr-4 py-3.5 rounded-xl font-semibold shadow-inner" placeholder="Cari Nama Staf..." />
-        </div>
-      </div>
-
-      <!-- Content -->
-      <div id="mainContent" class="scale-in">
-        <!-- Desktop Table -->
-        <div class="staff-table-view glass-card overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left">
-              <thead class="bg-black/5 dark:bg-white/5 text-xs font-black uppercase text-secondary border-b border-black/5 dark:border-white/10">
+        <div id="mainContent">
+          <div class="view-desktop table-wrap">
+            <table class="table">
+              <thead>
                 <tr>
-                  <th class="p-4 w-1/3">Nama Staf</th>
-                  <th class="p-4 w-1/4">Jawatan</th>
-                  <th class="p-4 text-center">Kehadiran</th>
-                  <th class="p-4 text-right">Masa Rekod</th>
+                  <th style="width:34%">Nama Staf</th>
+                  <th>Jawatan &amp; Lokasi</th>
+                  <th class="center">Kehadiran</th>
+                  <th class="right">Masa Rekod</th>
                 </tr>
               </thead>
-              <tbody id="tableBody" class="text-sm divide-y divide-black/5 dark:divide-white/5">
-                <!-- Rows injected here -->
-              </tbody>
+              <tbody id="tableBody"></tbody>
             </table>
           </div>
+          <div id="cardsBody" class="view-mobile list"></div>
         </div>
 
-        <!-- Mobile Cards -->
-        <div id="cardsBody" class="staff-cards-view space-y-3">
-          <!-- Cards injected here -->
+        <div id="loadingIndicator" class="state">
+          <i class="ri-loader-4-line spin"></i>
+          <p>Mengemaskini data kehadiran...</p>
         </div>
-      </div>
 
-      <!-- Loading/Empty States -->
-      <div id="loadingIndicator" class="text-center py-24 glass-card mt-6">
-        <i class="fas fa-spinner fa-spin text-5xl text-blue-600 mb-6 drop-shadow-sm"></i>
-        <p class="text-xl font-bold text-secondary animate-pulse">Mengemaskini data kehadiran...</p>
-      </div>
-
-      <div id="emptyState" class="hidden text-center py-20 bg-white/40 dark:bg-black/40 rounded-3xl mx-auto max-w-lg mt-6 backdrop-blur-md border border-white/40 shadow-xl">
-        <i class="fas fa-search text-6xl text-gray-500 mb-6 opacity-60"></i>
-        <p class="text-primary font-bold text-xl mb-2">Tiada Rekod Ditemui</p>
-        <p class="text-secondary">Cuba carian dengan kata kunci lain.</p>
-      </div>
+        <div id="emptyState" class="state hidden">
+          <i class="ri-search-line"></i>
+          <p class="state-title">Tiada rekod ditemui</p>
+          <p>Cuba carian dengan kata kunci lain.</p>
+        </div>
+      </main>
     </div>
 
     <script>
@@ -362,76 +433,74 @@
 
       // Initialize
       window.onload = async () => {
-        applyInitialTheme();
+        syncThemeIcon();
         updateTime();
         setInterval(updateTime, 1000);
         await refreshData();
-        
+
         // Auto refresh
         setInterval(refreshData, 30000);
-        
-        // Listen for system theme changes
+
+        // Follow the OS theme only while the user hasn't picked one.
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-           if (!localStorage.getItem('theme')) {
-             if (e.matches) document.body.classList.add('dark-mode');
-             else document.body.classList.remove('dark-mode');
-             applyCustomBackground();
-           }
+          let saved = null;
+          try { saved = localStorage.getItem('theme'); } catch (err) {}
+          if (!saved) {
+            document.documentElement.classList.toggle('dark-mode', e.matches);
+            syncThemeIcon();
+            applyCustomBackground();
+          }
         });
       };
 
-      // Theme Functions
-      function applyInitialTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
+      // --- Theme (same "theme" localStorage key as index.html / setup.html) ---
+      function isDark() {
+        return document.documentElement.classList.contains('dark-mode');
+      }
+
+      function syncThemeIcon() {
+        const btn = document.getElementById('themeToggle');
+        if (btn) btn.innerHTML = `<i class="${isDark() ? 'ri-sun-line' : 'ri-moon-line'}"></i>`;
+      }
+
+      function toggleTheme() {
+        const dark = !isDark();
+        document.documentElement.classList.toggle('dark-mode', dark);
+        try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
+        syncThemeIcon();
+        applyCustomBackground();
       }
 
       function applyCustomBackground() {
-        const isDarkMode = document.body.classList.contains("dark-mode");
-        const backgroundUrl = isDarkMode ? backgroundDark : backgroundLight;
-
-        if (backgroundUrl && backgroundUrl.trim() !== "" && backgroundUrl !== "undefined") {
-          document.body.classList.add("custom-bg");
-          
-          let style = document.getElementById("custom-bg-style");
-          if (style) style.remove();
-
-          style = document.createElement("style");
-          style.id = "custom-bg-style";
-          style.textContent = `
-            body.custom-bg::before {
-              background-image: url('${backgroundUrl}') !important;
-              background-size: cover !important;
-              background-position: center !important;
-              background-attachment: fixed !important;
-              filter: blur(8px) !important;
-              -webkit-filter: blur(8px) !important;
-              transform: scale(1.1) !important;
-            }
-          `;
-          document.head.appendChild(style);
-        } else {
-          document.body.classList.remove("custom-bg");
-          const style = document.getElementById("custom-bg-style");
-          if (style) style.remove();
-        }
+        const url = isDark() ? backgroundDark : backgroundLight;
+        const bg = document.getElementById('pageBg');
+        const veil = document.getElementById('pageVeil');
+        const has = url && url.trim() !== '' && url !== 'undefined';
+        if (has) bg.style.backgroundImage = `url("${url.replace(/"/g, '%22')}")`;
+        bg.classList.toggle('hidden', !has);
+        veil.classList.toggle('hidden', !has);
       }
 
       function updateTime() {
         const now = new Date();
-        document.getElementById('currentTime').innerHTML = 
-          `<i class="far fa-clock mr-2 text-blue-600 dark:text-blue-400"></i>${now.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+        document.getElementById('currentTime').innerHTML =
+          `<i class="ri-time-line"></i>${now.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+      }
+
+      function setOnlineStatus(online) {
+        const el = document.getElementById('onlineStatus');
+        el.className = online ? 'badge badge-dot badge-live tone-green' : 'badge badge-dot tone-red';
+        el.textContent = online ? 'Live' : 'Offline';
       }
 
       async function refreshData() {
         const loading = document.getElementById('loadingIndicator');
         const content = document.getElementById('mainContent');
-        
-        if(isLoading) loading.classList.remove('hidden');
+
+        if (isLoading) {
+          loading.classList.remove('hidden');
+          content.classList.add('hidden');
+        }
 
         try {
           // Fetch settings, staff, and attendance
@@ -447,8 +516,13 @@
 
           // 1. Settings & Background
           if (settingsData) {
-            if (settingsData.title) document.getElementById('eventTitle').textContent = settingsData.title;
-            
+            if (settingsData.title) {
+              document.getElementById('eventTitle').textContent = settingsData.title;
+              document.title = `E-HADIR | ${settingsData.title}`;
+            }
+            const meta = [settingsData.date, settingsData.location].filter(Boolean).join(' · ');
+            document.getElementById('eventMeta').textContent = meta;
+
             backgroundLight = settingsData.backgroundLight;
             backgroundDark = settingsData.backgroundDark;
             applyCustomBackground();
@@ -457,13 +531,11 @@
           if (staffData.success && attendData.success) {
             processData(staffData.staff, attendData.attendance);
           }
-          
-          document.getElementById('onlineStatus').className = 'bg-green-500/20 px-2 py-0.5 rounded text-green-700 dark:text-green-400 animate-pulse';
-          document.getElementById('onlineStatus').innerText = 'Live Update';
+
+          setOnlineStatus(true);
         } catch (error) {
           console.error('Error fetching data:', error);
-          document.getElementById('onlineStatus').className = 'bg-red-500/20 px-2 py-0.5 rounded text-red-700 dark:text-red-400';
-          document.getElementById('onlineStatus').innerText = 'Offline';
+          setOnlineStatus(false);
         } finally {
           isLoading = false;
           loading.classList.add('hidden');
@@ -489,6 +561,7 @@
             mergedData.push({
               ...staff,
               isPresent: !!attendRecord,
+              attendStatus: attendRecord ? attendRecord.status : null,
               timestamp: attendRecord ? attendRecord.timestamp : null
             });
           }
@@ -511,10 +584,15 @@
         const absent = total - present;
         const rate = total > 0 ? Math.round((present / total) * 100) : 0;
 
-        animateValue('statTotal', parseInt(document.getElementById('statTotal').innerText), total, 800);
-        animateValue('statPresent', parseInt(document.getElementById('statPresent').innerText), present, 800);
-        animateValue('statAbsent', parseInt(document.getElementById('statAbsent').innerText), absent, 800);
+        animateValue('statTotal', parseInt(document.getElementById('statTotal').innerText) || 0, total, 800);
+        animateValue('statPresent', parseInt(document.getElementById('statPresent').innerText) || 0, present, 800);
+        animateValue('statAbsent', parseInt(document.getElementById('statAbsent').innerText) || 0, absent, 800);
         document.getElementById('statRate').innerText = `${rate}%`;
+        document.getElementById('statRateBar').style.width = `${rate}%`;
+
+        document.getElementById('segAllCount').textContent = total;
+        document.getElementById('segPresentCount').textContent = present;
+        document.getElementById('segAbsentCount').textContent = absent;
       }
 
       function animateValue(id, start, end, duration) {
@@ -527,7 +605,7 @@
         let startTime = new Date().getTime();
         let endTime = startTime + duration;
         let timer;
-      
+
         function run() {
           let now = new Date().getTime();
           let remaining = Math.max((endTime - now) / duration, 0);
@@ -535,7 +613,7 @@
           obj.innerHTML = value;
           if (value == end) clearInterval(timer);
         }
-        
+
         timer = setInterval(run, stepTime);
         run();
       }
@@ -543,7 +621,7 @@
       function renderData(data) {
         const tbody = document.getElementById('tableBody');
         const cards = document.getElementById('cardsBody');
-        
+
         tbody.innerHTML = '';
         cards.innerHTML = '';
 
@@ -555,54 +633,38 @@
 
         data.forEach(item => {
           const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit'}) : '-';
-          
+          const isWakil = (item.attendStatus || '').toUpperCase() === 'WAKIL';
+
           const statusBadge = item.isPresent
-            ? `<span class="status-badge bg-green-500 text-white shadow-md"><i class="fas fa-check-circle"></i> HADIR</span>`
-            : `<span class="status-badge badge-pending"><i class="far fa-clock"></i> BELUM</span>`;
+            ? `<span class="badge tone-green"><i class="ri-checkbox-circle-fill"></i>${isWakil ? 'WAKIL' : 'HADIR'}</span>`
+            : `<span class="badge tone-neutral"><i class="ri-time-line"></i>BELUM</span>`;
 
-          const rowClass = item.isPresent
-            ? 'row-present'
-            : 'row-pending';
-
-          // Table Row - HIDDEN ID, ADDED LOCATION
           tbody.innerHTML += `
-            <tr class="transition-colors ${rowClass}">
-              <td class="p-4">
-                <div class="font-bold text-primary text-sm">${item.name}</div>
+            <tr class="${item.isPresent ? 'is-present' : ''}">
+              <td><div class="cell-title">${item.name}</div></td>
+              <td>
+                <div class="cell-muted">${item.position || '-'}</div>
+                <div class="cell-sub"><i class="ri-map-pin-line"></i>${item.location || '-'}</div>
               </td>
-              <td class="p-4">
-                <div class="text-[10px] font-medium text-secondary uppercase">${item.position || '-'}</div>
-                <div class="text-[10px] font-medium text-secondary opacity-70 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${item.location || '-'}</div>
-              </td>
-              <td class="p-4 text-center">${statusBadge}</td>
-              <td class="p-4 text-right text-[8px] font-mono font-bold text-secondary">${timeStr}</td>
+              <td class="center">${statusBadge}</td>
+              <td class="right cell-time">${timeStr}</td>
             </tr>
           `;
 
-          // Card - HIDDEN ID, ADDED LOCATION
           cards.innerHTML += `
-            <div class="glass-card p-4 border-l-4 ${item.isPresent ? 'card-present' : 'card-pending'}">
-              <div class="flex justify-between items-start mb-3">
-                <div class="pr-2">
-                  <h4 class="font-bold text-primary text-sm leading-tight mb-1">${item.name}</h4>
-                </div>
-                <div class="flex-shrink-0">${statusBadge}</div>
-              </div>
-              
-              <div class="space-y-1">
-                 <div class="text-[11px] text-secondary font-medium uppercase tracking-wide">
-                  <i class="fas fa-briefcase mr-1 opacity-50"></i> ${item.position || '-'}
-                </div>
-                <div class="text-[11px] text-secondary opacity-70 font-medium">
-                  <i class="fas fa-map-marker-alt mr-1 opacity-50"></i> ${item.location || '-'}
+            <div class="item ${item.isPresent ? 'is-present' : ''}">
+              <span class="item-dot" aria-hidden="true"></span>
+              <div class="item-main">
+                <h4 class="item-title">${item.name}</h4>
+                <div class="item-meta">
+                  <span class="truncate"><i class="ri-briefcase-line"></i>${item.position || '-'}</span>
+                  <span class="truncate"><i class="ri-map-pin-line"></i>${item.location || '-'}</span>
                 </div>
               </div>
-
-              ${item.isPresent ? `
-                <div class="flex items-center justify-end gap-2 text-[8px] text-gray-500 dark:text-gray-400 font-bold font-mono mt-1 opacity-80">
-                  <i class="fas fa-history"></i> MASA REKOD: ${timeStr}
-                </div>
-              ` : ''}
+              <div class="item-side">
+                ${statusBadge}
+                ${item.isPresent ? `<span class="cell-time">${timeStr}</span>` : ''}
+              </div>
             </div>
           `;
         });
@@ -620,26 +682,28 @@
         renderData(filtered);
       }
 
+      // Stat tiles toggle their filter; the segmented control sets it directly.
       function quickFilterAttendance(status) {
-        statusFilter = statusFilter === status ? '' : status;
-        updateStatCardActiveState();
+        setStatusFilter(statusFilter === status ? '' : status);
+      }
+
+      function setStatusFilter(status) {
+        statusFilter = status;
+        updateFilterState();
         filterData();
       }
 
-      function updateStatCardActiveState() {
-        const cardIds = {
-          present: 'statCardPresent',
-          absent: 'statCardAbsent',
-        };
-        Object.values(cardIds).forEach(id => {
+      function updateFilterState() {
+        const tiles = { present: 'statCardPresent', absent: 'statCardAbsent' };
+        Object.entries(tiles).forEach(([key, id]) => {
           const el = document.getElementById(id);
-          if (el) el.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-400');
+          el.classList.toggle('is-active', statusFilter === key);
+          el.setAttribute('aria-pressed', statusFilter === key ? 'true' : 'false');
         });
-        const activeId = cardIds[statusFilter];
-        if (activeId) {
-          const el = document.getElementById(activeId);
-          if (el) el.classList.add('ring-2', 'ring-offset-2', 'ring-blue-400');
-        }
+        const segs = { '': 'segAll', present: 'segPresent', absent: 'segAbsent' };
+        Object.entries(segs).forEach(([key, id]) => {
+          document.getElementById(id).classList.toggle('is-active', statusFilter === key);
+        });
       }
     </script>
   </body>
