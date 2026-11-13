@@ -39,12 +39,12 @@ function detectGenderFromName(name) {
 
 function getGenderIcon(jantina) {
   if (jantina === "L") {
-    return '<i class="fas fa-mars text-blue-400" title="Lelaki"></i>';
+    return '<i class="ri-men-line text-blue" title="Lelaki"></i>';
   }
   if (jantina === "P") {
-    return '<i class="fas fa-venus text-pink-400" title="Perempuan"></i>';
+    return '<i class="ri-women-line text-pink" title="Perempuan"></i>';
   }
-  return '<i class="fas fa-genderless text-gray-600" title="Tidak diketahui"></i>';
+  return '<i class="ri-user-line faint" title="Tidak diketahui"></i>';
 }
 
 // ============================================
@@ -363,23 +363,25 @@ function renderStaffTable() {
   currentPageData.forEach((staff) => {
     const isSelected = selectedStaffIds.has(staff.id);
     const row = document.createElement("tr");
-    if (isSelected) row.className = "bg-blue-600/20";
+    if (isSelected) row.className = "is-selected";
 
     row.innerHTML = `
-      <td class="p-4 text-center">
-        <input type="checkbox" onchange="toggleStaffSelection('${staff.id}')" ${isSelected ? "checked" : ""} class="w-4 h-4 rounded cursor-pointer" />
+      <td class="center">
+        <input type="checkbox" onchange="toggleStaffSelection('${staff.id}')" ${isSelected ? "checked" : ""} aria-label="Pilih ${staff.name}" />
       </td>
-      <td class="p-4 font-mono font-medium text-blue-400 text-xs">${staff.id}</td>
-      <td class="p-4 font-semibold text-white">${staff.name}</td>
-      <td class="p-4 text-[11px] font-medium text-gray-400">${staff.position || "-"}</td>
-      <td class="p-4 text-[11px] font-medium text-gray-400">${staff.location || "-"}</td>
-      <td class="p-4 text-[11px] font-medium text-gray-400">${staff.unit || "-"}</td>
-      <td class="p-4 text-center text-base">${getGenderIcon(staff.jantina)}</td>
-      <td class="p-4 text-center">${getInvitationToggle(staff)}</td>
-      <td class="p-4 text-center">${getStatusBadge(staff.status)}</td>
-      <td class="p-4 text-center whitespace-nowrap">
-        <button onclick="showEditStaffModal('${staff.id}')" class="p-2 text-blue-400/70 hover:text-blue-400 transition-all"><i class="fas fa-edit"></i></button>
-        <button onclick="deleteStaffConfirm('${staff.id}')" class="p-2 text-red-500/70 hover:text-red-500 transition-all"><i class="fas fa-trash"></i></button>
+      <td class="mono cell-muted">${staff.id}</td>
+      <td class="cell-title">${staff.name}</td>
+      <td class="cell-muted">${staff.position || "-"}</td>
+      <td class="cell-muted">${staff.location || "-"}</td>
+      <td class="cell-muted">${staff.unit || "-"}</td>
+      <td class="center">${getGenderIcon(staff.jantina)}</td>
+      <td class="center">${getInvitationToggle(staff)}</td>
+      <td class="center">${getStatusBadge(staff.status)}</td>
+      <td class="right">
+        <div class="row-actions">
+          <button onclick="showEditStaffModal('${staff.id}')" class="btn btn-plain btn-xs btn-icon" title="Edit" aria-label="Edit"><i class="ri-pencil-line"></i></button>
+          <button onclick="deleteStaffConfirm('${staff.id}')" class="btn btn-plain is-danger btn-xs btn-icon" title="Padam" aria-label="Padam"><i class="ri-delete-bin-line"></i></button>
+        </div>
       </td>
     `;
     tbody.appendChild(row);
@@ -399,36 +401,30 @@ function renderStaffCards() {
   currentPageData.forEach((staff) => {
     const isSelected = selectedStaffIds.has(staff.id);
     const card = document.createElement("div");
-    card.className = `staff-card glass-card p-4 ${isSelected ? "selected" : ""}`;
+    card.className = `item ${isSelected ? "is-selected" : ""}`;
     card.onclick = (e) => {
-      if (
-        e.target.tagName !== "BUTTON" &&
-        e.target.tagName !== "I" &&
-        e.target.tagName !== "INPUT"
-      ) {
+      if (!e.target.closest("button, input, a")) {
         toggleStaffSelection(staff.id);
       }
     };
 
     card.innerHTML = `
-      <div class="flex justify-between items-start mb-3">
-        <div class="flex items-center gap-3">
-          <input type="checkbox" ${isSelected ? "checked" : ""} class="w-5 h-5 rounded cursor-pointer" onclick="event.stopPropagation(); toggleStaffSelection('${staff.id}')" />
-          <div>
-            <span class="text-[9px] font-bold text-blue-400/80 block uppercase tracking-wider">${staff.id}</span>
-            <h4 class="font-bold text-white text-sm leading-tight">${getGenderIcon(staff.jantina)} ${staff.name}</h4>
-          </div>
+      <div class="item-head">
+        <input type="checkbox" ${isSelected ? "checked" : ""} onclick="event.stopPropagation(); toggleStaffSelection('${staff.id}')" aria-label="Pilih ${staff.name}" />
+        <div class="item-main">
+          <h4 class="item-title">${getGenderIcon(staff.jantina)} ${staff.name}</h4>
+          <div class="item-sub mono">${staff.id}</div>
         </div>
-        <div class="flex items-center gap-2">${getStatusBadge(staff.status)}${getInvitationToggle(staff)}</div>
+        <div class="item-side">${getStatusBadge(staff.status)}${getInvitationToggle(staff)}</div>
       </div>
-      <div class="grid grid-cols-1 gap-1.5 mb-4 text-[10px] text-gray-400 font-medium">
-        <div class="flex items-center gap-2"><i class="fas fa-briefcase w-3 opacity-40"></i> ${staff.position || "-"}</div>
-        <div class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-3 opacity-40"></i> ${staff.location || "-"}</div>
-        <div class="flex items-center gap-2"><i class="fas fa-building w-3 opacity-40"></i> ${staff.unit || "-"}</div>
+      <div class="item-meta">
+        <span class="truncate"><i class="ri-briefcase-line"></i>${staff.position || "-"}</span>
+        <span class="truncate"><i class="ri-map-pin-line"></i>${staff.location || "-"}</span>
+        <span class="truncate"><i class="ri-building-line"></i>${staff.unit || "-"}</span>
       </div>
-      <div class="flex gap-2 pt-3 border-t border-white/5">
-        <button onclick="event.stopPropagation(); showEditStaffModal('${staff.id}')" class="flex-1 py-1.5 rounded-md bg-blue-500/10 text-blue-400 text-[9px] font-bold uppercase tracking-wider border border-blue-500/20"><i class="fas fa-edit mr-1 opacity-70"></i> Edit</button>
-        <button onclick="event.stopPropagation(); deleteStaffConfirm('${staff.id}')" class="flex-1 py-1.5 rounded-md bg-red-500/10 text-red-400 text-[9px] font-bold uppercase tracking-wider border border-red-500/20"><i class="fas fa-trash mr-1 opacity-70"></i> Padam</button>
+      <div class="item-actions">
+        <button onclick="event.stopPropagation(); showEditStaffModal('${staff.id}')" class="btn btn-secondary btn-xs"><i class="ri-pencil-line"></i>Edit</button>
+        <button onclick="event.stopPropagation(); deleteStaffConfirm('${staff.id}')" class="btn btn-soft-red btn-xs"><i class="ri-delete-bin-line"></i>Padam</button>
       </div>
     `;
     container.appendChild(card);
@@ -440,10 +436,10 @@ function renderStaffCards() {
 // ============================================
 function getStatusBadge(status) {
   if (status === "JEMPUTAN") {
-    return '<span class="status-badge bg-green-500/20 text-green-400">JEMPUTAN</span>';
+    return '<span class="badge badge-dot tone-green">JEMPUTAN</span>';
   }
   if (status === "WAKIL") {
-    return '<span class="status-badge bg-blue-500/20 text-blue-400">WAKIL</span>';
+    return '<span class="badge badge-dot tone-orange">WAKIL</span>';
   }
   if (
     !status ||
@@ -451,9 +447,9 @@ function getStatusBadge(status) {
     status === "" ||
     status === "TIADA JEMPUTAN"
   ) {
-    return '<span class="status-badge bg-purple-500/20 text-purple-400">TIADA JEMPUTAN</span>';
+    return '<span class="badge tone-purple">TIADA JEMPUTAN</span>';
   }
-  return '<span class="status-badge bg-gray-500/20 text-gray-400">PILIH...</span>';
+  return '<span class="badge tone-neutral">PILIH...</span>';
 }
 
 // ============================================
@@ -464,10 +460,7 @@ function getStatusBadge(status) {
 function getInvitationToggle(staff) {
   const invited = staff.status === "JEMPUTAN";
   const title = invited ? "Buang jemputan" : "Tandakan sebagai jemputan";
-  const cls = invited
-    ? "bg-green-500 border-green-500 text-white"
-    : "bg-transparent border-gray-500 text-transparent hover:border-green-400";
-  return `<button type="button" title="${title}" onclick="event.stopPropagation(); toggleInvitation('${staff.id}')" class="inline-flex items-center justify-center w-6 h-6 rounded-md border-2 transition-all ${cls}"><i class="fas fa-check text-[11px]"></i></button>`;
+  return `<button type="button" title="${title}" aria-label="${title}" aria-pressed="${invited}" onclick="event.stopPropagation(); toggleInvitation('${staff.id}')" class="tick ${invited ? "is-on" : ""}"><i class="ri-check-line"></i></button>`;
 }
 
 async function toggleInvitation(staffId) {
@@ -754,27 +747,8 @@ function setModalJantina(value) {
 
   if (elHidden) elHidden.value = value;
 
-  // Inline styles are used (rather than Tailwind utility classes) because
-  // this modal's .glass-input dark-mode rule outranks single-class Tailwind
-  // utilities in specificity and would otherwise silently win the cascade.
-  if (elBtnL) {
-    if (value === "L") {
-      elBtnL.style.borderColor = "#3b82f6";
-      elBtnL.style.color = "#60a5fa";
-    } else {
-      elBtnL.style.borderColor = "";
-      elBtnL.style.color = "";
-    }
-  }
-  if (elBtnP) {
-    if (value === "P") {
-      elBtnP.style.borderColor = "#ec4899";
-      elBtnP.style.color = "#f472b6";
-    } else {
-      elBtnP.style.borderColor = "";
-      elBtnP.style.color = "";
-    }
-  }
+  if (elBtnL) elBtnL.classList.toggle("is-male", value === "L");
+  if (elBtnP) elBtnP.classList.toggle("is-female", value === "P");
 }
 
 // Auto-suggests jantina from the name (BIN/BINTI) while the user is typing
@@ -873,44 +847,29 @@ async function deleteStaffConfirm(staffId) {
 // TOAST NOTIFICATION
 // ============================================
 function showToast(message, type = "info") {
-  const toast = document.createElement("div");
-  toast.className = `fixed top-4 right-4 z-[9999] glass-card p-4 rounded-xl shadow-2xl max-w-sm border-l-4 transition-all duration-300 transform translate-x-full`;
-
-  const colors = {
-    success: "border-green-500 bg-green-500/10",
-    error: "border-red-500 bg-red-500/10",
-    warning: "border-yellow-500 bg-yellow-500/10",
-    info: "border-blue-500 bg-blue-500/10",
-  };
   const icons = {
-    success: "fa-check-circle text-green-500",
-    error: "fa-exclamation-circle text-red-500",
-    warning: "fa-exclamation-triangle text-yellow-500",
-    info: "fa-info-circle text-blue-500",
+    success: "ri-checkbox-circle-fill text-green",
+    error: "ri-error-warning-fill text-red",
+    warning: "ri-alert-fill text-orange",
+    info: "ri-information-fill text-blue",
   };
 
-  toast.classList.add(...(colors[type] || colors.info).split(" "));
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.setAttribute("role", "status");
   toast.innerHTML = `
-    <div class="flex items-center gap-3">
-      <i class="fas ${icons[type] || icons.info} text-xl"></i>
-      <div class="flex-1">
-        <p class="text-sm font-bold text-white">${message}</p>
-      </div>
-      <button onclick="this.parentElement.parentElement.remove()" class="text-white/50 hover:text-white transition-all">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
+    <i class="${icons[type] || icons.info}"></i>
+    <p></p>
+    <button type="button" class="btn btn-plain btn-xs btn-icon" aria-label="Tutup"><i class="ri-close-line"></i></button>
   `;
+  toast.querySelector("p").textContent = message;
+  toast.querySelector("button").onclick = () => toast.remove();
 
   document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add("show"));
 
-  // Animation
-  setTimeout(() => toast.classList.remove("translate-x-full"), 10);
-
-  // Auto remove
   setTimeout(() => {
-    toast.classList.add("translate-x-full");
-    toast.style.opacity = "0";
-    setTimeout(() => toast.remove(), 300);
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 250);
   }, 5000);
 }
