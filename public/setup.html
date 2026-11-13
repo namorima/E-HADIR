@@ -310,6 +310,11 @@
         box-shadow: 0 0 0 3px rgb(59 130 246 / 0.18);
       }
       .input:disabled { opacity: .6; cursor: not-allowed; }
+      /* iOS Safari zooms into any field whose text is under 16px. Use 16px
+         on touch-sized screens so tapping search/inputs doesn't zoom. */
+      @media (max-width: 767px) {
+        .input, .select, .rank-input { font-size: 16px !important; }
+      }
       .input::-webkit-calendar-picker-indicator { opacity: .35; cursor: pointer; }
       .dark-mode .input::-webkit-calendar-picker-indicator { filter: invert(1); }
       .input-md { height: 36px; border-radius: 10px; font-size: 14px; }
