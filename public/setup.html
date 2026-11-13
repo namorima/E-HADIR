@@ -121,7 +121,9 @@
 
       /* ===== Base ========================================================= */
       *, *::before, *::after { box-sizing: border-box; }
-      html { -webkit-text-size-adjust: 100%; background: var(--bg-page); }
+      /* clip (not hidden) so nothing can widen the page sideways on iOS
+         Safari, without making body a scroll container (keeps sticky working). */
+      html { -webkit-text-size-adjust: 100%; background: var(--bg-page); overflow-x: clip; }
       body {
         margin: 0;
         min-height: 100vh;
@@ -131,7 +133,7 @@
         color: var(--text-primary);
         background: var(--bg-page);
         -webkit-font-smoothing: antialiased;
-        overflow-x: hidden;
+        overflow-x: clip;
       }
       button, input, select { font: inherit; color: inherit; }
       h1, h2, h3, h4, p { margin: 0; }
@@ -467,8 +469,12 @@
         display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 6px;
         font-size: 12px; line-height: 16px; color: var(--text-secondary);
       }
-      .item-meta span { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
-      .item-meta i { font-size: 13px; color: var(--icon-tertiary); }
+      /* Long positions/locations wrap instead of forcing one wide line. */
+      .item-meta span {
+        display: inline-flex; align-items: flex-start; gap: 4px; min-width: 0; max-width: 100%;
+        white-space: normal; overflow-wrap: anywhere;
+      }
+      .item-meta i { flex: none; font-size: 13px; line-height: 16px; color: var(--icon-tertiary); }
       .item-actions {
         display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px;
         margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
