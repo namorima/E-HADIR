@@ -1,4 +1,10 @@
-import { recordAttendance, updateAttendance } from "../../../lib/db.js";
+import {
+  recordAttendance,
+  updateAttendance,
+  getActiveEvent,
+  getEventById,
+  initEventsTable,
+} from "../../../lib/db.js";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -10,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    const { attendId, staffId, name, status, acara } = req.body;
+    const { attendId, staffId, name, status, acara, eventId } = req.body;
 
     if (!staffId && !attendId) {
       return res
@@ -20,19 +26,29 @@ export default async function handler(req, res) {
 
     if (attendId) {
       // Update existing
-      await updateAttendance(attendId, { name, status, acara });
+      await updateAttendance(attendId, { name, status, acara: acara || "" });
       return res.json({ success: true, message: "Attendance updated" });
-    } else {
-      // Create new
-      await recordAttendance({
-        staffId,
-        name,
-        status: status || "HADIR", // Default if missing
-        acara: acara || "",
-        timestamp: new Date().toISOString(),
-      });
-      return res.json({ success: true, message: "Attendance recorded" });
     }
+
+    // Create new: attach it to the event the admin is viewing (falling back
+    // to the active event) so it shows up in that event's list.
+    await initEventsTable();
+    const event = eventId ? await getEventById(eventId) : await getActiveEvent();
+    if (!event) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Event tidak dijumpai" });
+    }
+
+    await recordAttendance({
+      staffId,
+      name,
+      status: status || "HADIR", // Default if missing
+      acara: acara || event.title || "",
+      timestamp: new Date().toISOString(),
+      eventId: event.id,
+    });
+    return res.json({ success: true, message: "Attendance recorded" });
   } catch (error) {
     console.error("Error processing admin attendance:", error);
     return res.status(500).json({ success: false, error: "Operation failed" });

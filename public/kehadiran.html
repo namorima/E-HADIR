@@ -558,9 +558,13 @@
 
           // Show if Invited OR is a Wakil (even if not invited)
           if (isInvited || isWakil) {
+            // An auto-marked TIDAK HADIR row (event date passed, never
+            // checked in) is a record, but not attendance.
+            const isAbsent = !!attendRecord && (attendRecord.status || '').toUpperCase() === 'TIDAK HADIR';
             mergedData.push({
               ...staff,
-              isPresent: !!attendRecord,
+              isPresent: !!attendRecord && !isAbsent,
+              isAbsent,
               attendStatus: attendRecord ? attendRecord.status : null,
               timestamp: attendRecord ? attendRecord.timestamp : null
             });
@@ -637,7 +641,9 @@
 
           const statusBadge = item.isPresent
             ? `<span class="badge tone-green"><i class="ri-checkbox-circle-fill"></i>${isWakil ? 'WAKIL' : 'HADIR'}</span>`
-            : `<span class="badge tone-neutral"><i class="ri-time-line"></i>BELUM</span>`;
+            : item.isAbsent
+              ? `<span class="badge tone-red"><i class="ri-close-circle-fill"></i>TIDAK HADIR</span>`
+              : `<span class="badge tone-neutral"><i class="ri-time-line"></i>BELUM</span>`;
 
           tbody.innerHTML += `
             <tr class="${item.isPresent ? 'is-present' : ''}">

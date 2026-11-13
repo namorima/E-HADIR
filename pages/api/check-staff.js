@@ -7,6 +7,7 @@ import {
   getLastAttendance,
   getActiveEvent,
   initEventsTable,
+  ABSENT_STATUS,
 } from "../../lib/db.js";
 
 export default async function handler(req, res) {
@@ -37,7 +38,9 @@ export default async function handler(req, res) {
       ? await getLastAttendance(idStaf, activeEvent.id)
       : null;
 
-    if (lastRecord) {
+    // An auto-marked TIDAK HADIR row doesn't block a late check-in;
+    // recordAttendance() converts it to HADIR/WAKIL.
+    if (lastRecord && lastRecord.status !== ABSENT_STATUS) {
       // Format timestamp for display
       const lastDate = formatDateTime(new Date(lastRecord.timestamp));
       const staffName = lastRecord.name;
