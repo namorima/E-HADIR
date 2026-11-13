@@ -1,5 +1,10 @@
 // pages/api/bulk-update-staff.js
-import { bulkUpdateStaffStatus, initStaffTables } from "../../lib/db";
+import {
+  bulkUpdateStaffStatus,
+  initStaffTables,
+  initEventsTable,
+  syncActiveEventInvitations,
+} from "../../lib/db";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -27,7 +32,10 @@ export default async function handler(req, res) {
 
   try {
     await initStaffTables();
+    await initEventsTable();
     await bulkUpdateStaffStatus(ids, value);
+    // JEMPUTAN / TIADA / WAKIL here means invited or not to the active event.
+    await syncActiveEventInvitations(ids, value);
     return res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error in bulk update:", error);

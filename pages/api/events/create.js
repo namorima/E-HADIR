@@ -1,5 +1,9 @@
 // pages/api/events/create.js
-import { initEventsTable, createEvent } from "../../../lib/db";
+import {
+  initEventsTable,
+  createEvent,
+  ensureEventInvitations,
+} from "../../../lib/db";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -20,6 +24,8 @@ export default async function handler(req, res) {
 
     await initEventsTable();
     const id = await createEvent(req.body);
+    // New events start with the current invitation list (copied forward).
+    await ensureEventInvitations(id);
 
     return res.status(200).json({ success: true, id });
   } catch (error) {

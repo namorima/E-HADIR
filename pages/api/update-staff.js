@@ -1,7 +1,12 @@
 // pages/api/update-staff.js
 // Update staff data - MIGRATED TO NEON DB
 
-import { updateStaff, getStaffById } from "../../lib/db";
+import {
+  updateStaff,
+  getStaffById,
+  initEventsTable,
+  syncActiveEventInvitations,
+} from "../../lib/db";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -44,6 +49,12 @@ export default async function handler(req, res) {
       status: status || existing.status,
       jantina: jantina || existing.jantina,
     });
+
+    // The staff modal's status is invitation to the active event.
+    if (status) {
+      await initEventsTable();
+      await syncActiveEventInvitations([id], status);
+    }
 
     return res.status(200).json({
       success: true,

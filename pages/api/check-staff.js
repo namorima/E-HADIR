@@ -8,6 +8,7 @@ import {
   getActiveEvent,
   initEventsTable,
   ABSENT_STATUS,
+  ensureEventInvitations,
 } from "../../lib/db.js";
 
 export default async function handler(req, res) {
@@ -57,7 +58,12 @@ export default async function handler(req, res) {
 
     if (staff) {
       // Check if staff is in invitation list
-      const dalamJemputan = await checkInvitation(idStaf);
+      // Invited to the active event specifically.
+      let dalamJemputan = false;
+      if (activeEvent) {
+        await ensureEventInvitations(activeEvent.id);
+        dalamJemputan = await checkInvitation(idStaf, activeEvent.id);
+      }
 
       return res.status(200).json({
         status: "success",

@@ -1,7 +1,12 @@
 // pages/api/get-staff.js
 // Get all staff data - MIGRATED TO NEON DB
 
-import { getAllStaff } from "../../lib/db";
+import {
+  getAllStaff,
+  getActiveEvent,
+  initEventsTable,
+  ensureEventInvitations,
+} from "../../lib/db";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -17,7 +22,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const staffData = await getAllStaff();
+    // `status` is relative to ?event_id= (default: the active event), so
+    // JEMPUTAN means "invited to that event".
+    await initEventsTable();
+    const active = await getActiveEvent();
+    if (active) await ensureEventInvitations(active.id);
+    const eventId = req.query.event_id || (active ? active.id : null);
+    const staffData = await getAllStaff(eventId);
 
     // Transform to match expected format
     const staff = staffData.map((row, index) => ({

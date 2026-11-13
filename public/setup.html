@@ -730,6 +730,7 @@
 
         <!-- ============ Tab: Data Staf ============ -->
         <section id="tabContentDataStaf" class="tab-content hidden">
+          <p id="staffInviteContext" class="hint" style="margin-bottom:8px"></p>
           <div class="stats">
             <button type="button" class="stat" onclick="quickFilterStaff('')">
               <span class="stat-icon tone-blue"><i class="ri-team-line"></i></span>
@@ -1397,6 +1398,7 @@
           if (data.success) {
             allEvents = data.events || [];
             activeEventId = data.activeEventId;
+            updateStaffInviteContext();
             renderEventsList(allEvents);
             populateAttendEventFilter();
           } else {
@@ -1407,6 +1409,16 @@
         } finally {
           if (loading) loading.classList.add('hidden');
         }
+      }
+
+      // Tab Staf's Jemput ticks and JEMPUTAN status are for the active event.
+      function updateStaffInviteContext() {
+        const el = document.getElementById('staffInviteContext');
+        if (!el) return;
+        const ev = allEvents.find(e => e.id === activeEventId);
+        el.innerHTML = ev
+          ? `<i class="ri-information-line"></i> Jemputan untuk event aktif: <strong>${ev.title || '-'}</strong>${ev.date ? ' · ' + ev.date : ''}`
+          : 'Tiada event aktif — jemputan tidak dapat disimpan.';
       }
 
       function filterEventsAdmin() {
@@ -1769,8 +1781,9 @@
             : '/api/attendance/list';
 
           // Fetch BOTH Staff and Attendance Validation
+          // Invitation status (JEMPUTAN) is per event, so ask for this one's.
           const [staffRes, attendRes] = await Promise.all([
-            fetch('/api/get-staff'),
+            fetch(eventId ? `/api/get-staff?event_id=${encodeURIComponent(eventId)}` : '/api/get-staff'),
             fetch(attendUrl)
           ]);
 
@@ -1889,7 +1902,7 @@
         }
         try {
           const [staffRes, attendRes] = await Promise.all([
-            fetch('/api/get-staff'),
+            fetch(`/api/get-staff?event_id=${encodeURIComponent(eventId)}`),
             fetch(`/api/attendance/list?event_id=${encodeURIComponent(eventId)}`)
           ]);
           const staffData = await staffRes.json();

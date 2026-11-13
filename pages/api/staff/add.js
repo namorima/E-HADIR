@@ -6,6 +6,8 @@ import {
   getStaffById,
   recordAttendance,
   detectGender,
+  getActiveEvent,
+  initEventsTable,
 } from "../../../lib/db.js";
 
 // ENCIK for lelaki (BIN), PUAN for perempuan (BINTI)
@@ -58,11 +60,18 @@ export default async function handler(req, res) {
     // Record attendance immediately
     const now = new Date();
 
+    // Attach the check-in to the active event; without event_id the row
+    // never shows in any event's attendance list.
+    await initEventsTable();
+    const activeEvent = await getActiveEvent();
+
     await recordAttendance({
       staffId: idStaf,
       name: nama,
       status: "WAKIL",
       timestamp: now,
+      acara: activeEvent ? activeEvent.title || "" : "",
+      eventId: activeEvent ? activeEvent.id : null,
     });
 
     const jantina = detectGender(nama);

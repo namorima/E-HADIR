@@ -1,12 +1,13 @@
 // pages/api/attendance/mark-absent.js
 // Once the active event's date has passed (Asia/Kuala_Lumpur), records
-// TIDAK HADIR for every invited staff member who never checked in.
+// TIDAK HADIR for every staff member invited to it who never checked in.
 // Called by setup.html when an admin opens it; safe to call repeatedly.
 
 import {
   getActiveEvent,
   initEventsTable,
   markAbsentForEvent,
+  ensureEventInvitations,
 } from "../../../lib/db.js";
 
 // Event dates are stored as free text, normally dd/mm/yyyy (setup.html's
@@ -56,6 +57,7 @@ export default async function handler(req, res) {
       return res.json({ success: true, marked: 0, reason: "not_past", eventId: event.id });
     }
 
+    await ensureEventInvitations(event.id);
     const marked = await markAbsentForEvent(event.id, event.title);
     return res.json({ success: true, marked, eventId: event.id, eventTitle: event.title });
   } catch (error) {

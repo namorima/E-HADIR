@@ -1,5 +1,9 @@
 // pages/api/events/activate.js
-import { initEventsTable, setActiveEvent } from "../../../lib/db";
+import {
+  initEventsTable,
+  setActiveEvent,
+  ensureEventInvitations,
+} from "../../../lib/db";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -18,6 +22,8 @@ export default async function handler(req, res) {
 
     await initEventsTable();
     await setActiveEvent(id);
+    // Seeds only if this event has never had an invitation list.
+    await ensureEventInvitations(id);
 
     return res.status(200).json({ success: true });
   } catch (error) {
