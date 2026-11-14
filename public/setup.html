@@ -1580,6 +1580,14 @@
           return;
         }
 
+        // Unticking "Aktifkan borang kehadiran" on an event whose form is open
+        // closes it, which marks its un-attended invitees TIDAK HADIR.
+        const editing = mode === 'edit' ? allEvents.find(e => e.id === id) : null;
+        if (editing && editing.status !== 'off' && settings.status === 'off' && !confirm(
+          `Borang kehadiran "${settings.title}" akan DITUTUP.\n\n` +
+          'Staf jemputan event ini yang belum daftar akan ditanda TIDAK HADIR (boleh diubah di tab Kehadiran). Teruskan?'
+        )) return;
+
         // A new event becomes active and ends the current one.
         const current = allEvents.find(e => e.id === activeEventId);
         if (mode === 'add' && current && !confirm(
@@ -1619,11 +1627,12 @@
         }
       }
 
-      // After create/activate: how many of the ended event's invitees were
-      // marked TIDAK HADIR.
+      // After create/activate/closing a form: how many of that event's
+      // invitees were marked TIDAK HADIR.
       function notifyMarkedAbsent(data) {
         if (data && data.markedAbsent > 0) {
-          showToast(`${data.markedAbsent} staf jemputan "${data.previousEventTitle || 'event sebelum'}" ditanda TIDAK HADIR`, 'info');
+          const title = data.previousEventTitle || data.eventTitle || 'event';
+          showToast(`${data.markedAbsent} staf jemputan "${title}" ditanda TIDAK HADIR`, 'info');
         }
       }
 
