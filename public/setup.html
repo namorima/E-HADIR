@@ -357,6 +357,13 @@
       /* ===== Stat tiles =================================================== */
       .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
       @media (min-width: 768px) { .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+      /* Pengurusan Staf has five tiles: one row of five on desktop; on mobile
+         the fifth (Berhenti/Pindah) spans the last row. */
+      .stats.stats-5 > .stat:last-child { grid-column: span 2; }
+      @media (min-width: 768px) {
+        .stats.stats-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+        .stats.stats-5 > .stat:last-child { grid-column: auto; }
+      }
       .stat {
         display: flex; align-items: center; gap: 10px; width: 100%;
         padding: 10px; border-radius: 14px;
@@ -749,7 +756,7 @@
         <!-- ============ Tab: Data Staf ============ -->
         <section id="tabContentDataStaf" class="tab-content hidden">
           <p id="staffInviteContext" class="hint" style="margin-bottom:8px"></p>
-          <div class="stats">
+          <div class="stats stats-5">
             <button type="button" class="stat" onclick="quickFilterStaff('')">
               <span class="stat-icon tone-blue"><i class="ri-team-line"></i></span>
               <span class="stat-body"><span class="stat-label truncate" style="display:block">Total Staf</span><span id="totalStaffCount" class="stat-value" style="display:block">0</span></span>
@@ -765,6 +772,10 @@
             <button type="button" class="stat" onclick="quickFilterStaff('TIADA JEMPUTAN')">
               <span class="stat-icon tone-purple"><i class="ri-user-unfollow-line"></i></span>
               <span class="stat-body"><span class="stat-label truncate" style="display:block">Tiada Jemputan</span><span id="noInvitationStaffCount" class="stat-value" style="display:block">0</span></span>
+            </button>
+            <button type="button" class="stat" onclick="quickFilterStaff('TIDAK AKTIF')" title="Staf berstatus Tidak Aktif">
+              <span class="stat-icon tone-red"><i class="ri-logout-box-r-line"></i></span>
+              <span class="stat-body"><span class="stat-label truncate" style="display:block">Berhenti/Pindah</span><span id="inactiveStaffCount" class="stat-value" style="display:block">0</span></span>
             </button>
           </div>
 
@@ -787,6 +798,7 @@
               <option value="JEMPUTAN">JEMPUTAN</option>
               <option value="WAKIL">WAKIL</option>
               <option value="TIADA JEMPUTAN">TIADA JEMPUTAN</option>
+              <option value="TIDAK AKTIF">BERHENTI/PINDAH</option>
             </select>
             <button onclick="clearStaffFilters()" class="btn btn-secondary"><i class="ri-loop-left-line"></i>Reset</button>
           </div>

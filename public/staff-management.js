@@ -150,14 +150,19 @@ function populateFilterDropdowns() {
 // UPDATE STATS DASHBOARD
 // ============================================
 function updateStaffStats() {
-  const totalStaff = filteredStaffData.length;
-  const invitedStaff = filteredStaffData.filter(
+  // Total / Jemputan / Wakil / Tiada Jemputan count active staff only, so
+  // Total = Jemputan + Wakil + Tiada Jemputan; Tidak Aktif staff are counted
+  // once, under Berhenti/Pindah.
+  const activeStaff = filteredStaffData.filter((s) => s.active !== false);
+  const inactiveStaff = filteredStaffData.length - activeStaff.length;
+  const totalStaff = activeStaff.length;
+  const invitedStaff = activeStaff.filter(
     (s) => s.status === "JEMPUTAN",
   ).length;
-  const proxyStaff = filteredStaffData.filter(
+  const proxyStaff = activeStaff.filter(
     (s) => s.status === "WAKIL",
   ).length;
-  const noInvitationStaff = filteredStaffData.filter(
+  const noInvitationStaff = activeStaff.filter(
     (s) =>
       !s.status ||
       s.status === "TIADA" ||
@@ -169,12 +174,14 @@ function updateStaffStats() {
   const elInvited = document.getElementById("invitedStaffCount");
   const elProxy = document.getElementById("proxyStaffCount");
   const elNoInv = document.getElementById("noInvitationStaffCount");
+  const elInactive = document.getElementById("inactiveStaffCount");
   const elBulk = document.getElementById("bulkSelectedCount");
 
   if (elTotal) elTotal.textContent = totalStaff;
   if (elInvited) elInvited.textContent = invitedStaff;
   if (elProxy) elProxy.textContent = proxyStaff;
   if (elNoInv) elNoInv.textContent = noInvitationStaff;
+  if (elInactive) elInactive.textContent = inactiveStaff;
   if (elBulk) elBulk.textContent = selectedStaffIds.size;
 }
 
@@ -216,7 +223,10 @@ function applyStaffFilters({ keepPage = false } = {}) {
 
     // Invitation filter
     let invitationMatch = true;
-    if (staffFilters.invitation === "TIADA JEMPUTAN") {
+    if (staffFilters.invitation === "TIDAK AKTIF") {
+      // Berhenti/Pindah: staff marked Tidak Aktif
+      invitationMatch = staff.active === false;
+    } else if (staffFilters.invitation === "TIADA JEMPUTAN") {
       invitationMatch =
         !staff.status ||
         staff.status === "TIADA" ||
@@ -225,11 +235,17 @@ function applyStaffFilters({ keepPage = false } = {}) {
     } else if (staffFilters.invitation) {
       invitationMatch = staff.status === staffFilters.invitation;
     }
+    // Jemputan / Wakil / Tiada Jemputan list the active staff their stat
+    // tiles count; Tidak Aktif staff are listed under Berhenti/Pindah.
+    if (staffFilters.invitation && staffFilters.invitation !== "TIDAK AKTIF") {
+      invitationMatch = invitationMatch && staff.active !== false;
+    }
 
     return searchMatch && unitMatch && locationMatch && invitationMatch;
   });
 
   if (staffSortActive) sortFilteredStaff();
+  moveInactiveStaffLast();
   if (!keepPage) currentPage = 1;
   updateStaffStats();
   renderPaginatedStaff();
@@ -701,7 +717,16 @@ function sortStaffTable(column) {
   }
   staffSortActive = true;
   sortFilteredStaff();
+  moveInactiveStaffLast();
   renderPaginatedStaff();
+}
+
+// Tidak Aktif staff always go to the bottom of the list, keeping the
+// current order within each group (Array.prototype.sort is stable).
+function moveInactiveStaffLast() {
+  filteredStaffData.sort(
+    (a, b) => (a.active === false) - (b.active === false),
+  );
 }
 
 function sortFilteredStaff() {
