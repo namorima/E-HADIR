@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { id, name, position, location, unit, status, jantina } = req.body;
+    const { id, name, position, location, unit, status, jantina, active } = req.body;
 
     if (!id || !name) {
       return res.status(400).json({
@@ -32,6 +32,7 @@ export default async function handler(req, res) {
     }
 
     // Check if staff already exists
+    await initEventsTable(); // adds staff.is_active if missing
     const existing = await getStaffById(id);
     if (existing) {
       return res.status(400).json({
@@ -49,10 +50,10 @@ export default async function handler(req, res) {
       unit: unit || "",
       status: status || "",
       jantina: jantina || "",
+      isActive: active !== false,
     });
 
     if (status) {
-      await initEventsTable();
       await syncActiveEventInvitations([id], status);
     }
 

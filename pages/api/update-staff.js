@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { id, name, position, location, unit, status, jantina } = req.body;
+    const { id, name, position, location, unit, status, jantina, active } = req.body;
 
     if (!id) {
       return res.status(400).json({
@@ -32,6 +32,7 @@ export default async function handler(req, res) {
     }
 
     // Check if staff exists
+    await initEventsTable(); // adds staff.is_active if missing
     const existing = await getStaffById(id);
     if (!existing) {
       return res.status(404).json({
@@ -48,11 +49,12 @@ export default async function handler(req, res) {
       unit: unit || existing.unit,
       status: status || existing.status,
       jantina: jantina || existing.jantina,
+      // true/false from the modal's Aktif / Tidak Aktif; omitted = unchanged
+      isActive: typeof active === "boolean" ? active : undefined,
     });
 
     // The staff modal's status is invitation to the active event.
     if (status) {
-      await initEventsTable();
       await syncActiveEventInvitations([id], status);
     }
 

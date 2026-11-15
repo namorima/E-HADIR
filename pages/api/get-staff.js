@@ -38,6 +38,7 @@ export default async function handler(req, res) {
       location: row.location || "",
       unit: row.unit || "",
       jantina: row.jantina || "",
+      active: row.is_active !== false,
       invitation: row.status || "",
       status: row.status || "",
       ranking_order: row.ranking_order || 9999,
