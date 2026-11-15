@@ -369,7 +369,7 @@ function renderStaffTable() {
       <td class="center">
         <input type="checkbox" onchange="toggleStaffSelection('${staff.id}')" ${isSelected ? "checked" : ""} aria-label="Pilih ${staff.name}" />
       </td>
-      <td class="mono cell-muted">${staff.id}</td>
+      <td class="mono cell-muted">${getStaffIdHtml(staff)}</td>
       <td class="cell-title ${staff.active === false ? "staff-inactive" : ""}"${staff.active === false ? ' title="Staf tidak aktif"' : ""}>${staff.name}</td>
       <td class="cell-muted">${staff.position || "-"}</td>
       <td class="cell-muted">${staff.location || "-"}</td>
@@ -413,7 +413,7 @@ function renderStaffCards() {
         <input type="checkbox" ${isSelected ? "checked" : ""} onclick="event.stopPropagation(); toggleStaffSelection('${staff.id}')" aria-label="Pilih ${staff.name}" />
         <div class="item-main">
           <h4 class="item-title ${staff.active === false ? "staff-inactive" : ""}"${staff.active === false ? ' title="Staf tidak aktif"' : ""}>${getGenderIcon(staff.jantina)} ${staff.name}</h4>
-          <div class="item-sub mono">${staff.id}</div>
+          <div class="item-sub mono">${getStaffIdHtml(staff)}</div>
         </div>
         <div class="item-side">${getStatusBadge(staff.status)}${getInvitationToggle(staff)}</div>
       </div>
@@ -463,12 +463,31 @@ function getInvitationToggle(staff) {
   return `<button type="button" title="${title}" aria-label="${title}" aria-pressed="${invited}" onclick="event.stopPropagation(); toggleInvitation('${staff.id}')" class="tick ${invited ? "is-on" : ""}"><i class="ri-check-line"></i></button>`;
 }
 
+// Staff ID; a red badge when the staff member is Tidak Aktif.
+function getStaffIdHtml(staff) {
+  return staff.active === false
+    ? `<span class="badge tone-red mono" title="Staf tidak aktif">${staff.id}</span>`
+    : staff.id;
+}
+
+// Asks before inviting Tidak Aktif staff. Returns true to go ahead.
+function confirmInviteInactive(names) {
+  if (names.length === 0) return true;
+  const list = names.slice(0, 5).map((n) => `• ${n}`).join("\n");
+  const more = names.length > 5 ? `\n• ...dan ${names.length - 5} lagi` : "";
+  return confirm(
+    `AMARAN: ${names.length === 1 ? "Staf ini" : names.length + " staf ini"} berstatus TIDAK AKTIF:\n\n` +
+      `${list}${more}\n\nTeruskan jemput?`,
+  );
+}
+
 async function toggleInvitation(staffId) {
   const staff = allStaffData.find((s) => s.id === staffId);
   if (!staff) return;
 
   const previous = staff.status;
   const next = previous === "JEMPUTAN" ? "TIADA" : "JEMPUTAN";
+  if (next === "JEMPUTAN" && staff.active === false && !confirmInviteInactive([staff.name])) return;
 
   // Optimistic update: re-render in place so the current page/filter stays put.
   staff.status = next;
@@ -559,6 +578,12 @@ function clearBulkSelection() {
 // ============================================
 async function bulkUpdateInvitation(status) {
   if (selectedStaffIds.size === 0) return;
+  if (status === "JEMPUTAN") {
+    const inactive = allStaffData
+      .filter((s) => selectedStaffIds.has(s.id) && s.active === false)
+      .map((s) => s.name);
+    if (!confirmInviteInactive(inactive)) return;
+  }
   if (!confirm(`Setkan ${selectedStaffIds.size} staf kepada ${status}?`))
     return;
 
@@ -790,6 +815,8 @@ async function saveStaffData() {
     showToast("ID dan Nama adalah wajib", "warning");
     return;
   }
+
+  if (status === "JEMPUTAN" && !active && !confirmInviteInactive([name])) return;
 
   const indicator = document.getElementById("staffSaveIndicator");
   if (indicator) indicator.classList.remove("hidden");
