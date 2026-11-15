@@ -11,6 +11,9 @@ let currentPage = 1;
 let rowsPerPage = 10;
 let sortColumn = "name";
 let sortDirection = "asc";
+// Set once the admin clicks a sortable column; the sort is then re-applied
+// whenever the list is filtered or reloaded.
+let staffSortActive = false;
 
 // Staff Management State
 const staffFilters = {
@@ -56,11 +59,18 @@ async function loadStaffData() {
   const cardsContainer = document.getElementById("staffCardsContainer");
   const emptyState = document.getElementById("staffEmptyState");
 
+  // Reloading after a save/delete/bulk action (or switching back to the
+  // tab) refreshes in place: same page, sort and filters, and the list isn't
+  // hidden behind the spinner, so the scroll position doesn't jump.
+  const refreshing = allStaffData.length > 0;
+
   try {
-    if (loadingIndicator) loadingIndicator.classList.remove("hidden");
-    if (tableContainer) tableContainer.classList.add("hidden");
-    if (cardsContainer) cardsContainer.classList.add("hidden");
-    if (emptyState) emptyState.classList.add("hidden");
+    if (!refreshing) {
+      if (loadingIndicator) loadingIndicator.classList.remove("hidden");
+      if (tableContainer) tableContainer.classList.add("hidden");
+      if (cardsContainer) cardsContainer.classList.add("hidden");
+      if (emptyState) emptyState.classList.add("hidden");
+    }
 
     const response = await fetch("/api/get-staff");
     const data = await response.json();
@@ -76,7 +86,7 @@ async function loadStaffData() {
       updateStaffStats();
 
       // Apply current filters and pagination
-      applyStaffFilters();
+      applyStaffFilters({ keepPage: refreshing });
 
       if (loadingIndicator) loadingIndicator.classList.add("hidden");
 
@@ -130,6 +140,10 @@ function populateFilterDropdowns() {
       filterLocation.appendChild(option);
     });
   }
+
+  // Rebuilding the options resets the selects; show the active filters again.
+  if (filterUnit) filterUnit.value = units.includes(staffFilters.unit) ? staffFilters.unit : "";
+  if (filterLocation) filterLocation.value = locations.includes(staffFilters.location) ? staffFilters.location : "";
 }
 
 // ============================================
@@ -178,7 +192,9 @@ function searchStaffData() {
 // ============================================
 // APPLY ALL FILTERS
 // ============================================
-function applyStaffFilters() {
+// keepPage: stay on the current page (clamped to the last page) instead of
+// going back to page 1 — used when reloading after an edit.
+function applyStaffFilters({ keepPage = false } = {}) {
   filteredStaffData = allStaffData.filter((staff) => {
     // Search filter
     const searchMatch =
@@ -213,7 +229,8 @@ function applyStaffFilters() {
     return searchMatch && unitMatch && locationMatch && invitationMatch;
   });
 
-  currentPage = 1;
+  if (staffSortActive) sortFilteredStaff();
+  if (!keepPage) currentPage = 1;
   updateStaffStats();
   renderPaginatedStaff();
 }
@@ -283,6 +300,9 @@ function applyLocationFilter() {
 function renderPaginatedStaff() {
   const totalRecords = filteredStaffData.length;
   const totalPages = Math.ceil(totalRecords / rowsPerPage) || 1;
+  // e.g. the last row of the last page was deleted
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
 
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = Math.min(startIndex + rowsPerPage, totalRecords);
@@ -673,13 +693,19 @@ async function bulkDeleteStaff() {
 // SORTING
 // ============================================
 function sortStaffTable(column) {
-  if (sortColumn === column) {
+  if (staffSortActive && sortColumn === column) {
     sortDirection = sortDirection === "asc" ? "desc" : "asc";
   } else {
     sortColumn = column;
     sortDirection = "asc";
   }
+  staffSortActive = true;
+  sortFilteredStaff();
+  renderPaginatedStaff();
+}
 
+function sortFilteredStaff() {
+  const column = sortColumn;
   filteredStaffData.sort((a, b) => {
     let aVal = a[column] || "";
     let bVal = b[column] || "";
@@ -690,8 +716,6 @@ function sortStaffTable(column) {
     if (sortDirection === "asc") return aVal > bVal ? 1 : -1;
     return aVal < bVal ? 1 : -1;
   });
-
-  renderPaginatedStaff();
 }
 
 // ============================================
