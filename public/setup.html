@@ -573,7 +573,21 @@
         .sheet-foot-actions { justify-content: flex-end; }
         .sheet-foot-actions .btn { flex: 0 0 auto; min-width: 96px; }
       }
-      .save-indicator { font-size: 12px; color: var(--text-secondary); text-align: center; }
+      /* Indeterminate loading bar shown in a sheet's footer while it saves */
+      .loading-bar {
+        position: relative; height: 4px; border-radius: 4px; overflow: hidden;
+        background: var(--bg-input);
+      }
+      .loading-bar::before {
+        content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, var(--accent-400), var(--accent-600));
+        animation: loadingSlide 1.1s cubic-bezier(.4, 0, .2, 1) infinite;
+      }
+      @keyframes loadingSlide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+      @media (prefers-reduced-motion: reduce) {
+        .loading-bar::before { width: 100%; animation: pulse 1.4s ease-in-out infinite; }
+      }
       .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
       @media (max-width: 399px) { .grid-2.stack-xs { grid-template-columns: 1fr; } }
 
@@ -1003,7 +1017,7 @@
           </label>
         </div>
         <div class="sheet-foot">
-          <div id="eventSaveIndicator" class="save-indicator pulse hidden">Menghubungi pangkalan data...</div>
+          <div id="eventSaveIndicator" class="loading-bar hidden" role="progressbar" aria-label="Menyimpan event"></div>
           <div class="sheet-foot-actions">
             <button onclick="closeEventModal()" class="btn btn-secondary">Batal</button>
             <button onclick="saveEventData()" class="btn btn-primary">Simpan Event</button>
@@ -1074,7 +1088,7 @@
           </div>
         </div>
         <div class="sheet-foot">
-          <div id="staffSaveIndicator" class="save-indicator pulse hidden">Menghubungi pangkalan data...</div>
+          <div id="staffSaveIndicator" class="loading-bar hidden" role="progressbar" aria-label="Menyimpan data staf"></div>
           <div class="sheet-foot-actions">
             <button onclick="closeStaffModal()" class="btn btn-secondary">Batal</button>
             <button onclick="saveStaffData()" class="btn btn-primary">Simpan Data</button>
@@ -1608,8 +1622,7 @@
           'Staf jemputan event itu yang belum daftar akan ditanda TIDAK HADIR (boleh diubah di tab Kehadiran). Teruskan?'
         )) return;
 
-        const indicator = document.getElementById('eventSaveIndicator');
-        if (indicator) indicator.classList.remove('hidden');
+        setSheetSaving('eventSaveIndicator', true);
 
         try {
           const url = mode === 'edit' ? '/api/events/update' : '/api/events/create';
@@ -1636,8 +1649,18 @@
         } catch (e) {
           alert('Gagal simpan event');
         } finally {
-          if (indicator) indicator.classList.add('hidden');
+          setSheetSaving('eventSaveIndicator', false);
         }
+      }
+
+      // Shows a sheet's loading bar and disables its footer buttons while it
+      // saves, so a second tap can't send the save twice.
+      function setSheetSaving(indicatorId, saving) {
+        const bar = document.getElementById(indicatorId);
+        if (!bar) return;
+        bar.classList.toggle('hidden', !saving);
+        const foot = bar.closest('.sheet-foot');
+        if (foot) foot.querySelectorAll('button').forEach(btn => { btn.disabled = saving; });
       }
 
       // After create/activate/closing a form: how many of that event's

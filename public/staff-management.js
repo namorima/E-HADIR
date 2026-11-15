@@ -842,8 +842,7 @@ async function saveStaffData() {
 
   if (status === "JEMPUTAN" && !active && !confirmInviteInactive([name])) return;
 
-  const indicator = document.getElementById("staffSaveIndicator");
-  if (indicator) indicator.classList.remove("hidden");
+  setSheetSaving("staffSaveIndicator", true); // defined in setup.html
 
   try {
     const endpoint = isEdit ? "/api/update-staff" : "/api/add-staff";
@@ -876,7 +875,7 @@ async function saveStaffData() {
   } catch (error) {
     showToast("Gagal simpan data: " + error.message, "error");
   } finally {
-    if (indicator) indicator.classList.add("hidden");
+    setSheetSaving("staffSaveIndicator", false);
   }
 }
 
