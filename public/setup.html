@@ -600,6 +600,10 @@
       .choice .btn { height: 32px; }
       .choice .btn.is-male { border-color: var(--accent-500); color: var(--blue-fg); background: var(--blue-bg); }
       .choice .btn.is-female { border-color: var(--pink-fg); color: var(--pink-fg); background: rgb(236 72 153 / 0.1); }
+      .choice .btn.is-active-yes { border-color: var(--green-solid); color: var(--green-fg); background: var(--green-bg); }
+      .choice .btn.is-active-no { border-color: var(--red-fg); color: var(--red-fg); background: var(--red-bg); }
+      /* Staff marked Tidak Aktif: name shown muted and italic in Pengurusan Staf */
+      .staff-inactive { color: var(--text-tertiary) !important; font-style: italic; font-weight: 500; }
 
       /* Image preview */
       .preview-box {
@@ -1049,6 +1053,15 @@
                 <option value="TIADA">TIADA</option>
               </select>
             </div>
+          </div>
+          <div class="field">
+            <span class="label">Status staf</span>
+            <input type="hidden" id="modalStaffActive" value="1" />
+            <div class="choice">
+              <button type="button" id="staffActiveBtnYes" onclick="setModalStaffActive(true)" class="btn btn-secondary"><i class="ri-checkbox-circle-line"></i>Aktif</button>
+              <button type="button" id="staffActiveBtnNo" onclick="setModalStaffActive(false)" class="btn btn-secondary"><i class="ri-forbid-line"></i>Tidak Aktif</button>
+            </div>
+            <p class="hint">Staf tidak aktif dipaparkan kelabu dan italic dalam senarai staf.</p>
           </div>
           <div class="field">
             <span class="label">Jantina</span>

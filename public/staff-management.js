@@ -370,7 +370,7 @@ function renderStaffTable() {
         <input type="checkbox" onchange="toggleStaffSelection('${staff.id}')" ${isSelected ? "checked" : ""} aria-label="Pilih ${staff.name}" />
       </td>
       <td class="mono cell-muted">${staff.id}</td>
-      <td class="cell-title">${staff.name}</td>
+      <td class="cell-title ${staff.active === false ? "staff-inactive" : ""}"${staff.active === false ? ' title="Staf tidak aktif"' : ""}>${staff.name}</td>
       <td class="cell-muted">${staff.position || "-"}</td>
       <td class="cell-muted">${staff.location || "-"}</td>
       <td class="cell-muted">${staff.unit || "-"}</td>
@@ -412,7 +412,7 @@ function renderStaffCards() {
       <div class="item-head">
         <input type="checkbox" ${isSelected ? "checked" : ""} onclick="event.stopPropagation(); toggleStaffSelection('${staff.id}')" aria-label="Pilih ${staff.name}" />
         <div class="item-main">
-          <h4 class="item-title">${getGenderIcon(staff.jantina)} ${staff.name}</h4>
+          <h4 class="item-title ${staff.active === false ? "staff-inactive" : ""}"${staff.active === false ? ' title="Staf tidak aktif"' : ""}>${getGenderIcon(staff.jantina)} ${staff.name}</h4>
           <div class="item-sub mono">${staff.id}</div>
         </div>
         <div class="item-side">${getStatusBadge(staff.status)}${getInvitationToggle(staff)}</div>
@@ -694,6 +694,7 @@ function showAddStaffModal() {
   if (elInv) elInv.value = "";
   jantinaManuallySet = false;
   setModalJantina("");
+  setModalStaffActive(true);
   if (elModal) elModal.classList.remove("hidden");
 }
 
@@ -722,12 +723,25 @@ function showEditStaffModal(staffId) {
   if (elInv) elInv.value = staff.status || "";
   jantinaManuallySet = true;
   setModalJantina(staff.jantina || "");
+  setModalStaffActive(staff.active !== false);
   if (elModal) elModal.classList.remove("hidden");
 }
 
 function closeStaffModal() {
   const elModal = document.getElementById("staffModal");
   if (elModal) elModal.classList.add("hidden");
+}
+
+// ============================================
+// AKTIF / TIDAK AKTIF TOGGLE (MODAL)
+// ============================================
+function setModalStaffActive(active) {
+  const elHidden = document.getElementById("modalStaffActive");
+  const elYes = document.getElementById("staffActiveBtnYes");
+  const elNo = document.getElementById("staffActiveBtnNo");
+  if (elHidden) elHidden.value = active ? "1" : "0";
+  if (elYes) elYes.classList.toggle("is-active-yes", active);
+  if (elNo) elNo.classList.toggle("is-active-no", !active);
 }
 
 // ============================================
@@ -769,6 +783,7 @@ async function saveStaffData() {
   const unit = document.getElementById("modalStaffUnit").value.trim();
   const status = document.getElementById("modalStaffInvitation").value;
   const jantina = document.getElementById("modalStaffJantina").value;
+  const active = document.getElementById("modalStaffActive").value !== "0";
   const isEdit = document.getElementById("modalStaffId").disabled;
 
   if (!id || !name) {
@@ -792,6 +807,7 @@ async function saveStaffData() {
         unit,
         status,
         jantina,
+        active,
       }),
     });
 
