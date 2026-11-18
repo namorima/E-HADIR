@@ -2121,17 +2121,22 @@
         const pageWidth = doc.internal.pageSize.getWidth();
         const margin = 14;
 
-        // Header: program name, location, date
+        const BLACK = [0, 0, 0];
+        doc.setTextColor(...BLACK);
+
+        // Header: program name, location, date — all the same size; the
+        // title is bold. 12pt ≈ 4.2mm, so 6mm per line.
+        const HEADER_SIZE = 12;
+        const HEADER_LINE = 6;
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(15);
+        doc.setFontSize(HEADER_SIZE);
         const titleLines = doc.splitTextToSize((ev.title || 'SENARAI KEHADIRAN').toUpperCase(), pageWidth - margin * 2);
         doc.text(titleLines, pageWidth / 2, 16, { align: 'center' });
-        let y = 16 + titleLines.length * 6.5;
+        let y = 16 + titleLines.length * HEADER_LINE;
 
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
         doc.text(`Lokasi: ${ev.location || '-'}`, pageWidth / 2, y, { align: 'center' });
-        y += 5.5;
+        y += HEADER_LINE;
         doc.text(`Tarikh: ${ev.date || '-'}`, pageWidth / 2, y, { align: 'center' });
         y += 4;
 
@@ -2145,24 +2150,26 @@
         const tableOptions = {
           theme: 'grid',
           margin: { left: margin, right: margin },
-          styles: { fontSize: 9, cellPadding: 2, valign: 'middle' },
+          // The grid theme defaults to grey text (80) and light grey lines.
+          styles: { fontSize: 9, cellPadding: 2, valign: 'middle', textColor: BLACK, lineColor: BLACK, lineWidth: 0.2 },
           columnStyles: {
             0: { cellWidth: 12, halign: 'center' },
-            1: { cellWidth: 100 },
-            2: { cellWidth: 85 }
+            1: { cellWidth: 85 },   // NAMA
+            2: { cellWidth: 100 }   // JAWATAN (LOKASI takes the rest)
           }
         };
 
         const drawSection = (heading, list, color) => {
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(11);
+          doc.setTextColor(...BLACK);
           doc.text(`${heading} (${list.length})`, margin, y + 6);
           doc.autoTable({
             ...tableOptions,
             startY: y + 8,
             head: [['BIL.', 'NAMA', 'JAWATAN', 'LOKASI']],
             body: list.length ? toRows(list) : [[{ content: 'Tiada', colSpan: 4, styles: { halign: 'center' } }]],
-            headStyles: { fillColor: color, textColor: 255, fontStyle: 'bold' }
+            headStyles: { fillColor: color, textColor: 255, fontStyle: 'bold', lineColor: BLACK }
           });
           y = doc.lastAutoTable.finalY + 4;
         };
@@ -2175,7 +2182,7 @@
             doc.addPage();
             y = 10;
           }
-          drawSection('LAIN-LAIN (TIDAK HADIR)', absent, [107, 114, 128]);
+          drawSection('LAIN-LAIN (TIDAK HADIR)', absent, BLACK);
         }
 
         // Footer: page numbers + generated timestamp
@@ -2186,6 +2193,7 @@
           doc.setPage(i);
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(8);
+          doc.setTextColor(...BLACK);
           doc.text(`Dijana: ${generated}`, margin, pageHeight - 7);
           doc.text(`Muka ${i} / ${pageCount}`, pageWidth - margin, pageHeight - 7, { align: 'right' });
         }
