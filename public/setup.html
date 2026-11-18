@@ -346,6 +346,21 @@
       .toolbar-actions { display: flex; gap: 6px; flex: 1 1 100%; }
       .toolbar-actions > .btn { flex: 1 1 0; min-width: 0; }
       .toolbar-actions > .btn span { overflow: hidden; text-overflow: ellipsis; }
+      .toolbar-actions > .btn.btn-icon { flex: 0 0 auto; }
+
+      /* ===== PDF viewer (pdf.js) ========================================== */
+      .pdf-sheet { height: 92vh; }
+      @media (min-width: 640px) { .sheet.pdf-sheet { max-width: 1000px; height: 90vh; } }
+      .pdf-sheet .sheet-head h3 { min-width: 0; }
+      .pdf-tools { flex: none; display: flex; align-items: center; gap: 4px; }
+      .pdf-zoom { min-width: 44px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+      .pdf-body { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 12px; background: var(--bg-tile); -webkit-overflow-scrolling: touch; }
+      /* max-content + min-width keeps zoomed-in pages scrollable on both sides
+         (a centred flex item wider than its box would be cut off on the left). */
+      .pdf-pages { display: flex; flex-direction: column; align-items: center; gap: 12px; width: max-content; min-width: 100%; }
+      .pdf-pages canvas { display: block; max-width: none; background: #fff; border-radius: 4px; box-shadow: var(--shadow-lg); }
+      .pdf-info { flex: none; padding: 8px 16px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); font-size: 12px; color: var(--text-secondary); text-align: center; }
+      @media (max-width: 639px) { .pdf-tools .label-md { display: none; } .pdf-tools .btn-download { width: 32px; padding: 0; } }
       @media (min-width: 768px) {
         .toolbar > .input-icon { flex: 1 1 260px; }
         .toolbar-actions { flex: 0 0 auto; }
@@ -889,7 +904,8 @@
               <input type="text" id="searchAttendAdmin" oninput="filterAttendanceAdmin()" class="input" placeholder="Cari nama, ID, jawatan..." />
             </div>
             <div class="toolbar-actions">
-              <button onclick="loadAttendanceData()" class="btn btn-secondary"><i class="ri-refresh-line"></i><span>Refresh</span></button>
+              <button onclick="loadAttendanceData()" class="btn btn-secondary btn-icon" title="Refresh" aria-label="Refresh"><i class="ri-refresh-line"></i></button>
+              <button onclick="viewAttendancePdf()" class="btn btn-secondary"><i class="ri-eye-line"></i><span>Lihat PDF</span></button>
               <button onclick="downloadAttendancePdf()" class="btn btn-primary"><i class="ri-file-pdf-2-line"></i><span>Muat Turun PDF</span></button>
             </div>
           </div>
@@ -1139,6 +1155,27 @@
             <button id="attendSaveBtn" onclick="saveAttendData()" class="btn btn-primary">Simpan</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ============ Modal: PDF viewer (pdf.js) ============ -->
+    <div id="pdfViewerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pdfViewerTitle">
+      <div class="sheet pdf-sheet">
+        <div class="sheet-head">
+          <h3 id="pdfViewerTitle" class="truncate">Senarai Kehadiran</h3>
+          <div class="pdf-tools">
+            <button onclick="zoomPdf(-1)" class="btn btn-plain btn-icon" title="Zum keluar" aria-label="Zum keluar"><i class="ri-zoom-out-line"></i></button>
+            <span id="pdfZoomLabel" class="pdf-zoom">100%</span>
+            <button onclick="zoomPdf(1)" class="btn btn-plain btn-icon" title="Zum masuk" aria-label="Zum masuk"><i class="ri-zoom-in-line"></i></button>
+            <button onclick="downloadViewedPdf()" class="btn btn-secondary btn-download" title="Muat turun PDF" aria-label="Muat turun PDF"><i class="ri-download-line"></i><span class="label-md">Muat turun</span></button>
+            <button onclick="closePdfViewer()" class="btn btn-plain btn-icon" title="Tutup" aria-label="Tutup"><i class="ri-close-line"></i></button>
+          </div>
+        </div>
+        <div id="pdfViewerBody" class="pdf-body">
+          <div id="pdfViewerStatus" class="state"><i class="ri-loader-4-line spin"></i><p>Menyediakan PDF...</p></div>
+          <div id="pdfPages" class="pdf-pages"></div>
+        </div>
+        <div id="pdfPageInfo" class="pdf-info"></div>
       </div>
     </div>
 
@@ -1499,7 +1536,7 @@
               <td class="right">
                 <div class="row-actions">
                   <button onclick="openEventAttendance('${ev.id}')" class="btn btn-plain btn-xs btn-icon" title="Edit kehadiran" aria-label="Edit kehadiran"><i class="ri-clipboard-line"></i></button>
-                  <button onclick="downloadEventPdf('${ev.id}', this)" class="btn btn-plain btn-xs btn-icon" title="Muat turun PDF senarai nama" aria-label="Muat turun PDF senarai nama"><i class="ri-file-pdf-2-line"></i></button>
+                  <button onclick="viewEventPdf('${ev.id}', this)" class="btn btn-plain btn-xs btn-icon" title="Lihat PDF senarai nama" aria-label="Lihat PDF senarai nama"><i class="ri-file-pdf-2-line"></i></button>
                   <button onclick="showEditEventModal('${ev.id}')" class="btn btn-plain btn-xs btn-icon" title="Edit" aria-label="Edit"><i class="ri-pencil-line"></i></button>
                   ${activateBtn}
                 </div>
@@ -1522,7 +1559,7 @@
               </div>
               <div class="item-actions">
                 <button onclick="openEventAttendance('${ev.id}')" class="btn btn-secondary btn-xs"><i class="ri-clipboard-line"></i>Kehadiran</button>
-                <button onclick="downloadEventPdf('${ev.id}', this)" class="btn btn-secondary btn-xs"><i class="ri-file-pdf-2-line"></i>PDF</button>
+                <button onclick="viewEventPdf('${ev.id}', this)" class="btn btn-secondary btn-xs"><i class="ri-file-pdf-2-line"></i>PDF</button>
                 <button onclick="showEditEventModal('${ev.id}')" class="btn btn-secondary btn-xs"><i class="ri-pencil-line"></i>Edit</button>
                 ${!isActive ? `<button onclick="activateEvent('${ev.id}')" class="btn btn-ghost btn-xs"><i class="ri-checkbox-circle-line"></i>Jadikan aktif</button>` : ''}
               </div>
@@ -2005,16 +2042,31 @@
       }
 
       // Kehadiran tab: PDF for the event picked in its selector.
-      function downloadAttendancePdf() {
+      function selectedAttendEvent() {
         const select = document.getElementById('attendEventFilter');
         const eventId = (select && select.value) || activeEventId;
-        const ev = allEvents.find(e => e.id == eventId) || {};
-        buildAttendancePdf(ev, allAttendAdmin);
+        return allEvents.find(e => e.id == eventId) || {};
+      }
+
+      function downloadAttendancePdf() {
+        const pdf = buildAttendancePdf(selectedAttendEvent(), allAttendAdmin);
+        if (pdf) pdf.doc.save(pdf.filename);
+      }
+
+      function viewAttendancePdf() {
+        const ev = selectedAttendEvent();
+        const pdf = buildAttendancePdf(ev, allAttendAdmin);
+        if (pdf) openPdfViewer(pdf, ev.title);
+      }
+
+      // Event list: open the viewer (which has Muat turun) for one event.
+      function viewEventPdf(eventId, btn) {
+        return downloadEventPdf(eventId, btn, 'view');
       }
 
       // Event list: PDF for one event, fetched on demand so it doesn't depend
-      // on what the Kehadiran tab currently shows.
-      async function downloadEventPdf(eventId, btn) {
+      // on what the Kehadiran tab currently shows. mode: 'download' | 'view'.
+      async function downloadEventPdf(eventId, btn, mode = 'download') {
         if (!window.jspdf) {
           alert('Pustaka PDF gagal dimuatkan. Semak sambungan internet dan cuba lagi.');
           return;
@@ -2035,7 +2087,9 @@
           const staffData = await staffRes.json();
           const attendData = await attendRes.json();
           if (!staffData.success || !attendData.success) throw new Error('API');
-          buildAttendancePdf(ev, mergeAttendance(staffData.staff || [], attendData.attendance || []));
+          const pdf = buildAttendancePdf(ev, mergeAttendance(staffData.staff || [], attendData.attendance || []));
+          if (pdf && mode === 'view') openPdfViewer(pdf, ev.title);
+          else if (pdf) pdf.doc.save(pdf.filename);
         } catch (e) {
           console.error('Error building event PDF:', e);
           alert('Gagal memuatkan data kehadiran untuk PDF.');
@@ -2047,17 +2101,19 @@
       // A4 landscape PDF: present staff first, then invited-but-absent staff in
       // a separate "LAIN-LAIN" table. `list` comes from mergeAttendance(), so
       // both tables keep its ranking order (position ranking, then name).
+      // Returns { doc, filename } (a jsPDF document), or null if there's
+      // nothing to show.
       function buildAttendancePdf(ev, list) {
         if (!window.jspdf) {
           alert('Pustaka PDF gagal dimuatkan. Semak sambungan internet dan cuba lagi.');
-          return;
+          return null;
         }
 
         const present = list.filter(a => a.isPresent);
         const absent = list.filter(a => !a.isPresent);
         if (present.length === 0 && absent.length === 0) {
-          alert('Tiada data kehadiran untuk dimuat turun.');
-          return;
+          alert('Tiada data kehadiran untuk dipaparkan.');
+          return null;
         }
 
         const { jsPDF } = window.jspdf;
@@ -2135,7 +2191,132 @@
         }
 
         const safeName = (ev.title || 'kehadiran').replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
-        doc.save(`Kehadiran_${safeName}.pdf`);
+        return { doc, filename: `Kehadiran_${safeName}.pdf` };
+      }
+
+      // --- PDF viewer (Mozilla pdf.js) ---
+      // pdf.js is only fetched the first time the viewer opens. The legacy
+      // build supports older iOS Safari; its worker is loaded from the CDN
+      // too (pdf.js wraps a cross-origin worker URL itself).
+      const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/legacy/build/';
+      const PDF_ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
+      let pdfjsLoading = null;
+      const pdfViewer = { task: null, pdf: null, file: null, zoomIndex: 2, renderToken: 0 };
+
+      function loadPdfJs() {
+        if (!pdfjsLoading) {
+          pdfjsLoading = import(PDFJS_BASE + 'pdf.min.mjs')
+            .then(lib => {
+              lib.GlobalWorkerOptions.workerSrc = PDFJS_BASE + 'pdf.worker.min.mjs';
+              return lib;
+            })
+            .catch(err => { pdfjsLoading = null; throw err; });
+        }
+        return pdfjsLoading;
+      }
+
+      function setPdfStatus(html) {
+        const el = document.getElementById('pdfViewerStatus');
+        el.classList.toggle('hidden', !html);
+        if (html) el.innerHTML = html;
+      }
+
+      // file: { doc, filename } from buildAttendancePdf()
+      async function openPdfViewer(file, title) {
+        closePdfViewer();
+        pdfViewer.file = file;
+        pdfViewer.zoomIndex = 2;
+        document.getElementById('pdfViewerTitle').textContent = title || 'Senarai Kehadiran';
+        document.getElementById('pdfPages').innerHTML = '';
+        document.getElementById('pdfPageInfo').textContent = '';
+        document.getElementById('pdfZoomLabel').textContent = '100%';
+        setPdfStatus('<i class="ri-loader-4-line spin"></i><p>Menyediakan PDF...</p>');
+        document.getElementById('pdfViewerModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        try {
+          const lib = await loadPdfJs();
+          if (pdfViewer.file !== file) return; // closed while pdf.js loaded
+          const data = new Uint8Array(file.doc.output('arraybuffer'));
+          const task = lib.getDocument({ data });
+          pdfViewer.task = task;
+          const pdf = await task.promise;
+          if (pdfViewer.task !== task) return; // closed meanwhile (task already destroyed)
+          pdfViewer.pdf = pdf;
+          document.getElementById('pdfPageInfo').textContent = `${pdf.numPages} muka surat`;
+          await renderPdfPages();
+        } catch (err) {
+          console.error('PDF viewer error:', err);
+          setPdfStatus('<i class="ri-error-warning-line"></i><p class="state-title">PDF tidak dapat dipaparkan</p><p>Semak sambungan internet, atau tekan Muat turun.</p>');
+        }
+      }
+
+      // Renders every page as a canvas, fitted to the viewer width × zoom,
+      // at device-pixel resolution so text stays sharp.
+      async function renderPdfPages() {
+        const pdf = pdfViewer.pdf;
+        if (!pdf) return;
+        const token = ++pdfViewer.renderToken;
+        const body = document.getElementById('pdfViewerBody');
+        const pagesEl = document.getElementById('pdfPages');
+        const zoom = PDF_ZOOMS[pdfViewer.zoomIndex];
+        const fitWidth = Math.max(200, body.clientWidth - 24);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const canvases = [];
+
+        for (let n = 1; n <= pdf.numPages; n++) {
+          const page = await pdf.getPage(n);
+          if (token !== pdfViewer.renderToken) return; // superseded by a newer render
+          const base = page.getViewport({ scale: 1 });
+          const scale = (fitWidth / base.width) * zoom;
+          const viewport = page.getViewport({ scale: scale * dpr });
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.floor(viewport.width);
+          canvas.height = Math.floor(viewport.height);
+          canvas.style.width = `${Math.floor(viewport.width / dpr)}px`;
+          canvas.style.height = `${Math.floor(viewport.height / dpr)}px`;
+          canvas.setAttribute('aria-label', `Muka surat ${n}`);
+          await page.render({ canvas, viewport }).promise;
+          if (token !== pdfViewer.renderToken) return;
+          canvases.push(canvas);
+        }
+        pagesEl.replaceChildren(...canvases);
+        setPdfStatus('');
+      }
+
+      // Re-fit the pages when the viewer's width changes (rotation, resize).
+      let pdfResizeTimer = null;
+      window.addEventListener('resize', () => {
+        if (!pdfViewer.pdf) return;
+        clearTimeout(pdfResizeTimer);
+        pdfResizeTimer = setTimeout(renderPdfPages, 200);
+      });
+
+      function zoomPdf(direction) {
+        const next = Math.min(PDF_ZOOMS.length - 1, Math.max(0, pdfViewer.zoomIndex + direction));
+        if (next === pdfViewer.zoomIndex) return;
+        pdfViewer.zoomIndex = next;
+        document.getElementById('pdfZoomLabel').textContent = `${Math.round(PDF_ZOOMS[next] * 100)}%`;
+        renderPdfPages();
+      }
+
+      function downloadViewedPdf() {
+        if (pdfViewer.file) pdfViewer.file.doc.save(pdfViewer.file.filename);
+      }
+
+      function closePdfViewer() {
+        const modal = document.getElementById('pdfViewerModal');
+        if (!modal || modal.classList.contains('hidden')) return;
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        pdfViewer.renderToken++;
+        // pdf.js v6: documents are released through their loading task.
+        const task = pdfViewer.task;
+        pdfViewer.task = null;
+        pdfViewer.pdf = null;
+        pdfViewer.file = null;
+        document.getElementById('pdfPages').innerHTML = '';
+        if (task) task.destroy().catch(err => console.warn('pdf.js cleanup:', err));
       }
 
       function showEditAttendModal(attendId, staffId, name, status) {
@@ -2209,6 +2390,7 @@
         if (e.key !== 'Escape') return;
         ['eventModal', 'staffModal', 'attendModal'].forEach(id => document.getElementById(id).classList.add('hidden'));
         closeImagePreview();
+        closePdfViewer();
       });
     </script>
   </body>
