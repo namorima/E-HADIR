@@ -2124,21 +2124,22 @@
         const BLACK = [0, 0, 0];
         doc.setTextColor(...BLACK);
 
-        // Header: program name, location, date — all the same size; the
-        // title is bold. 12pt ≈ 4.2mm, so 6mm per line.
+        // Header: program name, location, date — same size, all bold, values
+        // only (no "Lokasi:" / "Tarikh:" labels; an empty one is skipped).
+        // 12pt ≈ 4.2mm, so 6mm per line; long lines wrap.
         const HEADER_SIZE = 12;
         const HEADER_LINE = 6;
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(HEADER_SIZE);
-        const titleLines = doc.splitTextToSize((ev.title || 'SENARAI KEHADIRAN').toUpperCase(), pageWidth - margin * 2);
-        doc.text(titleLines, pageWidth / 2, 16, { align: 'center' });
-        let y = 16 + titleLines.length * HEADER_LINE;
-
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Lokasi: ${ev.location || '-'}`, pageWidth / 2, y, { align: 'center' });
-        y += HEADER_LINE;
-        doc.text(`Tarikh: ${ev.date || '-'}`, pageWidth / 2, y, { align: 'center' });
-        y += 4;
+        const headerLines = [
+          (ev.title || 'SENARAI KEHADIRAN').toUpperCase(),
+          ev.location,
+          ev.date,
+        ]
+          .filter(text => text && String(text).trim())
+          .flatMap(text => doc.splitTextToSize(String(text).trim(), pageWidth - margin * 2));
+        doc.text(headerLines, pageWidth / 2, 16, { align: 'center', lineHeightFactor: HEADER_LINE / (HEADER_SIZE * 25.4 / 72) });
+        let y = 16 + (headerLines.length - 1) * HEADER_LINE + 4;
 
         const toRows = list => list.map((a, i) => [
           i + 1,
